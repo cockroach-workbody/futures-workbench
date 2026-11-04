@@ -1,0 +1,118 @@
+=== START 2026-10-31 20:22:21 (pass-based, MAX_ROUNDS=5) ===
+existing: {"SA": 9, "M": 9, "C": 5, "SR": 0, "CF": 0, "A": 0}
+=== round 1: 43 pending attempts ===
+  [retryable] SA 20261008 attempt=1 reason=429
+GAP SA 20260925 (empty result, permanent)
+  [retryable] M 20261014 attempt=1 reason=429
+GAP M 20260925 (empty result, permanent)
+  [retryable] C 20261028 attempt=1 reason=429
+  [retryable] C 20261016 attempt=1 reason=429
+  [retryable] C 20261012 attempt=1 reason=429
+  [retryable] C 20261008 attempt=1 reason=429
+OK C 20260930 net=564287 long=1355462 short=791175
+GAP C 20260925 (empty result, permanent)
+OK SR 20261030 net=-101354 long=617537 short=718891
+OK SR 20261028 net=-102016 long=598580 short=700596
+OK SR 20261026 net=-104587 long=581533 short=686120
+OK SR 20261022 net=-101976 long=566354 short=668330
+OK SR 20261020 net=-90873 long=562884 short=653757
+  [retryable] SR 20261016 attempt=1 reason=429
+OK SR 20261014 net=-47624 long=595239 short=642863
+  [retryable] SR 20261012 attempt=1 reason=429
+OK SR 20261008 net=-11937 long=653333 short=665270
+  [retryable] SR 20260930 attempt=1 reason=429
+GAP SR 20260925 (empty result, permanent)
+  [retryable] CF 20261030 attempt=1 reason=429
+OK CF 20261028 net=41174 long=769239 short=728065
+OK CF 20261026 net=22891 long=725348 short=702457
+OK CF 20261022 net=6126 long=682560 short=676434
+OK CF 20261020 net=-8629 long=691128 short=699757
+  [retryable] CF 20261016 attempt=1 reason=429
+OK CF 20261014 net=-12282 long=698384 short=710666
+OK CF 20261012 net=29720 long=746873 short=717153
+  [retryable] CF 20261008 attempt=1 reason=429
+OK CF 20260930 net=85796 long=790934 short=705138
+GAP CF 20260925 (empty result, permanent)
+OK A 20261030 net=241808 long=263569 short=21761
+  [retryable] A 20261028 attempt=1 reason=429
+OK A 20261026 net=220415 long=256368 short=35953
+OK A 20261022 net=230436 long=312474 short=82038
+OK A 20261020 net=211735 long=313520 short=101785
+OK A 20261016 net=201899 long=326546 short=124647
+OK A 20261014 net=169034 long=315609 short=146575
+  [retryable] A 20261012 attempt=1 reason=429
+OK A 20261008 net=104576 long=315479 short=210903
+OK A 20260930 net=106323 long=320812 short=214489
+GAP A 20260925 (empty result, permanent)
+round 1 end: collected=46/66 gaps=6
+  sleep 90s before next round
+=== round 2: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=2 reason=429
+  [retryable] M 20261014 attempt=2 reason=429
+  [retryable] C 20261028 attempt=2 reason=429
+  [retryable] C 20261016 attempt=2 reason=429
+  [retryable] C 20261012 attempt=2 reason=429
+  [retryable] C 20261008 attempt=2 reason=429
+  [retryable] SR 20261016 attempt=2 reason=429
+  [retryable] SR 20261012 attempt=2 reason=429
+  [retryable] SR 20260930 attempt=2 reason=429
+  [retryable] CF 20261030 attempt=2 reason=429
+  [retryable] CF 20261016 attempt=2 reason=429
+  [retryable] CF 20261008 attempt=2 reason=429
+  [retryable] A 20261028 attempt=2 reason=429
+  [retryable] A 20261012 attempt=2 reason=429
+round 2 end: collected=46/66 gaps=6
+  sleep 90s before next round
+=== round 3: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=3 reason=429
+  [retryable] M 20261014 attempt=3 reason=429
+  [retryable] C 20261028 attempt=3 reason=429
+  [retryable] C 20261016 attempt=3 reason=429
+  [retryable] C 20261012 attempt=3 reason=429
+  [retryable] C 20261008 attempt=3 reason=429
+  [retryable] SR 20261016 attempt=3 reason=429
+  [retryable] SR 20261012 attempt=3 reason=429
+  [retryable] SR 20260930 attempt=3 reason=429
+  [retryable] CF 20261030 attempt=3 reason=429
+  [retryable] CF 20261016 attempt=3 reason=429
+  [retryable] CF 20261008 attempt=3 reason=429
+  [retryable] A 20261028 attempt=3 reason=429
+  [retryable] A 20261012 attempt=3 reason=429
+round 3 end: collected=46/66 gaps=6
+  sleep 90s before next round
+=== round 4: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=4 reason=429
+  [retryable] M 20261014 attempt=4 reason=429
+  [retryable] C 20261028 attempt=4 reason=429
+  [retryable] C 20261016 attempt=4 reason=429
+  [retryable] C 20261012 attempt=4 reason=429
+  [retryable] C 20261008 attempt=4 reason=429
+  [retryable] SR 20261016 attempt=4 reason=429
+  [retryable] SR 20261012 attempt=4 reason=429
+  [retryable] SR 20260930 attempt=4 reason=429
+  [retryable] CF 20261030 attempt=4 reason=429
+  [retryable] CF 20261016 attempt=4 reason=429
+  [retryable] CF 20261008 attempt=4 reason=429
+  [retryable] A 20261028 attempt=4 reason=429
+  [retryable] A 20261012 attempt=4 reason=429
+round 4 end: collected=46/66 gaps=6
+  sleep 90s before next round
+=== round 5: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=5 reason=429
+  [retryable] M 20261014 attempt=5 reason=429
+  [retryable] C 20261028 attempt=5 reason=429
+  [retryable] C 20261016 attempt=5 reason=429
+  [retryable] C 20261012 attempt=5 reason=429
+  [retryable] C 20261008 attempt=5 reason=429
+  [retryable] SR 20261016 attempt=5 reason=429
+  [retryable] SR 20261012 attempt=5 reason=429
+  [retryable] SR 20260930 attempt=5 reason=429
+  [retryable] CF 20261030 attempt=5 reason=429
+  [retryable] CF 20261016 attempt=5 reason=429
+  [retryable] CF 20261008 attempt=5 reason=429
+  [retryable] A 20261028 attempt=5 reason=429
+  [retryable] A 20261012 attempt=5 reason=429
+round 5 end: collected=46/66 gaps=6
+=== FINISH 2026-10-31 20:41:58 ===
+SUMMARY: {"SA": {"success": 9, "total": 11, "perm_gap": ["20260925"], "rate_fail": ["20261008"]}, "M": {"success": 9, "total": 11, "perm_gap": ["20260925"], "rate_fail": ["20261014"]}, "C": {"success": 6, "total": 11, "perm_gap": ["20260925"], "rate_fail": ["20261028", "20261016", "20261012", "20261008"]}, "SR": {"success": 7, "total": 11, "perm_gap": ["20260925"], "rate_fail": ["20261016", "20261012", "20260930"]}, "CF": {"success": 7, "total": 11, "perm_gap": ["20260925"], "rate_fail": ["20261030", "20261016", "20261008"]}, "A": {"success": 8, "total": 11, "perm_gap": ["20260925"], "rate_fail": ["20261028", "20261012"]}}
+failures(final): [["SA", "20261008"], ["SA", "20260925"], ["M", "20261014"], ["M", "20260925"], ["C", "20261028"], ["C", "20261016"], ["C", "20261012"], ["C", "20261008"], ["C", "20260925"], ["SR", "20261016"], ["SR", "20261012"], ["SR", "20260930"], ["SR", "20260925"], ["CF", "20261030"], ["CF", "20261016"], ["CF", "20261008"], ["CF", "20260925"], ["A", "20261028"], ["A", "20261012"], ["A", "20260925"]]

@@ -1,0 +1,148 @@
+=== START 2026-10-31 21:52:02 ===
+SKIP I 20261030 already present
+SKIP I 20261028 already present
+SKIP I 20261026 already present
+SKIP I 20261022 already present
+SKIP I 20261020 already present
+SKIP I 20261016 already present
+SKIP I 20261014 already present
+SKIP I 20261012 already present
+SKIP I 20261008 already present
+SKIP I 20260930 already present
+DONE I collected=10/10 failed=[]
+SKIP J 20261030 already present
+SKIP J 20261028 already present
+SKIP J 20261026 already present
+SKIP J 20261022 already present
+SKIP J 20261020 already present
+SKIP J 20261016 already present
+SKIP J 20261014 already present
+SKIP J 20261012 already present
+SKIP J 20261008 already present
+SKIP J 20260930 already present
+DONE J collected=10/10 failed=[]
+SKIP JM 20261030 already present
+SKIP JM 20261028 already present
+SKIP JM 20261026 already present
+SKIP JM 20261022 already present
+SKIP JM 20261020 already present
+SKIP JM 20261016 already present
+SKIP JM 20261014 already present
+SKIP JM 20261012 already present
+SKIP JM 20261008 already present
+SKIP JM 20260930 already present
+DONE JM collected=10/10 failed=[]
+SKIP M 20261030 already present
+SKIP M 20261028 already present
+SKIP M 20261026 already present
+SKIP M 20261022 already present
+SKIP M 20261020 already present
+SKIP M 20261016 already present
+OK M 20261014 net=271547 long=637185 short=365638 long_chg=-18603 short_chg=-18549
+SKIP M 20261012 already present
+SKIP M 20261008 already present
+SKIP M 20260930 already present
+DONE M collected=10/10 failed=[]
+SKIP C 20261030 already present
+OK C 20261028 net=908103 long=1009060 short=100957 long_chg=-1884 short_chg=-12370
+SKIP C 20261026 already present
+SKIP C 20261022 already present
+SKIP C 20261020 already present
+OK C 20261016 net=774554 long=1190759 short=416205 long_chg=-10205 short_chg=-32187
+SKIP C 20261014 already present
+OK C 20261012 net=631932 long=1300830 short=668898 long_chg=-36451 short_chg=-55683
+OK C 20261008 net=571718 long=1342962 short=771244 long_chg=-2141 short_chg=-17391
+SKIP C 20260930 already present
+DONE C collected=10/10 failed=[]
+SKIP A 20261030 already present
+OK A 20261028 net=225793 long=252544 short=26751 long_chg=-3823 short_chg=-3317
+SKIP A 20261026 already present
+SKIP A 20261022 already present
+SKIP A 20261020 already present
+SKIP A 20261016 already present
+SKIP A 20261014 already present
+OK A 20261012 net=134607 long=327014 short=192407 long_chg=6474 short_chg=-12057
+SKIP A 20261008 already present
+SKIP A 20260930 already present
+DONE A collected=10/10 failed=[]
+SKIP Y 20261030 already present
+SKIP Y 20261028 already present
+SKIP Y 20261026 already present
+SKIP Y 20261022 already present
+SKIP Y 20261020 already present
+SKIP Y 20261016 already present
+SKIP Y 20261014 already present
+SKIP Y 20261012 already present
+SKIP Y 20261008 already present
+SKIP Y 20260930 already present
+DONE Y collected=10/10 failed=[]
+SKIP P 20261030 already present
+SKIP P 20261028 already present
+SKIP P 20261026 already present
+SKIP P 20261022 already present
+SKIP P 20261020 already present
+SKIP P 20261016 already present
+SKIP P 20261014 already present
+SKIP P 20261012 already present
+OK P 20261008 net=39199 long=81701 short=42502 long_chg=-724 short_chg=-964
+OK P 20260930 net=38849 long=82513 short=43664 long_chg=-1127 short_chg=-979
+DONE P collected=10/10 failed=[]
+OK JD 20261030 net=70281 long=181843 short=111562 long_chg=-13953 short_chg=-17130
+OK JD 20261028 net=70834 long=213663 short=142829 long_chg=2052 short_chg=-6131
+OK JD 20261026 net=62699 long=219781 short=157082 long_chg=2998 short_chg=2775
+OK JD 20261022 net=168145 long=182325 short=14180 long_chg=1894 short_chg=147
+OK JD 20261020 net=168792 long=185031 short=16239 long_chg=-11413 short_chg=-5403
+OK JD 20261016 net=169477 long=200868 short=31391 long_chg=-17921 short_chg=-5866
+OK JD 20261014 net=182891 long=224808 short=41917 long_chg=-8342 short_chg=-8038
+OK JD 20261012 net=188163 long=246296 short=58133 long_chg=11955 short_chg=-10874
+OK JD 20261008 net=157370 long=232147 short=74777 long_chg=-2284 short_chg=-13322
+OK JD 20260930 net=146580 long=235040 short=88460 long_chg=-12924 short_chg=-24755
+DONE JD collected=10/10 failed=[]
+OK L 20261030 net=321895 long=427083 short=105188 long_chg=-2586 short_chg=-828
+OK L 20261028 net=323777 long=431367 short=107590 long_chg=2222 short_chg=-197
+OK L 20261026 net=318407 long=425702 short=107295 long_chg=1263 short_chg=669
+OK L 20261022 net=108170 long=166846 short=58676 long_chg=-4616 short_chg=-3660
+OK L 20261020 net=109240 long=177516 short=68276 long_chg=-2986 short_chg=-3859
+OK L 20261016 net=119592 long=206455 short=86863 long_chg=-1336 short_chg=-2848
+OK L 20261014 net=119138 long=215179 short=96041 long_chg=-5014 short_chg=-4365
+OK L 20261012 net=119181 long=222114 short=102933 long_chg=-2725 short_chg=-6282
+OK L 20261008 net=113932 long=228867 short=114935 long_chg=-4298 short_chg=-6130
+OK L 20260930 net=112276 long=233441 short=121165 long_chg=-1469 short_chg=-3697
+DONE L collected=10/10 failed=[]
+OK V 20261030 net=167883 long=190640 short=22757 long_chg=-206 short_chg=-1428
+OK V 20261028 net=164295 long=190128 short=25833 long_chg=-1404 short_chg=-788
+OK V 20261026 net=162645 long=195017 short=32372 long_chg=-20398 short_chg=-24302
+OK V 20261022 net=150707 long=293908 short=143201 long_chg=-3590 short_chg=-3497
+OK V 20261020 net=34472 long=168312 short=133840 long_chg=-1240 short_chg=-3006
+OK V 20261016 net=11698 long=169810 short=158112 long_chg=-403 short_chg=208
+OK V 20261014 net=51173 long=173125 short=121952 long_chg=-3751 short_chg=-2768
+OK V 20261012 net=117346 long=198861 short=81515 long_chg=-1544 short_chg=-1295
+OK V 20261008 net=50872 long=201905 short=151033 long_chg=-3501 short_chg=-4603
+OK V 20260930 net=185839 long=206727 short=20888 long_chg=-1811 short_chg=-847
+DONE V collected=10/10 failed=[]
+SKIP PP 20261030 already present
+SKIP PP 20261028 already present
+OK PP 20261026 net=113474 long=137121 short=23647 long_chg=-10390 short_chg=-8137
+OK PP 20261022 net=120313 long=196776 short=76463 long_chg=-5054 short_chg=-5195
+OK PP 20261020 net=126292 long=212825 short=86533 long_chg=-4643 short_chg=-5888
+OK PP 20261016 net=120190 long=221406 short=101216 long_chg=2432 short_chg=-3281
+OK PP 20261014 net=112676 long=227428 short=114752 long_chg=-26 short_chg=-5085
+OK PP 20261012 net=105584 long=231540 short=125956 long_chg=5087 short_chg=-1089
+OK PP 20261008 net=96442 long=223662 short=127220 long_chg=-258 short_chg=-66
+OK PP 20260930 net=97176 long=224462 short=127286 long_chg=1478 short_chg=1116
+DONE PP collected=10/10 failed=[]
+OK LH 20261030 net=78402 long=180223 short=101821 long_chg=1367 short_chg=2114
+OK LH 20261028 net=76492 long=179215 short=102723 long_chg=-10723 short_chg=-10041
+OK LH 20261026 net=106202 long=122562 short=16360 long_chg=-482 short_chg=-4651
+OK LH 20261022 net=110456 long=136136 short=25680 long_chg=-1860 short_chg=-4523
+OK LH 20261020 net=109782 long=145947 short=36165 long_chg=2482 short_chg=-7158
+OK LH 20261016 net=100434 long=146870 short=46436 long_chg=3837 short_chg=-2017
+OK LH 20261014 net=95342 long=152467 short=57125 long_chg=-1339 short_chg=-7731
+OK LH 20261012 net=86362 long=156188 short=69826 long_chg=6465 short_chg=-1681
+OK LH 20261008 net=73356 long=148632 short=75276 long_chg=1271 short_chg=-5910
+OK LH 20260930 net=65226 long=148089 short=82863 long_chg=-15006 short_chg=-16294
+DONE LH collected=10/10 failed=[]
+=== FINISH 2026-10-31 21:59:53 ===
+rate_limited_encountered: False
+failures: []
+SUMMARY: {"I": {"collected": 10, "failed": []}, "J": {"collected": 10, "failed": []}, "JM": {"collected": 10, "failed": []}, "M": {"collected": 10, "failed": []}, "C": {"collected": 10, "failed": []}, "A": {"collected": 10, "failed": []}, "Y": {"collected": 10, "failed": []}, "P": {"collected": 10, "failed": []}, "JD": {"collected": 10, "failed": []}, "L": {"collected": 10, "failed": []}, "V": {"collected": 10, "failed": []}, "PP": {"collected": 10, "failed": []}, "LH": {"collected": 10, "failed": []}}

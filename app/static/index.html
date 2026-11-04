@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>futures-workbench工作台</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="/static/vendor/echarts.min.js"></script>
+  <style>
+    .refresh-status{font-size:12px;color:#0a7d4d;background:#f3faf6;border-bottom:1px solid #d9efe3;
+      padding:5px 14px;white-space:nowrap;overflow-x:auto;}
+    .refresh-status.warn{color:#b06a00;background:#fff7ea;border-bottom-color:#f0dcb4;}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">期</span>
+      <div>
+        <div class="title">futures-workbench工作台</div>
+        <div class="subtitle">基本面 · 技术面 · 观点与情绪 一体化</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="data-date" id="dataDate">数据日期 —</span>
+      <button class="btn" id="btnRefresh">重新计算 / 刷新</button>
+      <button class="btn ghost" id="btnWind">Wind 配置</button>
+    </div>
+  </header>
+
+  <div id="refreshStatus" class="refresh-status">状态：加载中…</div>
+
+  <nav class="catnav" id="catnav"></nav>
+
+  <section class="product-bar">
+    <label>品种</label>
+    <select id="productSelect"></select>
+    <span class="product-note" id="productNote"></span>
+    <span class="spacer"></span>
+    <span class="hint">提示：涨=红 / 跌=绿（国内习惯）</span>
+  </section>
+
+  <main id="dashboard" class="dashboard">
+    <div class="loading" id="loading">加载中…</div>
+  </main>
+
+  <footer class="foot">
+    数据来源：NeoData 连接器（行情/前20会员持仓/仓单）、chanlun 缠论引擎、Wind Alice 三技能（按需）、IMA 知识库、东证期货知识库。
+    本工作台仅作研究参考，不构成任何投资建议。
+  </footer>
+
+  <script src="/static/charts.js"></script>
+  <script src="/static/app.js"></script>
+  <script>
+  /* 顶部刷新状态条：轮询 /api/refresh_status，任何设备（含手机浏览器）都能直接看到最后刷新情况，无需 IMA / 桌面端 */
+  (function () {
+    var el = document.getElementById('refreshStatus');
+    function fmt(s){ return s || '—'; }
+    function render(s){
+      if(!s || s.available === false){ el.className='refresh-status warn'; el.textContent='📡 尚未获取到刷新状态（任务可能在运行中或尚未部署）'; return; }
+      var parts = [];
+      parts.push('🕒 最后刷新：' + fmt(s.finished_at || s.generated_at));
+      if(s.snap_date) parts.push('📅 数据日期：' + s.snap_date);
+      if(s.kline_ok!=null) parts.push('K线：' + s.kline_ok + (s.kline_fail ? (' / 失败'+s.kline_fail) : ''));
+      if(s.build_all_ok!=null) parts.push('构建：' + (s.build_all_ok ? '✓' : '✗'));
+      if(s.mode) parts.push('任务：' + s.mode);
+      if(s.deploy){ var ok = (String(s.deploy).indexOf('成功')>=0) || s.deploy_ok; parts.push('部署：' + (ok ? '✓' : '…')); }
+      el.className='refresh-status';
+      el.textContent = parts.join('　|　');
+    }
+    function poll(){
+      try {
+        fetch('/api/refresh_status')
+          .then(function(r){ return r.json(); })
+          .then(render)
+          .catch(function(){ el.className='refresh-status warn'; el.textContent='📡 状态获取失败'; });
+      } catch(e){}
+    }
+    poll(); setInterval(poll, 60000);
+  })();
+  </script>
+</body>
+</html>

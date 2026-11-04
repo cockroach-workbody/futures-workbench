@@ -1,0 +1,102 @@
+{
+"code": "BU",
+"variety": "BU.SHF",
+"data": {
+"20260930": {
+"date": "20260930",
+"net": 34918,
+"long_total": 350433,
+"short_total": 315515,
+"long_chg": -44893,
+"short_chg": -31680
+},
+"20261008": {
+"date": "20261008",
+"net": 36311,
+"long_total": 368684,
+"short_total": 332373,
+"long_chg": 23401,
+"short_chg": 22363
+},
+"20261012": {
+"date": "20261012",
+"net": 24013,
+"long_total": 343280,
+"short_total": 319267,
+"long_chg": 3957,
+"short_chg": -5657
+},
+"20261014": {
+"date": "20261014",
+"net": 19150,
+"long_total": 333967,
+"short_total": 314817,
+"long_chg": 754,
+"short_chg": 6002
+},
+"20261016": {
+"date": "20261016",
+"net": 21215,
+"long_total": 361360,
+"short_total": 340145,
+"long_chg": -2545,
+"short_chg": -587
+},
+"20261020": {
+"date": "20261020",
+"net": 34852,
+"long_total": 363384,
+"short_total": 328532,
+"long_chg": 2904,
+"short_chg": -7856
+},
+"20261022": {
+"date": "20261022",
+"net": 32957,
+"long_total": 340835,
+"short_total": 307878,
+"long_chg": -9740,
+"short_chg": -3994
+},
+"20261026": {
+"date": "20261026",
+"net": 28860,
+"long_total": 340931,
+"short_total": 312071,
+"long_chg": 7224,
+"short_chg": 10260
+},
+"20261028": {
+"date": "20261028",
+"net": 32241,
+"long_total": 355667,
+"short_total": 323426,
+"long_chg": 10077,
+"short_chg": 9895
+},
+"20261030": {
+"date": "20261030",
+"net": 30439,
+"long_total": 407675,
+"short_total": 377236,
+"long_chg": 12687,
+"short_chg": 10306
+},
+"20261102": {
+"date": "20261102",
+"net": 21122,
+"long_total": 396249,
+"short_total": 375127,
+"long_chg": -8433,
+"short_chg": -509
+},
+"20261103": {
+"date": "20261103",
+"net": 21060,
+"long_total": 381571,
+"short_total": 360511,
+"long_chg": -11923,
+"short_chg": -12963
+}
+}
+}

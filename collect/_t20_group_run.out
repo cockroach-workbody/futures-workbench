@@ -1,0 +1,65 @@
+=== START 2026-10-31 19:31:34 ===
+SKIP SA 20261030 already present
+SKIP SA 20261028 already present
+SKIP SA 20261026 already present
+OK SA 20261022 net=-162722 long=1264396 short=1427118 (added=True)
+OK SA 20261020 net=-164947 long=1269375 short=1434322 (added=True)
+OK SA 20261016 net=-192568 long=1259979 short=1452547 (added=True)
+OK SA 20261014 net=-240516 long=1231289 short=1471805 (added=True)
+OK SA 20261012 net=-263367 long=1190210 short=1453577 (added=True)
+  [retry 1/4] SA 20261008 reason=429, sleep 90s
+  [retry 2/4] SA 20261008 reason=429, sleep 90s
+  [retry 3/4] SA 20261008 reason=429, sleep 90s
+  [retry 4/4] SA 20261008 reason=429, sleep 90s
+  [giveup] SA 20261008 reason=429
+OK SA 20260930 net=-248776 long=1077124 short=1325900 (added=True)
+  [retry 1/4] SA 20260925 reason=empty, sleep 90s
+  [retry 2/4] SA 20260925 reason=empty, sleep 90s
+  [retry 3/4] SA 20260925 reason=empty, sleep 90s
+  [retry 4/4] SA 20260925 reason=empty, sleep 90s
+  [giveup] SA 20260925 reason=empty
+DONE SA success=9/11 failed=['20261008', '20260925']
+OK M 20261030 net=1525876 long=1816464 short=290588 (added=True)
+OK M 20261028 net=293666 long=315098 short=21432 (added=True)
+OK M 20261026 net=292614 long=345697 short=53083 (added=True)
+OK M 20261022 net=291005 long=473649 short=182644 (added=True)
+OK M 20261020 net=285560 long=510788 short=225228 (added=True)
+OK M 20261016 net=277123 long=570434 short=293311 (added=True)
+  [retry 1/4] M 20261014 reason=429, sleep 90s
+  [retry 2/4] M 20261014 reason=429, sleep 90s
+  [retry 3/4] M 20261014 reason=429, sleep 90s
+  [retry 4/4] M 20261014 reason=429, sleep 90s
+  [giveup] M 20261014 reason=429
+OK M 20261012 net=264385 long=680349 short=415964 (added=True)
+OK M 20261008 net=258889 long=715926 short=457037 (added=True)
+OK M 20260930 net=256617 long=750524 short=493907 (added=True)
+  [retry 1/4] M 20260925 reason=empty, sleep 90s
+  [retry 2/4] M 20260925 reason=empty, sleep 90s
+  [retry 3/4] M 20260925 reason=empty, sleep 90s
+  [retry 4/4] M 20260925 reason=empty, sleep 90s
+  [giveup] M 20260925 reason=empty
+DONE M success=9/11 failed=['20261014', '20260925']
+OK C 20261030 net=934018 long=1002030 short=68012 (added=True)
+  [retry 1/4] C 20261028 reason=429, sleep 90s
+  [retry 2/4] C 20261028 reason=429, sleep 90s
+  [retry 3/4] C 20261028 reason=429, sleep 90s
+  [retry 4/4] C 20261028 reason=429, sleep 90s
+  [giveup] C 20261028 reason=429
+OK C 20261026 net=895766 long=1053549 short=157783 (added=True)
+OK C 20261022 net=904827 long=1183688 short=278861 (added=True)
+OK C 20261020 net=853149 long=1195981 short=342832 (added=True)
+  [retry 1/4] C 20261016 reason=429, sleep 90s
+  [retry 2/4] C 20261016 reason=429, sleep 90s
+  [retry 3/4] C 20261016 reason=429, sleep 90s
+  [retry 4/4] C 20261016 reason=429, sleep 90s
+  [giveup] C 20261016 reason=429
+OK C 20261014 net=712442 long=1236395 short=523953 (added=True)
+  [retry 1/4] C 20261012 reason=429, sleep 90s
+  [retry 2/4] C 20261012 reason=429, sleep 90s
+  [retry 3/4] C 20261012 reason=429, sleep 90s
+  [retry 4/4] C 20261012 reason=429, sleep 90s
+  [giveup] C 20261012 reason=429
+  [retry 1/4] C 20261008 reason=429, sleep 90s
+  [retry 2/4] C 20261008 reason=429, sleep 90s
+  [retry 3/4] C 20261008 reason=429, sleep 90s
+  [retry 4/4] C 20261008 reason=429, sleep 90s

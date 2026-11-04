@@ -1,0 +1,17 @@
+=== BACKFILL START 2026-10-31 21:15:17 ===
+  SA 20261008 try=1 reason=429, sleep 30s
+  SA 20261008 try=2 reason=429, sleep 30s
+  SA 20261008 try=3 reason=429, sleep 30s
+  SA 20261008 try=4 reason=429, sleep 30s
+  SA 20261008 try=5 reason=429, sleep 30s
+  SA 20261008 try=6 reason=429, sleep 30s
+  SA 20261008 try=7 reason=429, sleep 30s
+  SA 20261008 try=8 reason=429, sleep 30s
+  M 20261014 try=1 reason=429, sleep 30s
+  M 20261014 try=2 reason=429, sleep 30s
+  M 20261014 try=3 reason=429, sleep 30s
+  M 20261014 try=4 reason=429, sleep 30s
+  M 20261014 try=5 reason=429, sleep 30s
+  M 20261014 try=6 reason=429, sleep 30s
+  M 20261014 try=7 reason=429, sleep 30s
+  M 20261014 try=8 reason=429, sleep 30s

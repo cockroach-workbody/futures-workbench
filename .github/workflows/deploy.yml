@@ -1,0 +1,74 @@
+name: 期货工作台每日刷新 (GitHub Pages)
+
+# 方案 C：GitHub Actions 定时跑数据刷新 → 构建纯静态 dist → 部署到 GitHub Pages
+# 优点：无需任何常驻主机 / 云端沙箱，电脑关机也能每天自动更新；dist 单文件自包含，零后端依赖。
+# 数据接口：新浪主连日线（K线）、东方财富（CZCE/DCE 前20净持仓）、奇货可查（机构观点）。
+# 历史累积：前20净持仓曲线依赖 collect/raw_hist/，已纳入 git，每次跑完回写仓库以累积。
+
+on:
+  schedule:
+    # 北京时间 19:30 = UTC 11:30（GitHub Actions 默认 UTC）；工作日 1-5
+    - cron: '30 11 * * 1-5'
+  # 允许在 Actions 页面手动触发，便于首次验证
+  workflow_dispatch:
+
+permissions:
+  contents: write        # 回写 raw_hist 历史曲线到仓库
+  pages: write           # 部署到 GitHub Pages
+  id-token: write
+
+concurrency:
+  group: futures-workbench-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库（含历史曲线）
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 取全部历史，恢复 raw_hist 曲线累积
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: pip install --upgrade pip akshare requests
+
+      - name: 数据刷新 + 构建 dist（K线/前20/仓单/观点 + 纯静态网页）
+        env:
+          TZ: Asia/Shanghai
+        run: python cloud_cron.py data
+
+      - name: 回写历史曲线数据到仓库
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "chore: 自动刷新数据 $(TZ=Asia/Shanghai date +%F)"
+          git push
+
+      - name: 准备 Pages 产物
+        run: |
+          mkdir -p public
+          cp dist/*.html public/ || echo "::warning::dist 未生成"
+          touch public/.nojekyll
+
+      - name: 上传 Pages 产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

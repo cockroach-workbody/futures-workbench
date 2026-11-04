@@ -1,0 +1,102 @@
+{
+"code": "UR",
+"variety": "UR.ZCE",
+"data": {
+"20260930": {
+"date": "20260930",
+"net": -21888,
+"long_total": 292251,
+"short_total": 314139,
+"long_chg": -25720,
+"short_chg": -23088
+},
+"20261008": {
+"date": "20261008",
+"net": -22656,
+"long_total": 284955,
+"short_total": 307611,
+"long_chg": -6389,
+"short_chg": -6528
+},
+"20261012": {
+"date": "20261012",
+"net": -19387,
+"long_total": 320075,
+"short_total": 339462,
+"long_chg": 16599,
+"short_chg": 16044
+},
+"20261014": {
+"date": "20261014",
+"net": -18542,
+"long_total": 334147,
+"short_total": 352689,
+"long_chg": 4997,
+"short_chg": 1768
+},
+"20261016": {
+"date": "20261016",
+"net": -22974,
+"long_total": 354499,
+"short_total": 377473,
+"long_chg": 12576,
+"short_chg": 10784
+},
+"20261020": {
+"date": "20261020",
+"net": -24507,
+"long_total": 344354,
+"short_total": 368861,
+"long_chg": -321,
+"short_chg": 759
+},
+"20261022": {
+"date": "20261022",
+"net": -22458,
+"long_total": 347348,
+"short_total": 369806,
+"long_chg": 3605,
+"short_chg": 4180
+},
+"20261026": {
+"date": "20261026",
+"net": -27731,
+"long_total": 353985,
+"short_total": 381716,
+"long_chg": 2414,
+"short_chg": 7148
+},
+"20261028": {
+"date": "20261028",
+"net": -21905,
+"long_total": 359918,
+"short_total": 381823,
+"long_chg": -1627,
+"short_chg": -1709
+},
+"20261030": {
+"date": "20261030",
+"net": -27504,
+"long_total": 333856,
+"short_total": 361360,
+"long_chg": -23722,
+"short_chg": -16400
+},
+"20261102": {
+"date": "20261102",
+"net": -33608,
+"long_total": 330015,
+"short_total": 363623,
+"long_chg": -3841,
+"short_chg": 3237
+},
+"20261103": {
+"date": "20261103",
+"net": -32397,
+"long_total": 325676,
+"short_total": 358073,
+"long_chg": -2392,
+"short_chg": -5550
+}
+}
+}

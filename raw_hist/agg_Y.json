@@ -1,0 +1,22 @@
+{
+  "code": "Y",
+  "variety": "Y.DCE",
+  "data": {
+    "20261030": {
+      "date": "20261030",
+      "net": -90164,
+      "long_total": 878168,
+      "short_total": 968332,
+      "long_chg": 4009,
+      "short_chg": -2047
+    },
+    "20261028": {
+      "date": "20261028",
+      "net": -93549,
+      "long_total": 894898,
+      "short_total": 988447,
+      "long_chg": 42001,
+      "short_chg": 11405
+    }
+  }
+}

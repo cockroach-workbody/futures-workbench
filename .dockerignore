@@ -1,0 +1,13 @@
+# 云端镜像构建时排除（数据/构建产物/本地缓存，运行时由流水线重新生成）
+# 注意：web/app 是零依赖网站后端（app/main.py）与静态资源，必须保留，不能排除！
+data/
+web/data/
+dist/
+__pycache__/
+*.pyc
+.workbuddy/
+*.genie
+node_modules/
+.git/
+*.log
+collect/raw/

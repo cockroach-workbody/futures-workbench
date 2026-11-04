@@ -1,0 +1,30 @@
+# 期货分析工作台 —— 一键云端常驻（cron 定时刷新 + 自托管网页）
+# 用法：
+#   1) 把整个项目目录传到云主机（含本 docker-compose.yml / Dockerfile / crontab / entrypoint.sh）
+#   2) 云主机装好 Docker 与 docker compose 插件
+#   3) 在该目录执行：  docker compose up -d --build
+#   4) 浏览器访问：     http://<云主机公网IP>:8011
+# 数据持久化：data/ 通过命名卷 futures-data 保留，容器重建/升级不丢历史快照。
+# 时区：容器已设 TZ=Asia/Shanghai，cron 按北京时间 19:30(数据) / 08:30(情绪) 触发。
+services:
+  futures-workbench:
+    build: .
+    image: futures-workbench:latest
+    container_name: futures-workbench
+    restart: unless-stopped
+    ports:
+      # 宿主机端口:容器端口；如需直接用 80 端口访问，把左边改成 80:8011
+      - "8011:8011"
+    environment:
+      - TZ=Asia/Shanghai
+      - HOST=0.0.0.0
+      - PORT=8011
+      # 可选：若你仍想把结果发布回 WorkBuddy 的 wbapp，可在此填入发布命令；
+      # 留空则自动改为自托管（web/ 由本容器内的 main.py 直接对外提供服务）。
+      - WBAPP_DEPLOY_CMD=
+    volumes:
+      - futures-data:/opt/futures-workbench/data
+
+volumes:
+  futures-data:
+    driver: local

@@ -1,0 +1,102 @@
+{
+"code": "AL",
+"variety": "AL.SHF",
+"data": {
+"20260930": {
+"date": "20260930",
+"net": -10346,
+"long_total": 427357,
+"short_total": 437703,
+"long_chg": 4002,
+"short_chg": 10807
+},
+"20261008": {
+"date": "20261008",
+"net": -16528,
+"long_total": 434066,
+"short_total": 450594,
+"long_chg": 11408,
+"short_chg": 15934
+},
+"20261012": {
+"date": "20261012",
+"net": -6990,
+"long_total": 447907,
+"short_total": 454897,
+"long_chg": 9218,
+"short_chg": 7716
+},
+"20261014": {
+"date": "20261014",
+"net": -3274,
+"long_total": 490405,
+"short_total": 493679,
+"long_chg": 14480,
+"short_chg": 14113
+},
+"20261016": {
+"date": "20261016",
+"net": -10238,
+"long_total": 490871,
+"short_total": 501109,
+"long_chg": -13355,
+"short_chg": -2726
+},
+"20261020": {
+"date": "20261020",
+"net": -6520,
+"long_total": 513873,
+"short_total": 520393,
+"long_chg": 21679,
+"short_chg": 18860
+},
+"20261022": {
+"date": "20261022",
+"net": -3553,
+"long_total": 519205,
+"short_total": 522758,
+"long_chg": 12601,
+"short_chg": 9023
+},
+"20261026": {
+"date": "20261026",
+"net": -4756,
+"long_total": 508666,
+"short_total": 513422,
+"long_chg": -4747,
+"short_chg": -3157
+},
+"20261028": {
+"date": "20261028",
+"net": -5779,
+"long_total": 501911,
+"short_total": 507690,
+"long_chg": -520,
+"short_chg": 1191
+},
+"20261030": {
+"date": "20261030",
+"net": 2559,
+"long_total": 487396,
+"short_total": 484837,
+"long_chg": -9432,
+"short_chg": -11660
+},
+"20261102": {
+"date": "20261102",
+"net": 7398,
+"long_total": 487967,
+"short_total": 480569,
+"long_chg": 2744,
+"short_chg": 1183
+},
+"20261103": {
+"date": "20261103",
+"net": 2161,
+"long_total": 485663,
+"short_total": 483502,
+"long_chg": -1009,
+"short_chg": 8547
+}
+}
+}

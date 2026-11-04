@@ -1,0 +1,1929 @@
+{
+  "M": [
+    {
+      "institution": "格林大华",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "豆粕继续下跌，供应压力明显",
+      "summary": "巴西雷亚尔贬值加速巴西大豆出口，美豆上市持续承压；国内豆粕库存周度大幅增加，供应压力明显，豆粕继续下跌。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%B1%86%E7%B2%95",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "广发期货",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "美豆收割兑现，四季度累库压力持续",
+      "summary": "美豆收割压力兑现，国内采购与抛储及四季度累库压力持续；油厂豆粕库存回升，生猪养殖亏损但产能去化缓慢，四季度库存大概率突破历史极值。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%B1%86%E7%B2%95",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "申银万国",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "美豆收割加快，进口成本支撑松动",
+      "summary": "美国大豆收割进度加快，巴西雷亚尔大幅贬值提升巴西大豆出口竞争力，美豆出口需求预期走弱；进口成本支撑松动，国内供应宽松压制连粕价格。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%B1%86%E7%B2%95",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "紫金天风",
+      "date": "2026-10-22",
+      "stance": "震荡",
+      "title": "外强内弱格局延续，南美天气风险托底",
+      "summary": "美豆新作收获加快、南美播种进度快，10月USDA报告上调单产和产量、期末库存高于预期，报告整体略偏空；但巴西现货偏紧与南美天气风险托底，预计外强内弱格局延续。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%B1%86%E7%B2%95",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "国泰君安期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "库存高位现货承压，短期偏空运行",
+      "summary": "豆粕库存高位、成交平淡、现货承压，CBOT豆粕疲软，短期偏空运行，建议逢高沽空。",
+      "url": "https://www.toutiao.com/article/7699679239469023780",
+      "source": "今日头条"
+    }
+  ],
+  "C": [
+    {
+      "institution": "长江期货",
+      "date": "2026-11-02",
+      "stance": "看空",
+      "title": "国产玉米增产，供需明显转松",
+      "summary": "26/27年度国产玉米同比增产1.58%至30600万吨，饲用消费下调、总消费小幅回落，供需明显转松；北方四港库存回到2023年以来同期偏高水平，反弹高度受限。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%8E%89%E7%B1%B3",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "格林大华",
+      "date": "2026-11-01",
+      "stance": "看多",
+      "title": "惜售与收储支撑，存在波段低多机会",
+      "summary": "新粮上量加速施压价格，但东北价格跌至低位后农户惜售情绪增强，部分储备库开收、多地竞价采购启动支撑现货；等待天气转冷上冻后基层售粮压力减弱，建议关注波段低多机会。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%8E%89%E7%B1%B3",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "南华期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "港口基差转正支撑，库存累积限制上行",
+      "summary": "港口报价续涨、主力基差转正对盘面构成支撑，但港口与深加工库存持续累积，进口利润走扩限制上行空间，行情以震荡为主。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%8E%89%E7%B1%B3",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "东海期货",
+      "date": "2026-10-23",
+      "stance": "震荡",
+      "title": "新玉米集中上市，震荡筑底",
+      "summary": "新玉米集中上市，基层售粮释放，整体供应宽松；下游终端采购谨慎，贸易商建库意愿弱；新季度种植成本支撑，行情以震荡筑底为主，大幅下探空间有限。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%8E%89%E7%B1%B3",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "国贸期货",
+      "date": "2026-11-02",
+      "stance": "震荡",
+      "title": "产地惜售支撑价格，上行仍需需求驱动",
+      "summary": "新作华北丰产高质、上市压力凸显，但农户惜售升温、发运利润倒挂导致供应节奏放缓；中下游部分主体启动建库叠加政策收储提振，价格短期反弹，但持续上行驱动不足，预计区间震荡。",
+      "url": "http://m.hibor.net/wap_detail.aspx?id=a6e0f7919ef301c1371974bc0b7a36d3",
+      "source": "慧博投研资讯"
+    }
+  ],
+  "SR": [
+    {
+      "institution": "五矿期货",
+      "date": "2026-10-30",
+      "stance": "看多",
+      "title": "厄尔尼诺或致主产国减产，外强内弱",
+      "summary": "厄尔尼诺事件可能导致2026/27年度泰国和印度出现较大幅度减产，推动原糖价格大幅上涨；国内预期延续高产量，糖价外强内弱，建议等企稳后尝试做多远月合约。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%99%BD%E7%B3%96",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中泰期货",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "北半球开榨，新榨季维持高产",
+      "summary": "北半球主产国陆续开榨，阶段性供给逐步增强；国内新糖生产推进，北方甜菜糖全面开机，预期新榨季维持高产；配额外进口利润倒挂幅度较大，国产糖成本对价格有支撑，下跌空间受限。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%99%BD%E7%B3%96",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "光大期货",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "陈糖压制，糖价震荡偏弱",
+      "summary": "国内陈糖仍在压制市场表现，新糖即将上市，预计糖价仍将震荡偏弱；广西近期持续偏旱，市场对本榨季产量看法分歧较大，估产仍待明确。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%99%BD%E7%B3%96",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "格林大华",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "全球供应预期难言乐观，郑糖承压",
+      "summary": "巴西中南部糖厂同比减产，欧洲与印度前景偏悲观，全球食糖供应预期难言乐观支撑原糖期价；国内新糖上市和结转库存令郑糖主力承压，中长期仍有上行期待但需注意入场时机。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%99%BD%E7%B3%96",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "银河期货",
+      "date": "2026-10-26",
+      "stance": "震荡",
+      "title": "国内糖弱于国外，下方有干旱支撑",
+      "summary": "国内糖基本面弱于国外，本榨季高库存压制现货价格，新榨季国产糖仍有大幅增产预期；但8、9月广西和云南去库速度加快，广西和云南干旱情况加剧给市场下方以较强支撑。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%99%BD%E7%B3%96",
+      "source": "奇货可查"
+    }
+  ],
+  "CF": [
+    {
+      "institution": "格林大华",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "新棉成本托底，需求偏弱",
+      "summary": "新棉成本支撑托底期价，下行空间有限；但需求偏弱，下游订单跟进乏力，纺企开机率小幅回落，采购补库意愿低迷，缺乏主动补库驱动。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%A3%89%E8%8A%B1",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "南华期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "新棉收购坚挺，上方套保压力明显",
+      "summary": "新棉收购价格坚挺且新季产量有待考证，对棉价形成支撑；但下游需求偏弱，暂缺乏上行驱动，上方面临集中套保压力，关注万五支撑。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%A3%89%E8%8A%B1",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中泰期货",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "新棉累库，籽棉价格高位回落",
+      "summary": "新棉收购加快，棉花陆续进入累库季节，籽棉价格高位回落，成本支撑减弱；阶段性供给宽松，下游纺织订单不佳、织布开机下滑、纱线库存累库，需求增量有限；USDA 10月供需报告偏空。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%A3%89%E8%8A%B1",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "商业库存高企，棉价下行压力较大",
+      "summary": "高企的商业库存与前期中央储备棉密集轮出，已在很大程度上对冲新年度减产带来的供应收缩预期；宏观预期偏鹰，棉价面临较大下行压力；全球棉花产量及库存消费比环比上调。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%A3%89%E8%8A%B1",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "银河期货",
+      "date": "2026-10-29",
+      "stance": "看空",
+      "title": "新棉上市高峰带来套保压力",
+      "summary": "国际棉花走势偏弱，美棉预计短期震荡偏弱；新棉上市高峰带来上方套保压力，下游需求表现较弱，金九银十旺季不旺，纱布库存有所累库，短期大概率维持偏弱走势，可考虑逢高空。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%A3%89%E8%8A%B1",
+      "source": "奇货可查"
+    }
+  ],
+  "A": [
+    {
+      "institution": "国泰君安期货",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "供需紧平衡支撑，价格重心上移",
+      "summary": "2026年豆一核心逻辑是供需平衡表边际收缩，国产大豆种植面积适度调减、总产量维持2000万吨左右，供应压力边际缓解；食用消费刚需构成底部支撑，库存消费比下降推动价格重心上移，核心区间3800-4500，建议逢低布局多单。",
+      "url": "https://m.toutiao.com/article/7589899692058739215",
+      "source": "今日头条"
+    },
+    {
+      "institution": "中州期货",
+      "date": "2026-08-14",
+      "stance": "看多",
+      "title": "豆一中长线持偏多观点",
+      "summary": "国产大豆种植面积下调、减产预期支撑市场对豆一的看涨情绪；中长线持偏多观点，若东北降雨持续、单产受损预期兑现，新豆开秤价存在较强支撑，但短期高位追涨风险较大。",
+      "url": "https://www.cnfin.com/dz-lb/detail/20260814/4455159_1.html",
+      "source": "新华财经"
+    },
+    {
+      "institution": "首创期货",
+      "date": "2026-10-10",
+      "stance": "看多",
+      "title": "短期偏强思路延续",
+      "summary": "伴随着市场看涨预期增强，本轮新粮上市呈现量增价强的格局，下游消费虽恢复不及预期，但随着库存逐步告罄，短期只能跟价采购维持刚需，继续维持短期偏强思路。",
+      "url": "https://finance.sina.cn/futuremarket/qsyw/2026-10-10/detail-iniutqmk0582800.d.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "中金财富期货",
+      "date": "2026-10-10",
+      "stance": "震荡",
+      "title": "豆一期货有望延续强势震荡行情",
+      "summary": "受春季种植面积下滑及生长关键期降雨偏多影响，国产大豆减产预期升高；国产大豆收储和对进口大豆性价比优势支撑盘面底部，新季减产预期和现货价格稳定交互影响，豆一有望延续强势震荡行情。",
+      "url": "https://finance.sina.cn/futuremarket/qsyw/2026-10-10/detail-iniutqmk0582800.d.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "方正中期期货",
+      "date": "2026-09-12",
+      "stance": "看多",
+      "title": "豆一企稳后偏多操作，中长期看涨",
+      "summary": "市场担忧黑龙江大豆面积下降、单产下滑，新季国产豆产量存在忧虑；下游豆制品加工企业开工平稳，节假日消费形成利好；豆一主力企稳后考虑以偏多操作为主，不建议偏空操作，中长期看涨。",
+      "url": "http://wap.hibor.org/wap_detail.aspx?id=dff307f3006ba83b7b27f80694001e5c",
+      "source": "慧博投研资讯"
+    }
+  ],
+  "Y": [
+    {
+      "institution": "东证期货",
+      "date": "2026-01-01",
+      "stance": "看多",
+      "title": "油脂偏乐观，价格重心震荡上行",
+      "summary": "对2026年油脂市场持偏乐观态度，价格重心预计震荡上行；核心驱动力在于国际贸易关系与生物燃料政策，相对强弱排序为棕榈油最强、菜油最弱、豆油居中。",
+      "url": "https://www.oilcn.com/article/2026/01/01_96928.html",
+      "source": "导油网"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-01-01",
+      "stance": "看多",
+      "title": "油脂临近转折点，豆油跟随走强",
+      "summary": "对2026年油脂走势持乐观态度，认为棕榈油减产及生柴题材发酵下市场正临近转折点；豆油受全球大豆供应充裕及国内高压榨影响涨幅可能受限，豆棕价差倒挂或成常态。",
+      "url": "https://www.oilcn.com/article/2026/01/01_96928.html",
+      "source": "导油网"
+    },
+    {
+      "institution": "光大期货",
+      "date": "2026-01-01",
+      "stance": "震荡",
+      "title": "区间震荡思路，政策决定重心",
+      "summary": "在生柴政策不明朗、年度供需矛盾不突出的情况下，油脂价格预计区间波动，豆油主流运行区间7600-8400元/吨；后市打破区间因素在于美国、印尼及加拿大生物柴油政策落地与天气。",
+      "url": "https://www.oilcn.com/article/2026/01/01_96928.html",
+      "source": "导油网"
+    },
+    {
+      "institution": "国元期货",
+      "date": "2026-01-01",
+      "stance": "震荡",
+      "title": "豆油供应宽松，区间震荡为主",
+      "summary": "预计2026年上半年国内油脂走势分化，豆油供应宽松格局明确，行情难有趋势性突破，区间震荡为主；棕榈油由政策与天气双驱动、先抑后扬，菜油供应偏紧高位波动。",
+      "url": "https://www.oilcn.com/article/2026/01/01_96928.html",
+      "source": "导油网"
+    },
+    {
+      "institution": "国泰君安期货",
+      "date": "2026-01-01",
+      "stance": "震荡",
+      "title": "蛰伏蓄势，弱现实强预期",
+      "summary": "将2026年定义为蛰伏蓄势、等待破局的一年，油脂处于弱现实伴随转好预期的格局；26/27年度全球四大油脂总库存将进一步下降、库销比收紧，但供应大体恢复背景下政策刚性增量难以引燃年度级上涨周期，等待2027年破局。",
+      "url": "http://www.chinaoil.org.cn/news/14293.html",
+      "source": "中国植物油行业协会"
+    }
+  ],
+  "P": [
+    {
+      "institution": "格林大华",
+      "date": "2026-10-27",
+      "stance": "看空",
+      "title": "马棕承压走低，逢高沽空为宜",
+      "summary": "马棕榈油承压大幅走低，走势焦灼等待趋势确立；国内近端到港量维持高位，未来到港数量较多，全国棕榈油库存持续累积，近远端合约均承压，01合约破位下行趋势已确立，后续逢高沽空为宜。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%A3%95%E6%A6%88%E6%B2%B9",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "广发期货",
+      "date": "2026-10-27",
+      "stance": "看空",
+      "title": "马棕库存历史高位，供给宽松延续",
+      "summary": "马来西亚9月棕榈油库存达到历史高位，10月出口强劲但尚不足以完全消化产地高库存；国内棕榈油库存高企持续压制盘面，近月仍有持续买船到港，供给宽松格局延续。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%A3%95%E6%A6%88%E6%B2%B9",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "光大期货",
+      "date": "2026-10-26",
+      "stance": "看多",
+      "title": "产地去库预期支撑远期价格",
+      "summary": "马来西亚10月1—20日出口环比大增，受印度和欧盟采购增加带动，市场形成累库放缓预期；10月供需报告大幅下调印尼棕榈油产量，全球油脂库存下降、重回去库趋势，支撑远期价格。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%A3%95%E6%A6%88%E6%B2%B9",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "长江期货",
+      "date": "2026-10-27",
+      "stance": "震荡",
+      "title": "马棕高库存难去化，短期区间运行",
+      "summary": "马棕油因国际原油及外部植物油下跌而走弱，马来暂未实施降低出口税，市场认为短期高库存难以去化；短期油脂延续区间运行，棕油01合约关注9450-9850区间，中长期受原油溢价、厄尔尼诺和生柴利多支撑区间上移。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%A3%95%E6%A6%88%E6%B2%B9",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "方正中期期货",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "B50政策与天气双重利多，中长期有上行空间",
+      "summary": "印尼B50生物柴油政策落地伴随停止进口柴油配套措施，将带来约250万吨棕榈油需求增量、重构全球供需平衡表；在B50政策预期强化下，中长期棕榈油价格仍有上行空间。",
+      "url": "https://www.stcn.com/article/detail/3777532.html",
+      "source": "证券时报网"
+    }
+  ],
+  "RM": [
+    {
+      "institution": "格林大华",
+      "date": "2026-10-23",
+      "stance": "看多",
+      "title": "菜粕空单止盈、短多少量介入",
+      "summary": "菜粕连续下跌后下跌动能减弱,建议空单止盈、短多少量介入;远月加拿大颗粒粕未采购、可售合同减少,华北及华东基差坚挺;关注11月加拿大总理访华后颗粒粕进口政策是否放宽。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%8F%9C%E7%B2%95",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "东海期货",
+      "date": "2026-10-23",
+      "stance": "看空",
+      "title": "菜系溢价回落,菜粕缺乏上行驱动",
+      "summary": "前期菜系情绪及资金推动的溢价开始回落,自身需求转淡、供应趋于宽松,主导下行,菜粕缺乏上行驱动。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%8F%9C%E7%B2%95",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "南华期货",
+      "date": "2026-10-22",
+      "stance": "震荡",
+      "title": "水产需求减弱,菜粕偏震荡",
+      "summary": "水产需求支撑逐渐减弱,四季度进口菜籽到港增加预期压制;豆菜粕价差收窄,菜粕性价比优势下降,预计偏震荡运行。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%8F%9C%E7%B2%95",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "广发期货",
+      "date": "2026-10-23",
+      "stance": "震荡",
+      "title": "菜粕下行空间有限但基差承压",
+      "summary": "加拿大收割近九成、农户集中抛售,水产旺季结束需求退坡;但国内菜粕库存低位、进口成本支撑较强,下行空间有限,跌破前低可能性较低,基差仍将承压。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%8F%9C%E7%B2%95",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中信期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "菜粕:多头低库存信仰被击穿",
+      "summary": "短期菜粕在加籽集中上市与水产消费转淡双重压制下缺乏独立上涨驱动,预计维持弱势震荡寻底;中期核心取决于加籽实际到港量及豆粕成本支撑。",
+      "url": "https://m.citicsf.com/content/000508/826255",
+      "source": "中信期货"
+    }
+  ],
+  "OI": [
+    {
+      "institution": "安粮期货",
+      "date": "2026-11-02",
+      "stance": "震荡",
+      "title": "菜油短线震荡整理与调整",
+      "summary": "加拿大新季菜籽收割,11/12月进口菜籽集中到港,远月供应充足;终端消费偏弱,库存低位有支撑但后市累库,短线或震荡整理,中长线维持震荡格局。",
+      "url": "https://finance.sina.cn/futuremarket/qsyw/2026-11-02/detail-inixicic0544539.d.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "瑞达期货",
+      "date": "2026-11-02",
+      "stance": "震荡",
+      "title": "短期菜油维持震荡,中长期偏多",
+      "summary": "加拿大菜籽丰产预期较好、供应端压力逐步增加;国内三大油脂总体库存压力偏高;短期菜油或继续维持震荡,中长期偏多为主。",
+      "url": "https://k.sina.com.cn/article_5953466437_162dab0450670bgnlq.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "华泰期货",
+      "date": "2026-11-01",
+      "stance": "震荡",
+      "title": "油脂月报:成本走强与高库存博弈",
+      "summary": "菜油低库存、高基差的强现实与澳籽增量、ICE走弱的弱预期持续博弈,盘面相对抗跌但上行驱动不足,策略中性。",
+      "url": "http://m.hibor.net/wap_detail.aspx?id=1464fcafbf9010b394b353ffbc60dd11",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "国泰君安期货",
+      "date": "2026-06-26",
+      "stance": "看多",
+      "title": "西风催籽渐平,菜油独领韧劲",
+      "summary": "预计菜油相对偏强,建议关注菜油逢低做多和豆菜粕价差做扩机会;全球菜籽供应高位,但国际菜油需求强劲支撑价格偏坚挺。",
+      "url": "https://finance.sina.cn/2026-06-26/detail-inieuccq1909027.d.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "新湖期货",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "油脂油料五品种情绪矩阵:菜油偏空",
+      "summary": "菜油库存处于历史高位、供需格局偏向宽松,价格受到压制;基差偏强但短期反弹动力不足,机构情绪评分偏空(-6.36)。",
+      "url": "http://mp.weixin.qq.com/s?__biz=Mzg5MDgzOTU4Nw==&mid=2247494950&idx=1&sn=69d86a45b1aed140e58c90149fcdcfad&chksm=ce63b555c2d78430c172a77a348013f29079a99a454bb39149705fca24f8c070b8114e599988#rd",
+      "source": "微信公众号"
+    }
+  ],
+  "AP": [
+    {
+      "institution": "南华期货",
+      "date": "2026-06-26",
+      "stance": "看空",
+      "title": "苹果2026年度展望:夏深果沉 静候天时",
+      "summary": "下半年苹果基本面暂无明显上行驱动,新季增产预期压制远月;若无极端天气,市场或延续震荡回落趋势,主力AP2610/AP2701呈下跌结构。",
+      "url": "https://www.fxbaogao.com/detail/5496895",
+      "source": "发现报告"
+    },
+    {
+      "institution": "广发期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "苹果下半年展望:增产压制,低库存支撑",
+      "summary": "下半年苹果大概率维持宽幅震荡、重心向下;新季套袋数据全面高于去年、全国产量预期增5%-15%,10-12月新季集中上市增产逻辑主导偏弱运行,操作以逢高空为主。",
+      "url": "http://fxbaogao.com/detail/5503627",
+      "source": "发现报告"
+    },
+    {
+      "institution": "方正中期期货",
+      "date": "2026-10-24",
+      "stance": "看空",
+      "title": "生鲜果品周度策略:苹果反弹做空",
+      "summary": "新季进入上市高峰,增产大局未动摇,消费信心不足、收购价低开低走;期价预计继续消化集中上市压力、延续探底,操作上反弹做空或买入浅虚看跌期权。",
+      "url": "https://m.hibor.com.cn/wap_detail.aspx?id=80da29babcbd8442e019152abcc1827a",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "国元期货",
+      "date": "2025-12-31",
+      "stance": "看多",
+      "title": "2026苹果展望:低库优果稀缺主导",
+      "summary": "供应端量质双低格局支撑,全国冷库库存处近十年第二低、好货紧张推高交割成本,预计核心运行区间8500-11000元/吨,偏强运行但空间受限。",
+      "url": "https://stock.10jqka.com.cn/20251231/c673665020.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "中信期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "一天跌去近7%,苹果市场在担忧什么",
+      "summary": "供应端增产格局已确立(全国产量预估增8.7%-18.4%且优果率提升),需求疲弱、客商观望,短期苹果期货或维持偏弱震荡,远月面临供应压力后移。",
+      "url": "https://www.citicf.com/e-futures/content/000508/826110",
+      "source": "中信期货"
+    }
+  ],
+  "JD": [
+    {
+      "institution": "方正中期期货",
+      "date": "2026-07-03",
+      "stance": "看多",
+      "title": "鸡蛋半年报:长短周期割裂,近紧远复",
+      "summary": "三季度供需双强、需求季节性增幅或大于供给,蛋价仍有创年内新高可能;当前建议买近抛远,长期做空需等开产压力明显上升。",
+      "url": "https://www.fxbaogao.com/detail/5510715",
+      "source": "发现报告"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-10-10",
+      "stance": "看多",
+      "title": "需求转弱,鸡蛋盘面重心偏下",
+      "summary": "需求转弱、现货触顶回落,盘面估值偏低反映悲观预期;考虑老鸡占比高且淘汰增多、降温易储存等支撑,近端仍考虑回落买入为主,远端暂观望。",
+      "url": "https://finance.sina.com.cn/money/future/fmnews/2026-10-10/doc-iniusxpp6222961.shtml",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "中财期货",
+      "date": "2026-10-10",
+      "stance": "看空",
+      "title": "鸡蛋中期回落下跌为主线",
+      "summary": "节日零售红利落幕、消费转入季节性平淡,新开产产能进一步释放,若延淘老鸡集中出栏供应将更宽松,短期震荡为主、中期回落下跌为后续主线。",
+      "url": "https://finance.sina.com.cn/money/future/fmnews/2026-10-10/doc-iniusxpp6222961.shtml",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "中原期货",
+      "date": "2026-10-10",
+      "stance": "看空",
+      "title": "鸡蛋短期盘面重心偏下",
+      "summary": "节后餐饮刚需走弱、库存累加,新开产增量兑现、淘汰日龄偏高去产能不快;JD2611贴水现货但难有正反馈,短期盘面重心偏下,3700以下空头打压需看现货。",
+      "url": "https://finance.sina.com.cn/money/future/fmnews/2026-10-10/doc-iniusxpp6222961.shtml",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "银河期货",
+      "date": "2026-06-25",
+      "stance": "震荡",
+      "title": "鸡蛋半年报:供应或有承压,蛋价涨幅有限",
+      "summary": "下半年在产蛋鸡存栏边际恢复、新鸡陆续开产补充供给;中秋国庆备货支撑季节性走强,但供应增量限制涨幅空间,以波段操作为主。",
+      "url": "https://news.10jqka.com.cn/deep-topic/topic/dt_01KWV5HX6C49T4YP9TA8AYKKYN",
+      "source": "同花顺"
+    }
+  ],
+  "CJ": [
+    {
+      "institution": "长江期货",
+      "date": "2026-10-29",
+      "stance": "看空",
+      "title": "红枣逢反弹做空为主",
+      "summary": "旧季结转库存压力仍存、去化偏慢;新枣稳产预期较强、霜降后陆续下树新增供给压制;双节备货结束销区需求转淡,资金空头情绪主导,逢反弹做空为主。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%BA%A2%E6%9E%A3",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中泰期货",
+      "date": "2026-10-29",
+      "stance": "看空",
+      "title": "红枣供给压力进一步加大",
+      "summary": "旧季社会库存处同期高位、现货充裕压制报价,终端消费疲软、下游以销定采;新季稳产预期充分、开秤价同比下跌,供给压力将进一步加大。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%BA%A2%E6%9E%A3",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "广发期货",
+      "date": "2026-10-29",
+      "stance": "震荡",
+      "title": "红枣短期震荡企稳",
+      "summary": "新季枣树吊干期仅零星下树,异常天气存品质分化风险但不足以大规模减产;11月后冬季消费旺季与春节备货带动刚需回升提供底部支撑,短期震荡企稳,关注12-01正套。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%BA%A2%E6%9E%A3",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "南华期货",
+      "date": "2026-10-29",
+      "stance": "震荡",
+      "title": "红枣交投偏清淡,震荡看待",
+      "summary": "下游到货充足、社会库存仍高于去年同期,现货弱稳多以质论价;采购商囤货意愿低、新枣集中下树在即且产量预期偏乐观,结转库存压力仍存,震荡看待。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E7%BA%A2%E6%9E%A3",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中信期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "旧库存未去,新枣又将来:红枣的秋天有点冷",
+      "summary": "旧季库存相对高位、贸易商采购积极性偏低;新枣开秤价或低开低走,阶段性信息扰动与技术反弹难成底部反转,行情以低位磨底为主、反弹力度偏弱。",
+      "url": "https://www.citicf.com/e-futures/content/000508/825974",
+      "source": "中信期货"
+    }
+  ],
+  "LH": [
+    {
+      "institution": "广发期货",
+      "date": "2026-11-03",
+      "stance": "看空",
+      "title": "生猪近月偏弱,远月近弱远强",
+      "summary": "11月出栏计划环比增加、猪只均重偏高,供应充足;终端需求承接乏力、养殖端亏损补栏低迷,期货受偏弱现货拖累,近月反弹逢高偏空、远月低位有支撑。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%94%9F%E7%8C%AA",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "格林大华",
+      "date": "2026-11-03",
+      "stance": "看空",
+      "title": "生猪去库存为主线,近弱远强",
+      "summary": "短期体重高位、出栏进度偏慢,供强需弱格局不改;四季度仍处去库存阶段,明年二季度前供应充裕;母猪加速去化对应2027年二季度后供给减少,远月预期向好,不建议低位追空。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%94%9F%E7%8C%AA",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-11-03",
+      "stance": "看空",
+      "title": "生猪整体弱势对待,近弱远强",
+      "summary": "节后供应减量不明显且均重仍增、消费明显走弱,现货持续走弱但去库效果有限;盘面仍升水现货、估值不低且驱动向下,建议整体弱势对待、近弱远强。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%94%9F%E7%8C%AA",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-10-27",
+      "stance": "震荡",
+      "title": "生猪低位资金博弈,非趋势反转",
+      "summary": "10月27日反弹为低位资金博弈带动的情绪修复,并非基本面趋势反转;反转需现货抬升与出栏均重回落两信号确认,腌腊需求仍停留在预期层面。",
+      "url": "https://news.10jqka.com.cn/deep-topic/topic/dt_01M603KJ56D7CV80QR09MQT634",
+      "source": "同花顺"
+    },
+    {
+      "institution": "长江期货",
+      "date": "2026-10-27",
+      "stance": "看多",
+      "title": "生猪远期低位存在支撑",
+      "summary": "养殖端有挺价意愿,生猪远期价格在低位存在支撑;能繁母猪去化加速对应2027年供给收缩,看好远期周期上行。",
+      "url": "https://news.10jqka.com.cn/deep-topic/topic/dt_01M603KJ56D7CV80QR09MQT634",
+      "source": "同花顺"
+    }
+  ],
+  "RB": [
+    {
+      "institution": "五矿期货",
+      "date": "2026-11-02",
+      "stance": "看空",
+      "title": "螺纹钢：地产偏弱叠加成本塌陷",
+      "summary": "地产固投数据继续走弱，政策利好尚未传导至新开工与施工端；原料焦煤复产、铁矿石库存偏高，钢材成本支撑塌陷，产业链利润不足，策略上逢高试空。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%9E%BA%E7%BA%B9%E9%92%A2",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "长江期货",
+      "date": "2026-10-30",
+      "stance": "看多",
+      "title": "螺纹钢：低估值下跌空间有限",
+      "summary": "长流程钢厂即期利润尚可、短流程利润较好，螺纹产量环比微增但仍处近五年同期最低；表需下滑但库存持续去化，期货价格位于电炉谷电成本附近，静态估值偏低。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%9E%BA%E7%BA%B9%E9%92%A2",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "光大期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "螺纹钢：窄幅震荡运行",
+      "summary": "螺纹产量继续回升，库存降幅收窄，表需小幅回升，供需数据偏中性；河北环保限产加码提振情绪，但终端需求逐步转弱，预计短期窄幅震荡为主。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E8%9E%BA%E7%BA%B9%E9%92%A2",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "国都期货",
+      "date": "2026-10-29",
+      "stance": "看空",
+      "title": "螺纹钢：反弹可轻仓试空",
+      "summary": "旺季收尾，螺纹表需降至近四年低位、建材消费回落，供应小幅回升；双焦提降削弱成本支撑，流动性收缩预期增强，反弹可轻仓试空。",
+      "url": "https://finance.sina.com.cn/money/future/fmnews/2026-10-29/doc-iniwwpnw2877248.shtml",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "正信期货",
+      "date": "2026-10-28",
+      "stance": "看空",
+      "title": "钢材供需转弱，钢价仍有下跌风险",
+      "summary": "钢材表观消费环比大幅下降，旺季尾声需求走弱明显，总库存去化放缓；成材端供需格局转弱、表需处近年低位，钢价仍有下跌风险，空单继续持有。",
+      "url": "https://m.10jqka.com.cn/20261028/c681182380.shtml",
+      "source": "同花顺"
+    }
+  ],
+  "HC": [
+    {
+      "institution": "长江期货",
+      "date": "2026-10-30",
+      "stance": "看多",
+      "title": "热卷：静态估值偏低下跌空间有限",
+      "summary": "热卷产量增加、表需下滑，库存和库销比处近五年同期最高位，供需格局偏弱；但期货收盘价相对现货生产成本静态估值偏低，低估值下预计下跌空间有限。",
+      "url": "https://x.qhkch.com/reports/broker?broker=%E9%95%BF%E6%B1%9F%E6%9C%9F%E8%B4%A7&variety=%E7%83%AD%E5%8D%B7",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "国信期货",
+      "date": "2026-10-26",
+      "stance": "看多",
+      "title": "热卷：11月企稳后重心小幅抬升",
+      "summary": "11月热卷供应回落后企稳，需求有望阶段性回暖，低库存下利润有望维持合理水平；10月制造业PMI重回荣枯线上方，汽车家电以旧换新政策支撑制造业需求。",
+      "url": "https://goodsfu.10jqka.com.cn/20261026/c681080072.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "兴业期货",
+      "date": "2026-10-26",
+      "stance": "看空",
+      "title": "热卷：终端需求疲软，HC2701空头持有",
+      "summary": "终端需求疲软，热卷库存高位且去库放缓，供应回升、减产动力不足，成本支撑偏弱，供需压力限制反弹，短期震荡偏弱。",
+      "url": "https://goodsfu.10jqka.com.cn/20261026/c681080072.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "中原期货",
+      "date": "2026-11-03",
+      "stance": "震荡",
+      "title": "钢价延续低位弱势震荡运行",
+      "summary": "五大材继续去库，螺纹和热卷产需双增，整体库存矛盾不大；但随着淡季临近终端需求释放有限压制价格，预计钢价延续低位弱势震荡运行。",
+      "url": "https://www.163.com/dy/article/LAP94M3105568W0A.html",
+      "source": "网易/新浪财经"
+    },
+    {
+      "institution": "瑞达期货",
+      "date": "2026-11-03",
+      "stance": "震荡",
+      "title": "热卷期价或低位区间整理",
+      "summary": "热卷周度产量延续小幅上调，表观需求回升、库存下滑；宏观政策持续发力但现货情绪谨慎，下游按需补库，热卷期价或低位区间整理。",
+      "url": "https://www.163.com/dy/article/LAP94M3105568W0A.html",
+      "source": "网易/新浪财经"
+    }
+  ],
+  "I": [
+    {
+      "institution": "广发期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "下半年铁矿石价格下行压力较大",
+      "summary": "供应端全球发运量显著增长，预计下半年同比增量2500万~3900万吨，非主流矿山尤其西芒杜项目为核心驱动；需求端房地产拖累明显，港口库存攀升，价格重心下移。",
+      "url": "https://www.mysteel.com/hot/1150218.html",
+      "source": "我的钢铁网"
+    },
+    {
+      "institution": "正信期货",
+      "date": "2026-10-20",
+      "stance": "震荡",
+      "title": "铁矿石：供增需减，窄幅震荡运行",
+      "summary": "全球铁矿发运环比回升，国内到港增加，供应环比宽松；钢厂利润修复但铁水回落、采购偏弱；成材库存去化、铁水韧性支撑短期需求，预计盘面窄幅震荡，空单止盈暂观望。",
+      "url": "https://finance.sina.cn/futuremarket/qsyw/2026-10-20/detail-inivwpze0916348.d.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "盛达期货",
+      "date": "2026-10-20",
+      "stance": "看空",
+      "title": "铁矿石：中长期维持偏空判断",
+      "summary": "中长期铁矿石供应宽松预期仍存，港口高库存及新增产能释放持续制约价格上行空间，整体维持偏空；短期海运费回落利空消化后或现阶段性修复，但持续性需谨慎。",
+      "url": "https://finance.sina.cn/futuremarket/qsyw/2026-10-20/detail-inivwpze0916348.d.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "光大期货",
+      "date": "2026-10-28",
+      "stance": "看空",
+      "title": "铁矿石：短期矿价延续偏弱震荡",
+      "summary": "主流矿山产销处于高位，中期供应充裕格局巩固；需求端铁水产量延续回落，钢厂利润低迷压制原料采购意愿，预计短期矿价延续偏弱震荡运行。",
+      "url": "https://gu.qq.com/resources/shy/news/detail-v2/index.html?id=SN20260730172115a4961d08",
+      "source": "腾讯财经"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "铁矿石：供给高于需求，价格中枢下移",
+      "summary": "2026年铁矿石市场供给高于需求，全年港口库存累积；普氏61%指数主要运行区间85-110美元，价格中枢从100美元附近降至90-95美元区间。",
+      "url": "https://www.cnenergynews.cn/article/4QKAxPCL7YA",
+      "source": "中国能源网"
+    }
+  ],
+  "J": [
+    {
+      "institution": "中辉期货",
+      "date": "2026-10-26",
+      "stance": "看空",
+      "title": "焦炭：谨慎看空",
+      "summary": "焦企发起首轮提涨，但钢厂利润不佳、提涨接受度有限，铁水产量环比下降；盘面快速下行后贴水现货较深，短期或有技术性反弹，中期仍需关注原料价格波动。",
+      "url": "http://m.hibor.net/wap_detail.aspx?id=771b010265008b961f11d13405f37d02",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "银河期货",
+      "date": "2026-10-22",
+      "stance": "看空",
+      "title": "双焦日报：焦炭跟随焦煤驱动偏空",
+      "summary": "焦炭无独立逻辑、跟随焦煤为主，双焦当前主要交易供给回升及需求不足预期，驱动偏空；商品市场情绪偏弱，盘面继续下探，延续偏弱运行但追空性价比不高。",
+      "url": "https://x.qhkch.com/reports/broker?broker=%E9%93%B6%E6%B2%B3%E6%9C%9F%E8%B4%A7&variety=%E7%84%A6%E7%82%AD",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-11-04",
+      "stance": "震荡",
+      "title": "双焦：震荡运行，焦煤面临供给增加压力",
+      "summary": "供给政策带来的下行压力未变，重点关注焦煤复产斜率及蒙煤通关改善；焦炭01合约上方压力1950-2000元/吨、下方支撑1750-1800元/吨，总体震荡偏弱运行。",
+      "url": "https://qihuo.jin10.com/articleDetail.html?id=1130795&comments=all",
+      "source": "金十期货"
+    },
+    {
+      "institution": "新湖期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "双焦：反弹高空",
+      "summary": "短期期价经过一轮杀跌后基差走强、估值偏低略有超跌，但中期四季度供增需减格局明显，需求端铁水走弱将带动碳元素再度累库，操作上建议反弹高空。",
+      "url": "https://qihuo.jin10.com/articleDetail.html?id=1130795&comments=all",
+      "source": "金十期货"
+    },
+    {
+      "institution": "我的钢铁网",
+      "date": "2026-11-03",
+      "stance": "看空",
+      "title": "成本松动与需求回落共振，焦炭短期易跌难涨",
+      "summary": "焦煤保供复产推进使焦炭成本重心下移，焦企因亏损小幅限产但供应收缩有限；下游钢厂在亏损与限产下铁水回落、刚需收缩，焦炭短期易跌难涨，但深跌条件尚不具备。",
+      "url": "https://caifuhao.eastmoney.com/news/20261103211248538217770",
+      "source": "东方财富"
+    }
+  ],
+  "JM": [
+    {
+      "institution": "宝城期货",
+      "date": "2026-10-26",
+      "stance": "看多",
+      "title": "焦煤：有效供给收缩推动供需由松转紧",
+      "summary": "国内炼焦精煤产量同比下降、进口量增长，但有效供给收缩推动炼焦煤供需由松转紧，认为2026年供需缺口明显扩大，对焦煤价格形成支撑。",
+      "url": "https://goodsfu.10jqka.com.cn/20261026/c681080077.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-10-26",
+      "stance": "看多",
+      "title": "焦煤：估值便宜，注意向上反弹修复风险",
+      "summary": "焦煤盘面估值已相对便宜，下游库存、蒙煤口岸监管库存偏低及盘面大幅贴水仍是空头向下发力的最大风险，更建议注意价格向上反弹修复风险，而非继续追空。",
+      "url": "https://goodsfu.10jqka.com.cn/20261026/c681080077.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "国贸期货",
+      "date": "2026-08-17",
+      "stance": "看多",
+      "title": "双焦：现货新高，期货向上测试前高",
+      "summary": "5.22沁源矿难后国内焦煤产量持续低位、市场存在较大缺口；焦煤现货超预期走强，期货距离前高仍有较大空间，继续看好焦煤行情，远月建议把握逢低做多机会。",
+      "url": "https://www.fxbaogao.com/detail/5611623",
+      "source": "发现报告"
+    },
+    {
+      "institution": "光大期货",
+      "date": "2026-10-26",
+      "stance": "看空",
+      "title": "焦煤：短期呈现震荡偏弱运行",
+      "summary": "煤矿复产、蒙煤通关回升令供应边际宽松，铁水回落及下游谨慎采购压制需求；但增产偏慢、库存偏低和盘面深贴水限制下跌，多空交织下短期震荡偏弱。",
+      "url": "https://goodsfu.10jqka.com.cn/20261026/c681080077.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "一德期货",
+      "date": "2026-10-28",
+      "stance": "震荡",
+      "title": "焦煤：短期煤焦震荡为主，留意近月低多",
+      "summary": "国内焦煤产量边际修复但复产兑现节奏是核心博弈主线，焦企利润承压采购趋于谨慎；短期煤焦震荡为主，若煤矿复产不及预期、蒙煤通关偏低，冬储补库下基差存在修复空间。",
+      "url": "https://finance.sina.cn/futuremarket/qsyw/2026-10-28/detail-iniwtxya3397757.d.html",
+      "source": "新浪财经"
+    }
+  ],
+  "FG": [
+    {
+      "institution": "申银万国",
+      "date": "2026-11-03",
+      "stance": "看多",
+      "title": "玻璃期货延续反弹，需求逐步恢复",
+      "summary": "玻璃期货延续反弹，面向消费玻璃需求逐步恢复，需求拉动效果逐步显现，短期存量消化的基本面修复趋势延续。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%8E%BB%E7%92%83",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "光大期货",
+      "date": "2026-11-03",
+      "stance": "看多",
+      "title": "玻璃：产能回落，短期低位宽幅震荡",
+      "summary": "玻璃产能继续回落、产线冷修推进，供应端边际继续收缩提供底部支撑；需求端主流地区产销率多数维持100%~140%，但现货松动、库存高位，多空交织下短期低位宽幅震荡。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%8E%BB%E7%92%83",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "长江期货",
+      "date": "2026-11-03",
+      "stance": "震荡",
+      "title": "玻璃：反弹难成反转",
+      "summary": "纯碱和玻璃供应端消息频出叠加期货价格绝对低位带动盘面反弹；沙河库存下降、期现正套难度大，但四季度南方需求弱刚需，冷修落地支撑价格但去库放缓，短期反弹难成反转。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%8E%BB%E7%92%83",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "东吴期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "玻璃：高库存弱需求，反弹逢高抛空",
+      "summary": "玻璃处于高库存、弱需求、行业深度亏损的底部博弈阶段，偏空但下方受成本支撑有限；冷修节奏偏缓、复产强于冷修，节后或再度累库，操作上建议反弹逢高抛空。",
+      "url": "https://fxbaogao.com/detail/5740392",
+      "source": "发现报告"
+    },
+    {
+      "institution": "国贸期货",
+      "date": "2026-10-14",
+      "stance": "看空",
+      "title": "玻璃：供给减量迟缓，价格再创新低",
+      "summary": "虽然利润挤压但供给持稳、减量迟缓，部分预期被证伪；需求疲软被基本交易，现货抛售需求强、库存累积压力大；成本支撑下价格延续承压震荡，建议产业客户逢高卖出套保。",
+      "url": "https://m.hibor.com.cn/wap_detail.aspx?id=4d337ceddcc48d812fae183b8c9ffef9",
+      "source": "慧博投研资讯"
+    }
+  ],
+  "SA": [
+    {
+      "institution": "五矿期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "纯碱：检修复产转宽松，中长期逢高试空",
+      "summary": "本轮反弹核心是检修缩量带来的快速去库而非需求改善；11月初检修装置集中复产，供应再度转向宽松，浮法、光伏重碱刚需承压，中长期维持逢高试空。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%BA%AF%E7%A2%B1",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "光大期货",
+      "date": "2026-11-03",
+      "stance": "看多",
+      "title": "纯碱：供应回升但大厂检修，短期支撑存在",
+      "summary": "供应水平有所回升、内蒙大厂检修结束逐步复产，但青海、山东存在大厂检修及产能退出，供应端支撑短期依旧存在；需求端偏弱，下游浮法玻璃产能继续下降，刚需承压。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%BA%AF%E7%A2%B1",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "申银万国",
+      "date": "2026-11-03",
+      "stance": "看多",
+      "title": "纯碱：探底回升，供给减量推动去库",
+      "summary": "纯碱期货探底回升，通过供给减量推动去库，短期存量消化的基本面修复趋势延续。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%BA%AF%E7%A2%B1",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "徽商期货",
+      "date": "2026-10-15",
+      "stance": "看空",
+      "title": "纯碱：供大于求难以逆转，反弹沽空为主",
+      "summary": "前期检修装置持续复产，开工率与周度产量回补，供给压力再度加大；浮法玻璃开工率、日熔量维持低位，重碱需求难超预期回暖，价格重心围绕成本底部震荡，交易以反弹沽空为主。",
+      "url": "https://m.cnfin.com/dz-lb//zixun/20261015/4481028_1.html",
+      "source": "中国金融信息网"
+    },
+    {
+      "institution": "海证期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "纯碱：供需宽松，年内逢高沽空",
+      "summary": "2026年纯碱供需持续宽松局面或延续，产业震荡筑底，需求改善难以抵抗供给端增量冲击，价格运行中枢有望继续下移；年内阶段性检修缩量或带来波段反弹但难扭转过剩格局，可关注逢高沽空。",
+      "url": "https://www.toutiao.com/article/7591683021659062824/",
+      "source": "今日头条"
+    }
+  ],
+  "TA": [
+    {
+      "institution": "方正中期期货",
+      "date": "2026-10-28",
+      "stance": "震荡",
+      "title": "PTA短期跟随成本宽幅震荡",
+      "summary": "中东局势支撑原油价格、成本走强，但PTA负荷下降、聚酯开工偏低、终端订单不及预期，低库存与高成本托底但需求负反馈压制上行弹性，短期跟随成本宽幅震荡。",
+      "url": "https://finance.sina.com.cn/money/future/fmnews/2026-10-28/doc-iniwukpw3372430.shtml",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "国泰君安期货",
+      "date": "2026-10-28",
+      "stance": "震荡",
+      "title": "PTA受成本带动高位震荡",
+      "summary": "地缘不确定性尚存、原油高位震荡，TA高基差低库存、仓单偏少，近月走势受成本带动高位震荡；关注1-5正套及TA01加工费逢高做缩机会。",
+      "url": "https://finance.sina.com.cn/money/future/fmnews/2026-10-28/doc-iniwukpw3372430.shtml",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "国贸期货",
+      "date": "2026-10-19",
+      "stance": "看空",
+      "title": "聚酯周报：聚酯负反馈，PTA震荡偏弱",
+      "summary": "地缘扰动仍在但下游需求明显转弱，PX供应回归、PTA港口库存累库、基差走弱，聚酯负荷下滑至约74%，单边看空为主。",
+      "url": "https://m.hibor.com.cn/wap_detail.aspx?id=29b87b97160919d38c21e5bf64967396",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "宁证期货",
+      "date": "2026-10-19",
+      "stance": "看空",
+      "title": "PTA谨慎高位沽空",
+      "summary": "聚酯端负反馈持续、负荷处五年低位，旺季将结束，PTA虽意外检修增加但负荷相对下游仍偏高、预计持续累库，建议谨慎高位沽空。",
+      "url": "http://m.hibor.net/wap_detail.aspx?id=2054b936f1e27ad4893e2e30f6ac7d36",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "广州期货",
+      "date": "2026-11-04",
+      "stance": "震荡",
+      "title": "下游旺季需求兑现不足，PTA价格跟随原油波动",
+      "summary": "PX检修支撑仍在、原油地缘溢价托底，但PTA装置重启供应回升、下游纺织旺季不及预期，供需由紧平衡转向边际累库，呈成本托底但供需弱压制的区间震荡格局。",
+      "url": "https://www.xincai.com/article/niuxwim7300821",
+      "source": "新浪财经"
+    }
+  ],
+  "MA": [
+    {
+      "institution": "安粮期货",
+      "date": "2026-11-03",
+      "stance": "震荡",
+      "title": "甲醇短期或延续高位宽幅震荡",
+      "summary": "太仓现货3905元/吨、近强远弱延续；港口库存历史低位、进口低位支撑近月，但国内高开工及MTO停车引发需求收缩压制远月，地缘不确定下价格变化大。",
+      "url": "http://mp.weixin.qq.com/s?__biz=MzUxODAyOTExMw==&mid=2247575088&idx=3&sn=45e9d7d90998e527e714168dce9ee64f&chksm=f851223a4f0bf94db26f7c40766a07040ffce1de34c76f6030e4184c9348d9f0be5691c194c4#rd",
+      "source": "微信(安粮期货)"
+    },
+    {
+      "institution": "南华期货",
+      "date": "2026-10-25",
+      "stance": "震荡",
+      "title": "甲醇产业周报：宽幅震荡",
+      "summary": "近端低库存、进口偏紧及地缘扰动支撑价格，但MTO需求负反馈限制反弹高度；远端检修恢复及进口到港预期增加使供应边际回升，缺乏持续单边驱动，短期宽幅震荡。",
+      "url": "http://m.hibor.net/wap_detail.aspx?id=5426706f75023a7ebb3ed56bb0cea202",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "国贸期货",
+      "date": "2026-10-26",
+      "stance": "震荡",
+      "title": "甲醇(MA)：地缘挤仓是脉冲，基本面空配要落到01",
+      "summary": "短期盘面被地缘紧张与近月逼仓逻辑接管，冲高更应视为空配入场窗口而非追多；真正宽松待11月中后新装置出醇及进口回补，空配选01更干净，整体震荡。",
+      "url": "https://m.hibor.com.cn/wap_detail.aspx?id=db329bba05ec542ff606d77c39fe2164",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "新湖期货",
+      "date": "2026-10-23",
+      "stance": "看多",
+      "title": "甲醇看多（MA2701升水结构，跨期正套）",
+      "summary": "港口库存历史低位（同比-96.91万吨）、现货偏紧、进口持续受限（伊朗停车+霍尔木兹未通），基差强势，维持偏强整理并建议跨期正套。",
+      "url": "http://mp.weixin.qq.com/s?__biz=Mzg5MDgzOTU4Nw==&mid=2247494498&idx=1&sn=a1a316967617d69dc78d18ebe8def77f&chksm=ceea79e909fa54eaa85b8b8fa677eef636ec876d322c0f9e20f68ead1cf9b16ab121ce2a8032#rd",
+      "source": "微信"
+    },
+    {
+      "institution": "永安期货",
+      "date": "2026-10-23",
+      "stance": "看空",
+      "title": "甲醇看空（库存高企+MTO亏损）",
+      "summary": "外采MTO全面停车、需求负反馈明显，MTO利润深度亏损，累库预期升温，建议逢高沽空。",
+      "url": "http://mp.weixin.qq.com/s?__biz=Mzg5MDgzOTU4Nw==&mid=2247494498&idx=1&sn=a1a316967617d69dc78d18ebe8def77f&chksm=ceea79e909fa54eaa85b8b8fa677eef636ec876d322c0f9e20f68ead1cf9b16ab121ce2a8032#rd",
+      "source": "微信"
+    }
+  ],
+  "RU": [
+    {
+      "institution": "银河期货",
+      "date": "2026-01-01",
+      "stance": "看多",
+      "title": "2026年度橡胶展望：第一季度偏强运行",
+      "summary": "长期供应潜力下降为价格提供重心上移基础，RU预计第一季度偏强运行，下半年供需最弱期后逐步改善，第四季度有望达17300元/吨。",
+      "url": "https://www.toutiao.com/article/7589827554048016915/",
+      "source": "今日头条"
+    },
+    {
+      "institution": "东证期货",
+      "date": "2026-06-28",
+      "stance": "看多",
+      "title": "天然橡胶半年度报告：跋涉尽处即见坦途（看涨评级）",
+      "summary": "全球供应周期见顶、树龄老化+产能增速放缓、厄尔尼诺远期减产预期支撑远月，RU主力16,000-20,000元/吨，下半年先跌后涨、看涨评级。",
+      "url": "https://news.10jqka.com.cn/deep-topic/topic/dt_01KWGWKN1HY9KM6HW4F1YWT1EM",
+      "source": "同花顺"
+    },
+    {
+      "institution": "南华期货",
+      "date": "2026-06-28",
+      "stance": "震荡",
+      "title": "橡胶2026年半年度展望：余波犹存，彼岸未及",
+      "summary": "天胶长期供需紧平衡逻辑未破，但H2旺产季原料季节性上量带来短期供给压力，下半年区间震荡。",
+      "url": "https://news.10jqka.com.cn/deep-topic/topic/dt_01KWGWKN1HY9KM6HW4F1YWT1EM",
+      "source": "同花顺"
+    },
+    {
+      "institution": "国信期货",
+      "date": "2026-07-01",
+      "stance": "看多",
+      "title": "天然橡胶短期维持震荡偏强运行",
+      "summary": "下游轮胎企业新订单不乐观、成品库存较高、开工低位，但采取逢低采购策略使胶价下方支撑较强，短期维持震荡偏强、建议震荡偏多。",
+      "url": "https://qihuo.jin10.com/articleDetail.html?id=1127088",
+      "source": "金十期货"
+    },
+    {
+      "institution": "广发期货",
+      "date": "2026-07-01",
+      "stance": "看空",
+      "title": "橡胶逢高空思路为主",
+      "summary": "降雨扰动割胶推动胶价上涨，但后续原料季节性上量预期，同时需求侧表现疲软压制上方空间，近期逢高空思路为主。",
+      "url": "https://qihuo.jin10.com/articleDetail.html?id=1127088",
+      "source": "金十期货"
+    }
+  ],
+  "L": [
+    {
+      "institution": "建信期货",
+      "date": "2026-10-30",
+      "stance": "看多",
+      "title": "塑料高位偏强震荡",
+      "summary": "成本支撑仍存，货源偏紧难解且远月投产压力放缓，盘面深度贴水背景下预计高位偏强震荡。",
+      "url": "https://finance.sina.cn/futuremarket/qsyw/2026-10-30/detail-iniwywtu2233630.d.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "一德期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "塑料高位宽幅波动",
+      "summary": "供应稳中小增、净进口窗口打开，农膜和包装膜订单尚可但高价原料影响备货意愿，产业库存平缓小累，成本逻辑主导短期行情，高位宽幅波动、正套延续。",
+      "url": "https://finance.sina.cn/futuremarket/qsyw/2026-10-30/detail-iniwywtu2233630.d.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "瑞达期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "LLDPE短期震荡对待",
+      "summary": "供应端检修影响量预计回落、供应逐步回升，农膜仍处旺季、包装膜平稳，生产企业与社会库存偏低支撑价格，但需关注供应回升后的累积风险，短期LLDPE震荡对待。",
+      "url": "https://finance.sina.cn/futuremarket/qsyw/2026-10-30/detail-iniwywtu2233630.d.html",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "中泰期货",
+      "date": "2026-11-01",
+      "stance": "看多",
+      "title": "塑料产业链周报：地缘冲突再起，盘面偏强震荡",
+      "summary": "行情仍受美伊战争影响较大、谈判不顺，原油供应问题未有效解决，盘面小幅反弹，短期谨慎偏强思路；但现货成交不好、下游对高价接受差，长期需谨防回调风险。",
+      "url": "https://m.hibor.com.cn/wap_detail.aspx?id=102883415aad4347983184d8b32b724c",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "中辉期货",
+      "date": "2026-10-21",
+      "stance": "看空",
+      "title": "中辉能化日度报告：塑料高位回落",
+      "summary": "美伊谈判消息混沌、油价仍有反复，塑料供给端进一步收缩空间不足、仓单继续增加，终端制品利润压缩、订单跟进不足，建议短期单边轻仓空配或逢高做空LP价差。",
+      "url": "http://m.microbell.cn/wap_detail.aspx?id=eaa2fdc9bc46ba13719070982048be3a",
+      "source": "慧博投研资讯"
+    }
+  ],
+  "PP": [
+    {
+      "institution": "银河期货",
+      "date": "2026-10-31",
+      "stance": "看多",
+      "title": "PP低库存、低开工、高基差格局延续",
+      "summary": "供需双弱但低库存、低开工、高基差延续，01合约大幅贴水现货，新装置投产整体延后、存量开工低位，中东地缘若僵持或升级01大概率仍上涨。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=PP",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中泰期货",
+      "date": "2026-11-01",
+      "stance": "看多",
+      "title": "PP谨慎偏强思路",
+      "summary": "短期受美伊战争及地缘冲突影响、原油供应问题未解，盘面小幅反弹；丙烷价格走强、煤价上涨支撑估值，总库存继续去库、现货偏紧，长期需谨防回调风险。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=PP",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-11-02",
+      "stance": "看空",
+      "title": "PP产能投放压力凸显",
+      "summary": "2026年下半年产能投放计划较多、供应压力凸显，下游开工率在季节性旺季表现大不如往年同期，长期矛盾从成本端主导转移至投产错配。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=PP",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "浙商期货",
+      "date": "2026-10-18",
+      "stance": "看空",
+      "title": "聚丙烯：低库存与成本推涨反弹，中期产能压力下寻机沽空",
+      "summary": "近端供应收缩、库存低位与成本抬升推动01反弹15.89%，但下半年国内预估新增产能405万吨、表观消费同比仍负增，中期产能压力未改，宜反弹逢高布局空单。",
+      "url": "https://fxbaogao.com/detail/5780077",
+      "source": "发现报告"
+    },
+    {
+      "institution": "申银万国期货",
+      "date": "2026-11-02",
+      "stance": "震荡",
+      "title": "PP连续上行后理性观望",
+      "summary": "国际原油上行、成本端有支撑，聚烯烃现货走强、期货延续收阳，整体表现偏强；连续上行后建议理性观望，关注美国中期选举及美伊博弈过程。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=PP",
+      "source": "奇货可查"
+    }
+  ],
+  "BU": [
+    {
+      "institution": "国投期货",
+      "date": "2026-11-02",
+      "stance": "看多",
+      "title": "沥青高位谨慎做多",
+      "summary": "北方道路工程收尾、需求季节性转弱，但炼厂及社会库存处低位、去库放缓，高基差、低库存与近月情绪共振支撑BU偏强运行，原油走势仍是单边方向关键变量，高位谨慎做多。",
+      "url": "https://t.10jqka.com.cn/pid_715590944.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "国投期货",
+      "date": "2026-10-30",
+      "stance": "看多",
+      "title": "沥青能源日报：BU偏强运行",
+      "summary": "高基差、低库存与近月情绪共振支撑BU偏强运行，原油走势仍是沥青单边方向关键变量，操作上高位谨慎做多、严控仓位。",
+      "url": "http://m.microbell.cn/wap_detail.aspx?id=5d05832d1407efca46c984e50f42ccba",
+      "source": "迈博汇金"
+    },
+    {
+      "institution": "南华期货",
+      "date": "2026-11-01",
+      "stance": "看空",
+      "title": "沥青产业周报：重质原料陆续到港",
+      "summary": "地缘仍是核心主导，11月主营排产环比增加、需求仅剩最后一波补库，重油陆续到港后炼厂开工有望提升；近端受现货压制而承压，可关注bu01反弹抛空及空裂解机会。",
+      "url": "http://m.microbell.cn/wap_detail.aspx?id=8e768c9253aab8214afd3bb0dfdbe3a8",
+      "source": "迈博汇金"
+    },
+    {
+      "institution": "国贸期货",
+      "date": "2026-10-26",
+      "stance": "震荡",
+      "title": "沥青：成本推升盘面、期现背离、基差大幅走弱",
+      "summary": "低库存、成本高位、基差偏强提供支撑，但供应边际回升、需求季节性转弱、原料中断预期弱化，短期偏弱震荡，社会库存历史低位限制深跌空间。",
+      "url": "http://m.hibor.net/wap_detail.aspx?id=6728294b52c5fe0bbbedc2cb3148fd52",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "华泰期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "月底货源偏紧，沥青局部现货价格上涨",
+      "summary": "月末主营炼厂发货缩减、局部现货上涨，成本与供应端支撑坚挺，但需求端下降预期构成潜在阻力，盘面修复后短期驱动有限，单边观点中性、关注中东局势走向。",
+      "url": "https://finance.sina.com.cn/money/future/fmnews/2026-10-30/doc-iniwyfwc8360480.shtml",
+      "source": "新浪财经"
+    }
+  ],
+  "V": [
+    {
+      "institution": "银河期货",
+      "date": "2026-10-30",
+      "stance": "看多",
+      "title": "PVC逢低做多",
+      "summary": "无新增产能投放、存量产能出清推进，开工降至低位、利润亏损限制回升；当前库存高位但同比回落、去库显著，内需受地产拖累但中东地缘若持续或利多出口，建议逢低做多。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=PVC",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "广发期货",
+      "date": "2026-11-02",
+      "stance": "看多",
+      "title": "PVC技术趋势看多",
+      "summary": "智能指标趋势星级为4，技术趋势看多。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=PVC",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中信期货",
+      "date": "2026-10-01",
+      "stance": "看多",
+      "title": "PVC：政策情绪是“止痛药”，需求回暖才是“解药”",
+      "summary": "短期供应收缩和成本托底仍在、盘面情绪修复，PVC或维持震荡偏强格局（主力4800-5100元/吨）；中期供需双弱格局难改、检修结束后供应回升，价格上行空间有限。",
+      "url": "https://www.citicsf.com/e-futures/content/000501/825908",
+      "source": "中信期货"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-11-02",
+      "stance": "震荡",
+      "title": "PVC上有顶、下有底震荡格局",
+      "summary": "上方受高库存、供应回升预期及高仓单压制，下方受产业链现金流亏损成本支撑；10月检修规模偏高、开工降至59.8%历史低位，近端供应边际收紧，内需受地产拖累难改善。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=PVC",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "南华期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "PVC供应收缩叠加去库驱动重心上移",
+      "summary": "供应收缩叠加去库驱动价格重心上移，但内需偏弱、去库本质存疑、需求未见实质性恢复，中期尚不能定性为趋势性反转，反弹弹性存疑。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=PVC",
+      "source": "奇货可查"
+    }
+  ],
+  "UR": [
+    {
+      "institution": "华泰期货",
+      "date": "2026-11-01",
+      "stance": "看多",
+      "title": "尿素月报：关注新一轮印标及淡储",
+      "summary": "磷复肥会议后市场成交改善、淡储情绪好转，复合肥开工预计缓慢提升，新一轮印标和淡储采购或提振国内现货价格，策略单边谨慎逢低买入套保、UR01-05逢低正套。",
+      "url": "http://m.hibor.net/wap_detail.aspx?id=3cc43d30bde8f61a884d2bc9febb98d9",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "冠通期货",
+      "date": "2026-11-03",
+      "stance": "看多",
+      "title": "春季备肥开工抬升，尿素依托预期震荡修复",
+      "summary": "山东、河南及河北工厂报价上涨30-40元/吨，11月进入春季复合肥备肥、开工缓慢提高，月底气头装置逐步停车而下游冬储启动，行情以缓慢回升为主（反弹非反转）。",
+      "url": "https://cj.sina.cn/article/norm_detail?url=https%3A%2F%2Ffinance.sina.com.cn%2Fmoney%2Ffuture%2Ffmnews%2F2026-11-03%2Fdoc-inixmswc8754985.shtml",
+      "source": "新浪财经"
+    },
+    {
+      "institution": "新湖期货",
+      "date": "2026-11-01",
+      "stance": "震荡",
+      "title": "化工(尿素)周报：短期出口有支撑，中期偏空",
+      "summary": "日产量同比仍大幅高于同期、新装置投放较多，复合肥开工继续下滑，前一轮印标支撑有限、市场期待下一轮招标，国内企业库存预计走高，短期出口仍有支撑、中期偏空。",
+      "url": "http://m.microbell.cn/wap_detail.aspx?id=c7271460d121dba21837ea1b69f82b3d",
+      "source": "迈博汇金"
+    },
+    {
+      "institution": "首创期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "库存高企与需求未实质回暖仍压制尿素盘面上行空间",
+      "summary": "供应压力未减、农业淡季，但复合肥及商储陆续冬储补库、印度新一轮招标预期带动看涨氛围；工厂库存仍有压力、冬储实质放量待验证，本轮上涨属预期驱动、趋势反转条件尚不充分。",
+      "url": "https://goodsfu.10jqka.com.cn/20261030/c681287740.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "长江期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "尿素区间震荡",
+      "summary": "国内尿素开工率降低、现货供应充裕，煤炭价格短期下调但中枢同比上移提供下沿支撑；农业需求分散、工业复合肥开工提升缓慢，企业库存延续累库、港口去库加快，区间震荡。",
+      "url": "https://m.10jqka.com.cn/20261030/c681285721.shtml",
+      "source": "金投网"
+    }
+  ],
+  "SI": [
+    {
+      "institution": "银河期货",
+      "date": "2026-10-22",
+      "stance": "看多",
+      "title": "工业硅：减产去库，回调做多",
+      "summary": "多晶硅企业达成减产共识并逐步减产，工业硅需求端有支撑；大厂10月暂无复产计划，云南、四川部分硅厂减产，预计10月工业硅产量降至30万吨附近，维持去库趋势；策略上建议回调充分后逢低做多，12合约参考区间(8400,9000)。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E5%B7%A5%E4%B8%9A%E7%A1%85",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-10-27",
+      "stance": "震荡",
+      "title": "工业硅：宽幅震荡",
+      "summary": "工业硅周产基本持稳，西南转向枯水季硅企或减少开炉但节奏平缓；10月多晶硅推进减产，对工业硅需求逐步减少；供需暂未出现显著超预期变化，短期受板块情绪影响预计价格宽幅震荡。",
+      "url": "https://x.qhkch.com/reports/viewpoint?sso_checked=1&variety=%E5%B7%A5%E4%B8%9A%E7%A1%85",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中信期货",
+      "date": "2026-10-28",
+      "stance": "震荡",
+      "title": "新能源金属每日报告：工业硅震荡运行",
+      "summary": "供需驱动弱，硅价震荡运行；成本稳定对工业硅有支撑，但中期供需过剩预期限制上方高度；继续关注工业硅逢高沽空机会。",
+      "url": "https://m.hibor.com.cn/wap_detail.aspx?id=84d120c9944a5132d4e5667a238b8da4",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "国泰君安期货",
+      "date": "2026-10-25",
+      "stance": "震荡",
+      "title": "工业硅：库存去化，偏弱运行",
+      "summary": "工业硅短期偏弱运行，西南枯水期面临减产驱动，月度供需仍处去库，但宏观与商品情绪悲观致盘面偏弱；考虑煤价后市下跌驱动，预计盘面运行重心回落，主力区间8200-8700元/吨。",
+      "url": "https://www.nxny.com/report/view_6507540.html",
+      "source": "股票报告网"
+    },
+    {
+      "institution": "国投期货",
+      "date": "2025-12-30",
+      "stance": "看空",
+      "title": "2026年度工业硅展望：逢高布空",
+      "summary": "刚性成本与弹性供给主导2026年工业硅区间市；多晶硅受产能整合约束产量增长受限，对工业硅需求同比-10%；建议贴近区间上沿逢高布空，价格主要运行区间7000-11000元/吨。",
+      "url": "https://news.10jqka.com.cn/20251230/c673637448.shtml",
+      "source": "同花顺"
+    }
+  ],
+  "LC": [
+    {
+      "institution": "光大期货",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "碳酸锂：去库放缓，短期回调",
+      "summary": "周度库存去化但速度放缓，强现实边际减弱；11月排产环比走弱，弱预期进一步夯实；出口退税政策调整及中欧谈判拖累远期出口消费预期；供给周度产量环比回升，短期存在回调风险。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%A2%B3%E9%85%B8%E9%94%82",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "银河期货",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "碳酸锂：震荡下行寻支撑",
+      "summary": "旺季需求落空，下游排产环比增速低于预期；盐湖爬产快于预期，枧下窝复产若落地将带来额外供应；库存去化放缓，供需向宽松转化；策略上单边震荡下行，追空需谨慎。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%A2%B3%E9%85%B8%E9%94%82",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-11-02",
+      "stance": "看空",
+      "title": "有色金属早报：碳酸锂震荡偏弱",
+      "summary": "碳酸锂期现价格大幅回落，盘面跌幅大于现货；基本面呈现现实去库、供应恢复矛盾，周度产量上升；11月国内排产预计继续增长，锂辉石价格下跌令成本支撑下移；预计维持宽幅震荡偏弱。",
+      "url": "https://x.qhkch.com/reports/reportId?id=216350&reportId=reportc4ddaa84-1e5c-5fa8-8f1d-39db8c19a172",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "紫金天风",
+      "date": "2026-10-28",
+      "stance": "震荡",
+      "title": "碳酸锂：去库支撑与远期走弱预期博弈",
+      "summary": "市场对碳酸锂远期基本面走弱的预期暂未被证伪；年内月度去库结论仍成立，对价格形成一定支撑；近期绝对价格下跌、月间价差走强；26Q4价格能否抬升仍依赖去库预期兑现。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E7%A2%B3%E9%85%B8%E9%94%82",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "东证期货",
+      "date": "2025-12-30",
+      "stance": "看多",
+      "title": "2026年度碳酸锂展望：逢低布局多单",
+      "summary": "静态平衡小幅过剩，但补库需求或致短期错配；2026年多空分歧加大，建议将思路由宽幅震荡转为逢低布局中长线多单，主力合约运行区间8-15万元/吨。",
+      "url": "https://news.10jqka.com.cn/field/20251230/673630779.shtml",
+      "source": "同花顺"
+    }
+  ],
+  "PS": [
+    {
+      "institution": "长江期货",
+      "date": "2026-10-26",
+      "stance": "看多",
+      "title": "多晶硅：减产落地，需求有支撑",
+      "summary": "多家硅料企业响应减产号召下调月度排产，行业减产计划逐步落地；多晶硅周度产量环比减少，10月产量预计大幅降低至9.5万吨上下；硅片、电池片、组件10月排产环比上升，需求端有支撑。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E5%A4%9A%E6%99%B6%E7%A1%85",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "光大期货",
+      "date": "2026-10-30",
+      "stance": "震荡",
+      "title": "多晶硅：低位震荡，先扬后抑",
+      "summary": "多晶硅延续低位震荡，市场未给出远期改善溢价；现货升水收敛主因换月，现货未实现提价或去库；11月部分厂家计划增产或对冲实际去库效果；整体判断为先扬后抑。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E5%A4%9A%E6%99%B6%E7%A1%85",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中泰期货",
+      "date": "2026-11-01",
+      "stance": "震荡",
+      "title": "多晶硅：底部宽幅震荡",
+      "summary": "高库存弱现实矛盾需减产落地规模与持续时间验证；政策端反内卷及减产倡议持续推进，10月厂家逐步执行联合减产有望开启去库拐点；12合约估值中性，单边暂时观望。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E5%A4%9A%E6%99%B6%E7%A1%85",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "广发期货",
+      "date": "2026-11-02",
+      "stance": "看空",
+      "title": "多晶硅：技术看空，逢高试空",
+      "summary": "多晶硅产量不降反增，需求仍未见起色，组件价格下跌反映下游订单不佳；价格低位围绕成本端区间震荡，上方有供应压力；智能指标趋势星级-4，技术趋势看空。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E5%A4%9A%E6%99%B6%E7%A1%85",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-11-02",
+      "stance": "看空",
+      "title": "多晶硅：高库存弱需求，价格承压",
+      "summary": "行业减产陆续落地但高库存及弱需求仍未边际改善，下游多以观望为主，对上游高价现货采购偏谨慎；盘面及现货缺乏规模性高价成交支持，易受商品整体环境及资金情绪影响，预计价格仍承压，维持底部宽幅震荡。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E5%A4%9A%E6%99%B6%E7%A1%85",
+      "source": "奇货可查"
+    }
+  ],
+  "PT": [
+    {
+      "institution": "中信期货",
+      "date": "2026-01-05",
+      "stance": "震荡",
+      "title": "铂：短期宽幅震荡，中长期偏强",
+      "summary": "短期看铂钯市场或进入宽幅震荡阶段，波动风险较高；中长期来看铂金将呈现震荡偏强格局，因其供应受限且需求端支撑多元且坚实。",
+      "url": "https://www.jwview.com/jingwei/html/01-05/652545.shtml",
+      "source": "中新经纬"
+    },
+    {
+      "institution": "国投期货",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "铂：供应缺口扩大，中线逢低做多",
+      "summary": "2026年铂市场将延续第四年紧缺，供应缺口约23吨；铂价突破历史高点概率较高，大方向追随贵金属走强周期；中线仍可维持逢低做多的配置思路。",
+      "url": "https://jnzstatic.cs.com.cn/zzb/htmlInfo/f576578b0af5c041e0092070d06cb19e.html",
+      "source": "中国证券报"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "铂：金融与商品属性共振，需求预期改善",
+      "summary": "近期铂价强势有金融与商品属性双重支撑；欧盟放宽2035禁售燃油车相关要求的潜在可能使铂未来需求预期转好，缓解供应过剩担忧；可流通库存减少、租赁利率上升强化短期行情。",
+      "url": "https://jnzstatic.cs.com.cn/zzb/htmlInfo/f576578b0af5c041e0092070d06cb19e.html",
+      "source": "中国证券报"
+    },
+    {
+      "institution": "新湖期货",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "铂：结构性缺口持续，价格稳步上行",
+      "summary": "中长期铂金市场连续多年实物短缺，矿山产能受限、资本开支不足；催化剂铂载量提升及氢能等新兴应用提供支撑，预计结构性缺口持续，推动价格稳步上行。",
+      "url": "https://stcn.com/article/detail/3584407.html",
+      "source": "证券时报"
+    },
+    {
+      "institution": "美国银行(BoFA)",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "铂：上调2026均价预期至2450美元",
+      "summary": "美国银行上调2026年铂金均价预测至每盎司2450美元；在能源转型、汽车催化剂需求结构变化及部分矿山供应约束背景下，铂族金属供需格局仍存在支撑。",
+      "url": "https://stcn.com/article/detail/3584407.html",
+      "source": "证券时报"
+    }
+  ],
+  "PD": [
+    {
+      "institution": "中信期货",
+      "date": "2026-01-05",
+      "stance": "看空",
+      "title": "钯：需求结构单一，长期承压",
+      "summary": "中长期来看钯金因需求结构单一（约85%集中于汽车尾气催化剂）而面临长期压力；短期市场或进入宽幅震荡阶段，波动风险较高。",
+      "url": "https://www.jwview.com/jingwei/html/01-05/652545.shtml",
+      "source": "中新经纬"
+    },
+    {
+      "institution": "国投期货",
+      "date": "2026-10-30",
+      "stance": "看空",
+      "title": "铂钯点评：钯结构性过剩尤甚",
+      "summary": "铂钯创年内新低，宏观为核心驱动；投资需求萎缩，基本面缺乏托底，铂平衡预期由缺口转盈余，钯结构性过剩尤甚；12月议息会议前缺乏独立上行驱动。",
+      "url": "https://m.hibor.com.cn/wap_detail.aspx?id=576c3b5266bc1ee81ea32266200ca6a1",
+      "source": "慧博投研资讯"
+    },
+    {
+      "institution": "新湖期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "钯：趋势性过剩，基本面偏空",
+      "summary": "钯金2026年趋势性过剩，供应结构集中，基本面偏空，等待替代技术出现；总需求同比降8.8%，汽车催化剂占比超80%，首次出现趋势性过剩。",
+      "url": "https://fxbaogao.com/detail/5697962",
+      "source": "发现报告"
+    },
+    {
+      "institution": "美国银行(BoFA)",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "钯：上调2026均价预期至1725美元",
+      "summary": "美国银行上调2026年钯金价格预期至每盎司1725美元；在能源转型、汽车催化剂需求结构变化及部分矿山供应约束背景下，铂族金属供需格局仍存在支撑因素。",
+      "url": "https://stcn.com/article/detail/3584407.html",
+      "source": "证券时报"
+    },
+    {
+      "institution": "方正中期期货",
+      "date": "2026-11-04",
+      "stance": "震荡",
+      "title": "钯：基本面偏弱，多铂空钯套利",
+      "summary": "建议维持套利思路，逢低做多铂钯比；钯金基本面较铂金偏弱且铂钯比维持低位，供应逐渐宽松与金融属性抬升相背离，难有更流畅行情。",
+      "url": "https://news.10jqka.com.cn/m673660706_futures/",
+      "source": "同花顺"
+    }
+  ],
+  "CU": [
+    {
+      "institution": "长江期货",
+      "date": "2025-12-10",
+      "stance": "看多",
+      "title": "2026年铜价创新高仍可期",
+      "summary": "长期美元走弱利好铜价，美国降息周期尚未结束、贸易摩擦缓和与地缘冲突暂缓共同提振，铜价将震荡偏强运行。",
+      "url": "https://www.cnfin.com/dz-lb/detail/20251210/4348146_1.html",
+      "source": "新华财经"
+    },
+    {
+      "institution": "中财期货",
+      "date": "2025-12-10",
+      "stance": "看多",
+      "title": "非美地区供应偏紧逻辑不变",
+      "summary": "美国持续“虹吸”电解铜资源成常态，非美地区供应偏紧逻辑不变，整体上涨行情预计仍将持续，铜价震荡偏强运行。",
+      "url": "https://www.cnfin.com/dz-lb/detail/20251210/4348146_1.html",
+      "source": "新华财经"
+    },
+    {
+      "institution": "宝城期货",
+      "date": "2025-12-10",
+      "stance": "看空",
+      "title": "警惕铜价冲高回落",
+      "summary": "当前市场趋于谨慎，铜价冲高回落显示多头获利了结意愿上升，提醒投资者做好仓位管理、警惕回调风险。",
+      "url": "https://www.cnfin.com/dz-lb/detail/20251210/4348146_1.html",
+      "source": "新华财经"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-08-01",
+      "stance": "看多",
+      "title": "铜价年内仍有冲击11万元动力",
+      "summary": "基于供给扰动、需求稳定增长及国内低库存，判断铜价年内仍有冲击每吨11万元动力；中长期看铜矿资本开支不足与新能源、AI需求扩张继续抬升铜价中枢。",
+      "url": "https://www.ce.cn/xwzx/gnsz/gdxw/202608/t20260801_3121259.shtml",
+      "source": "中国经济网"
+    },
+    {
+      "institution": "新湖期货",
+      "date": "2026-01-01",
+      "stance": "看多",
+      "title": "2026年全球铜供需实质性短缺",
+      "summary": "在新能源、全球电网升级及AI数据中心建设推动下，预计2026年全球铜供需将出现30万吨以上的实质性短缺，铜价重心有望抬升至每吨10万元以上中枢。",
+      "url": "https://gu.qq.com/resources/shy/news/detail-v2/index.html?t=1#/index?_tentrees_trans=0&id=SN20260101203534a491d331",
+      "source": "腾讯证券"
+    }
+  ],
+  "AL": [
+    {
+      "institution": "国泰君安期货",
+      "date": "2025-12-31",
+      "stance": "看多",
+      "title": "2026年度沪铝展望：逢低做多为主",
+      "summary": "2026年铝需求进入结构性拐点，全球或短缺约50万吨，隐性库存持续去化，维持对铝价、冶炼利润偏乐观判断，建议逢低做多。",
+      "url": "https://stock.10jqka.com.cn/classic/20251231/c673661922.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "东证期货",
+      "date": "2025-12-31",
+      "stance": "看多",
+      "title": "铝市紧平衡延续，维持低多策略",
+      "summary": "全球电解铝供给增速放缓，国内供给接近天花板，铝价大方向逢低做多为主，2026年国内电解铝运行中枢预计21000-24000元/吨。",
+      "url": "https://stock.10jqka.com.cn/classic/20251231/c673661922.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "花旗",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "铝市“最看涨的布局”",
+      "summary": "中东供给冲击推动全球铝库存下探历史低位，预计2026年全球铝市场将出现约270万吨供应缺口，无需需求端强力提振即可支撑铝价高位运行。",
+      "url": "https://jnzstatic.cs.com.cn/zzb/htmlInfo/d96e84b89622494add9b4129f825b3e0.html",
+      "source": "中证网"
+    },
+    {
+      "institution": "东海期货",
+      "date": "2026-10-23",
+      "stance": "看空",
+      "title": "铝价上行空间有限",
+      "summary": "远端供给压力尚未充分计价，海外电解铝集中扩张，国内持续去库但库存同比偏高，LME低库存未体现现货紧张，铝价上行空间有限。",
+      "url": "https://x.qhkch.com/reports/viewpoint?sso_checked=1&variety=%E6%B2%AA%E9%93%9D",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "紫金天风",
+      "date": "2026-10-29",
+      "stance": "看空",
+      "title": "铝反弹逻辑边际走弱",
+      "summary": "支撑反弹的两条逻辑边际走弱，社会库存年底累库预期，内盘虚实比接近极值，若美联储释放鹰派信号且库存累积，铝价或回归下跌通道。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%B2%AA%E9%93%9D",
+      "source": "奇货可查"
+    }
+  ],
+  "AU": [
+    {
+      "institution": "国投期货",
+      "date": "2026-02-04",
+      "stance": "看多",
+      "title": "机构看好黄金后市",
+      "summary": "2026年宏观走势面临极大不确定性，若出现地缘冲突加剧、经济数据走弱为降息打开空间、美国政府再度关门等因素，可能触发下一轮贵金属买盘。",
+      "url": "https://epaper.cs.com.cn/zgzqb/images/2026-02/04/A06/zqDB0604.pdf",
+      "source": "中国证券报"
+    },
+    {
+      "institution": "瑞银(UBS)",
+      "date": "2026-02-04",
+      "stance": "看多",
+      "title": "继续看好黄金，维持看涨立场",
+      "summary": "在全球资产配置中维持对黄金的看涨立场，年底目标价5600美元/盎司，上行情景目标价7200美元，认为央行购金等结构性需求稳固。",
+      "url": "https://epaper.cs.com.cn/zgzqb/images/2026-02/04/A06/zqDB0604.pdf",
+      "source": "中国证券报"
+    },
+    {
+      "institution": "高盛",
+      "date": "2026-05-18",
+      "stance": "看多",
+      "title": "重申年底金价5400美元看涨目标",
+      "summary": "重申年底金价5400美元/盎司的看涨目标，预计到2026年全球央行黄金采购量将增至平均每月60吨，支撑中长期金价。",
+      "url": "https://www.yicai.com/news/103191166.html",
+      "source": "第一财经"
+    },
+    {
+      "institution": "巴克莱",
+      "date": "2026-07-04",
+      "stance": "看多",
+      "title": "维持2026/2027年金价预期不变",
+      "summary": "支撑金价的长期核心逻辑未动摇（通胀居高、政策不确定、央行储备多元化），维持2026年和2027年金价预期分别为4791美元和4900美元。",
+      "url": "https://www.jwview.com/jingwei/html/m/07-04/677818.shtml",
+      "source": "中新经纬"
+    },
+    {
+      "institution": "摩根士丹利",
+      "date": "2026-05-18",
+      "stance": "看空",
+      "title": "下调2026下半年黄金目标价至5200",
+      "summary": "将2026年下半年黄金目标价调至5200美元，远低于此前5700美元的预测，对短期金价偏谨慎。",
+      "url": "https://www.yicai.com/news/103191166.html",
+      "source": "第一财经"
+    }
+  ],
+  "NI": [
+    {
+      "institution": "长江期货",
+      "date": "2026-10-29",
+      "stance": "看空",
+      "title": "镍价偏弱运行，建议逢高做空",
+      "summary": "印尼RKAB补充配额落地供应宽松预期延续，镍铁价格加速下行，钢厂排产下调且利润倒挂，预计镍价偏弱运行，建议逢高做空。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E6%B2%AA%E9%95%8D",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-10-29",
+      "stance": "看空",
+      "title": "供应收缩预期降温，镍价偏弱",
+      "summary": "进口镍升水下降，印尼2026年RKAB配额上修至约2.9亿湿吨，联合减产传闻未获确认，LME镍库存仍在28万吨高位，镍价偏弱。",
+      "url": "https://x.qhkch.com/reports/list?variety=%E6%B2%AA%E9%95%8D",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中信期货",
+      "date": "2026-11-04",
+      "stance": "震荡",
+      "title": "镍基本面未见明显边际改善",
+      "summary": "镍当下基本面未见明显边际改善，整体供需仍趋宽松，全球显性库存维持相对高位对价格形成压制，维持震荡观点，需持续关注印尼政策进展。",
+      "url": "https://qihuo.jin10.com/articleDetail.html?id=1130784",
+      "source": "金十期货"
+    },
+    {
+      "institution": "国信期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "沪镍偏悲观，供应过剩加剧",
+      "summary": "沪镍90000-125000元/吨区间偏悲观，认为全球原生镍过剩格局明确、累库趋势难改，供应过剩加剧。",
+      "url": "http://app253.shmet.com/NewsDetail/907878?v2=1",
+      "source": "上海金属网"
+    },
+    {
+      "institution": "国泰君安期货",
+      "date": "2026-11-04",
+      "stance": "震荡",
+      "title": "减产维稳修复但保持谨慎",
+      "summary": "镍价获阶段性维稳修复逻辑，但减产能否持续取决于价格修复后企业是否仍有减产动力，在明确2027年资源端配额前保持谨慎。",
+      "url": "https://qihuo.jin10.com/articleDetail.html?id=1130784",
+      "source": "金十期货"
+    }
+  ],
+  "ZN": [
+    {
+      "institution": "方正中期期货",
+      "date": "2026-01-04",
+      "stance": "看空",
+      "title": "2026年沪锌：宽区间偏空策略",
+      "summary": "2026年沪锌核心逻辑为“供增需稳压力较强”，矿端仍有增量、精炼锌供应增长显著而需求增量有限，过剩格局延续，沪锌运行区间20000-24300元/吨。",
+      "url": "https://m.10jqka.com.cn/20260104/c673714249.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-01-04",
+      "stance": "震荡",
+      "title": "矿端增量受限，大跌难以复刻",
+      "summary": "26年锌价呈现前高后低宽幅震荡，沪锌主力运行区间21000-24500元/吨，向下空间较难企及2023年，核心在于矿端增量受限且TC修复前景不明朗。",
+      "url": "https://m.10jqka.com.cn/20260104/c673714249.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "银河期货",
+      "date": "2026-10-27",
+      "stance": "看多",
+      "title": "锌逢低布局多单",
+      "summary": "冶炼成本支撑仍在，建议逢低布局多单并继续持有获利多单；国内锌锭库存减少、冬储需求释放对TC形成压力，为锌价提供底部支撑。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%B2%AA%E9%94%8C",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "五矿期货",
+      "date": "2026-11-02",
+      "stance": "看空",
+      "title": "锌价仍有下行风险",
+      "summary": "锌精矿TC止跌企稳，初端企业开工维持偏弱，海外宏观压力仍在，联储官员鹰派表态后商品氛围转弱，锌价仍有下行风险。",
+      "url": "https://x.qhkch.com/reports/viewpoint?variety=%E6%B2%AA%E9%94%8C",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "中信期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "锌价外强内弱将扭转，逢高沽空",
+      "summary": "海外炼厂有望提产，锌价外强内弱格局将扭转，推荐择机逢高沽空，关注跨期正套、跨市反套机会。",
+      "url": "https://www.shmet.com/news/newsDetail-2-907837.html",
+      "source": "上海金属网"
+    }
+  ],
+  "AG": [
+    {
+      "institution": "瑞银(UBS)",
+      "date": "2026-10-22",
+      "stance": "看多",
+      "title": "白银2026年12月或升至70美元",
+      "summary": "预计白银到2026年12月可升至70美元/盎司、2027年9月达80美元，主要支撑来自黄金走强以及投资和工业需求。",
+      "url": "https://www.cnfin.com/gs-lb/detail/20261022/4485051_1.html",
+      "source": "新华财经"
+    },
+    {
+      "institution": "摩根大通",
+      "date": "2026-10-22",
+      "stance": "看空",
+      "title": "2026年Q4银价预测设在63美元",
+      "summary": "将2026年第四季度银价预测设在63美元/盎司附近，认为实物供应紧张局面缓解叠加白银估值较高，使其在黄金下跌时承受更大调整压力。",
+      "url": "https://www.cnfin.com/gs-lb/detail/20261022/4485051_1.html",
+      "source": "新华财经"
+    },
+    {
+      "institution": "银河期货(袁正)",
+      "date": "2026-10-22",
+      "stance": "震荡",
+      "title": "白银宽幅震荡格局",
+      "summary": "白银更可能维持宽幅震荡：高利率限制上行空间，供应缺口提供下方支撑；持续上涨需待货币政策改善或AI、数据中心用银弥补光伏需求下降。",
+      "url": "https://www.cnfin.com/gs-lb/detail/20261022/4485051_1.html",
+      "source": "新华财经"
+    },
+    {
+      "institution": "花旗",
+      "date": "2026-09-21",
+      "stance": "看多",
+      "title": "白银未来6-12个月或升至90美元",
+      "summary": "9月报告看涨，认为短期银价或升至75美元/盎司，未来6-12个月可升至约90美元/盎司，并预期白银将较黄金更具波动性、上升潜力更高。",
+      "url": "https://news.qq.com/rain/a/20260921A09PP900",
+      "source": "腾讯新闻"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "贵金属板块或还有30%上涨空间",
+      "summary": "基准预估下2026年贵金属板块或还有约30%上涨空间，白银价格参考区间60-85美元/盎司、12000-20000元/千克，现货矛盾成为常态。",
+      "url": "https://m.toutiao.com/article/7589835240315863587",
+      "source": "今日头条"
+    }
+  ],
+  "PB": [
+    {
+      "institution": "国泰君安期货",
+      "date": "2026-01-04",
+      "stance": "震荡",
+      "title": "2026年度沪铅：供需双弱上下有限",
+      "summary": "2026年铅市总体供强需弱，价格以区间震荡为主，国内小幅过剩，沪铅运行区间16000-18000元/吨，年中补库或形成阶段性缺口。",
+      "url": "https://m.10jqka.com.cn/20260104/c673714248.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-01-04",
+      "stance": "震荡",
+      "title": "沪铅供需两弱，低波动成常态",
+      "summary": "2026年沪铅供需两弱，呈紧平衡或小幅过剩，低波动成常态，沪铅主力运行区间16000-18000元/吨，单边长线多配为主。",
+      "url": "https://m.10jqka.com.cn/20260104/c673714248.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "中信期货",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "铅锭供需过剩格局延续",
+      "summary": "预计铅锭供需过剩格局将延续，沪铅15500-17000元/吨、伦铅1850-2000美元，关注废电池价格变化，再生铅纳入交割后中长期价格中枢下移。",
+      "url": "https://news.10jqka.com.cn/deep-topic/topic/dt_01KWEFA1J2WPH5N3EZGJE1JRTP",
+      "source": "同花顺"
+    },
+    {
+      "institution": "银河期货",
+      "date": "2026-10-23",
+      "stance": "看多",
+      "title": "供应端减量预期下逢低轻仓试多",
+      "summary": "原生铅检修扩大、再生铅受亏损限制开工低位，国内社会库存持续去化，供需两弱但供应更弱，铅价区间偏强震荡，策略上逢低轻仓试多。",
+      "url": "https://x.qhkch.com/reports/broker?broker=%E9%93%B6%E6%B2%B3%E6%9C%9F%E8%B4%A7&variety=%E6%B2%AA%E9%93%85",
+      "source": "奇货可查"
+    },
+    {
+      "institution": "铜冠金源期货",
+      "date": "2026-10-26",
+      "stance": "震荡",
+      "title": "宏观压制供需僵持，沪铅区间震荡",
+      "summary": "宏观偏空、基本面僵持，沪铅维持震荡格局；地缘扰动与AI盈利担忧压制风险偏好，持续去库托底但下游需求走弱限制上行空间。",
+      "url": "https://www.fxbaogao.com/detail/5801177",
+      "source": "发现报告"
+    }
+  ],
+  "SN": [
+    {
+      "institution": "国泰君安期货",
+      "date": "2026-01-04",
+      "stance": "看多",
+      "title": "2026年度沪锡：上半年逢低做多",
+      "summary": "2026年锡市场前紧后松，上半年供需双弱但仍短缺，策略上半年以逢低做多为主，辅以买call、内外及月间正套，警惕缅甸复产超预期。",
+      "url": "https://goodsfu.10jqka.com.cn/20260104/c673714250.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "中信建投期货",
+      "date": "2026-01-04",
+      "stance": "看多",
+      "title": "供需双驱，“锡”牛或归",
+      "summary": "供需双驱，锡价中枢或前高后切换，沪锡主力参考区间26万-39万元/吨、均价约27万-28.5万元，供应扰动与AI数据中心需求提振价格中枢。",
+      "url": "https://goodsfu.10jqka.com.cn/20260104/c673714250.shtml",
+      "source": "同花顺"
+    },
+    {
+      "institution": "国投期货",
+      "date": "2026-11-04",
+      "stance": "震荡",
+      "title": "锡供应从紧缺导向再平衡",
+      "summary": "2026年锡精矿供应由紧转松确定性更高，二季度供应变化可能逐步驱动锡市场再平衡，沪锡加权预计运行在26-35万元/吨。",
+      "url": "http://mp.weixin.qq.com/s?__biz=Mzg3NDAxNTk3OQ==&mid=2247536117&idx=5&sn=d127ddebb0b09ece7dae17688613eac6&chksm=cf6277eba4dd3828b09a07e2e5984984926c09c5b383b444daf032189bb5931153ced9280d12#rd",
+      "source": "上海金属网"
+    },
+    {
+      "institution": "中信期货",
+      "date": "2026-11-04",
+      "stance": "看多",
+      "title": "矿端约束偏强，锡价延续宽幅震荡",
+      "summary": "全球锡矿供应难有明显增量且扰动风险仍存，供需维持紧平衡，沪锡波动区间35-50万元/吨，建议等待宏观明朗后关注低吸做多。",
+      "url": "https://www.shmet.com/news/newsDetail-2-917799.html",
+      "source": "上海金属网"
+    },
+    {
+      "institution": "慧博投研(锡2026年度报告)",
+      "date": "2026-11-04",
+      "stance": "看空",
+      "title": "供需先紧后松，前高后低",
+      "summary": "2026年锡锭供需平衡预期转为轻度过剩，价格前高后低，若供应如期释放建议右侧逢高做空为主，下方90分位成本约31000美元支撑较强。",
+      "url": "https://hqq.hibor.com.cn/wap_detail.aspx?id=4970381",
+      "source": "慧博投研"
+    }
+  ]
+}

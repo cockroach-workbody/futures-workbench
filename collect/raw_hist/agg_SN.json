@@ -1,0 +1,110 @@
+{
+"code": "SN",
+"variety": "SN.SHF",
+"data": {
+"20260925": {
+"date": "20260925",
+"net": 0,
+"long_total": 0,
+"short_total": 0,
+"long_chg": 0,
+"short_chg": 0
+},
+"20260930": {
+"date": "20260930",
+"net": 18486.0,
+"long_total": 20401,
+"short_total": 1915,
+"long_chg": -2198,
+"short_chg": -1256
+},
+"20261008": {
+"date": "20261008",
+"net": 21304.0,
+"long_total": 22848,
+"short_total": 1544,
+"long_chg": 2754,
+"short_chg": -138
+},
+"20261012": {
+"date": "20261012",
+"net": 6732.0,
+"long_total": 24232,
+"short_total": 17500,
+"long_chg": 378,
+"short_chg": -731
+},
+"20261014": {
+"date": "20261014",
+"net": 4736.0,
+"long_total": 26166,
+"short_total": 21430,
+"long_chg": 2919,
+"short_chg": 2678
+},
+"20261016": {
+"date": "20261016",
+"net": 20107.0,
+"long_total": 41456,
+"short_total": 21349,
+"long_chg": -1742,
+"short_chg": -1483
+},
+"20261020": {
+"date": "20261020",
+"net": 22288.0,
+"long_total": 41452,
+"short_total": 19164,
+"long_chg": -52,
+"short_chg": -1135
+},
+"20261022": {
+"date": "20261022",
+"net": 23856.0,
+"long_total": 38785,
+"short_total": 14929,
+"long_chg": -38,
+"short_chg": -2708
+},
+"20261026": {
+"date": "20261026",
+"net": 25663.0,
+"long_total": 36630,
+"short_total": 10967,
+"long_chg": -212,
+"short_chg": -1472
+},
+"20261028": {
+"date": "20261028",
+"net": 27959.0,
+"long_total": 34243,
+"short_total": 6284,
+"long_chg": -1219,
+"short_chg": -2396
+},
+"20261030": {
+"date": "20261030",
+"net": 31677.0,
+"long_total": 33648,
+"short_total": 1971,
+"long_chg": 256,
+"short_chg": -709
+},
+"20261102": {
+"date": "20261102",
+"net": 5084,
+"long_total": 47618,
+"short_total": 42534,
+"long_chg": -458,
+"short_chg": -1079
+},
+"20261103": {
+"date": "20261103",
+"net": 4220,
+"long_total": 48816,
+"short_total": 44596,
+"long_chg": 1418,
+"short_chg": 3083
+}
+}
+}

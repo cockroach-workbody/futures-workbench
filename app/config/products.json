@@ -1,0 +1,359 @@
+{
+  "default_category": "黑色建材",
+  "default_product": "RB",
+  "categories": [
+    {
+      "name": "黑色建材",
+      "products": [
+        {
+          "code": "RB",
+          "name": "螺纹钢",
+          "variety": "RB.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库；社库待接入"
+        },
+        {
+          "code": "HC",
+          "name": "热卷",
+          "variety": "HC.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库；社库待接入"
+        },
+        {
+          "code": "I",
+          "name": "铁矿石",
+          "variety": "I.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库；社库待接入"
+        },
+        {
+          "code": "J",
+          "name": "焦炭",
+          "variety": "J.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库；社库待接入"
+        },
+        {
+          "code": "JM",
+          "name": "焦煤",
+          "variety": "JM.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库；社库待接入"
+        },
+        {
+          "code": "FG",
+          "name": "玻璃",
+          "variety": "FG.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库；社库待接入"
+        },
+        {
+          "code": "SA",
+          "name": "纯碱",
+          "variety": "SA.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库；社库待接入"
+        }
+      ]
+    },
+    {
+      "name": "农产品",
+      "products": [
+        {
+          "code": "M",
+          "name": "豆粕",
+          "variety": "M.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "C",
+          "name": "玉米",
+          "variety": "C.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "SR",
+          "name": "白糖",
+          "variety": "SR.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "CF",
+          "name": "棉花",
+          "variety": "CF.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "A",
+          "name": "豆一",
+          "variety": "A.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "Y",
+          "name": "豆油",
+          "variety": "Y.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "P",
+          "name": "棕榈油",
+          "variety": "P.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "RM",
+          "name": "菜粕",
+          "variety": "RM.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "OI",
+          "name": "菜油",
+          "variety": "OI.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "AP",
+          "name": "苹果",
+          "variety": "AP.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "JD",
+          "name": "鸡蛋",
+          "variety": "JD.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "CJ",
+          "name": "红枣",
+          "variety": "CJ.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "LH",
+          "name": "生猪",
+          "variety": "LH.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        }
+      ]
+    },
+    {
+      "name": "化工品",
+      "products": [
+        {
+          "code": "TA",
+          "name": "PTA",
+          "variety": "TA.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "MA",
+          "name": "甲醇",
+          "variety": "MA.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "RU",
+          "name": "橡胶",
+          "variety": "RU.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "L",
+          "name": "塑料",
+          "variety": "L.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "PP",
+          "name": "聚丙烯",
+          "variety": "PP.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "BU",
+          "name": "沥青",
+          "variety": "BU.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "V",
+          "name": "PVC",
+          "variety": "V.DCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "UR",
+          "name": "尿素",
+          "variety": "UR.ZCE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        }
+      ]
+    },
+    {
+      "name": "有色金属",
+      "products": [
+        {
+          "code": "CU",
+          "name": "铜",
+          "variety": "CU.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "AL",
+          "name": "铝",
+          "variety": "AL.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "AU",
+          "name": "黄金",
+          "variety": "AU.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "NI",
+          "name": "镍",
+          "variety": "NI.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "ZN",
+          "name": "锌",
+          "variety": "ZN.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "AG",
+          "name": "白银",
+          "variety": "AG.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "PB",
+          "name": "铅",
+          "variety": "PB.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        },
+        {
+          "code": "SN",
+          "name": "锡",
+          "variety": "SN.SHF",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单；社库/厂库待接入"
+        }
+      ]
+    },
+    {
+      "name": "广期板块",
+      "products": [
+        {
+          "code": "SI",
+          "name": "工业硅",
+          "variety": "SI.GFE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库"
+        },
+        {
+          "code": "LC",
+          "name": "碳酸锂",
+          "variety": "LC.GFE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库"
+        },
+        {
+          "code": "PS",
+          "name": "多晶硅",
+          "variety": "PS.GFE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+前20(NeoData)+仓单/厂库"
+        },
+        {
+          "code": "PT",
+          "name": "铂",
+          "variety": "PT.GFE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+仓单/厂库；前20龙虎榜 NeoData 暂未覆盖"
+        },
+        {
+          "code": "PD",
+          "name": "钯",
+          "variety": "PD.GFE",
+          "main_contract": "",
+          "status": "ready",
+          "note": "真实K线(新浪主连)+缠论+仓单/厂库；前20龙虎榜 NeoData 暂未覆盖"
+        }
+      ]
+    }
+  ]
+}

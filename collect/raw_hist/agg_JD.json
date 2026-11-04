@@ -1,0 +1,102 @@
+{
+"code": "JD",
+"variety": "JD.DCE",
+"data": {
+"20260930": {
+"date": "20260930",
+"net": 146580.0,
+"long_total": 235040,
+"short_total": 88460,
+"long_chg": -12924,
+"short_chg": -24755
+},
+"20261008": {
+"date": "20261008",
+"net": 157370.0,
+"long_total": 232147,
+"short_total": 74777,
+"long_chg": -2284,
+"short_chg": -13322
+},
+"20261012": {
+"date": "20261012",
+"net": 188163.0,
+"long_total": 246296,
+"short_total": 58133,
+"long_chg": 11955,
+"short_chg": -10874
+},
+"20261014": {
+"date": "20261014",
+"net": 182891.0,
+"long_total": 224808,
+"short_total": 41917,
+"long_chg": -8342,
+"short_chg": -8038
+},
+"20261016": {
+"date": "20261016",
+"net": 169477.0,
+"long_total": 200868,
+"short_total": 31391,
+"long_chg": -17921,
+"short_chg": -5866
+},
+"20261020": {
+"date": "20261020",
+"net": 168792.0,
+"long_total": 185031,
+"short_total": 16239,
+"long_chg": -11413,
+"short_chg": -5403
+},
+"20261022": {
+"date": "20261022",
+"net": 168145.0,
+"long_total": 182325,
+"short_total": 14180,
+"long_chg": 1894,
+"short_chg": 147
+},
+"20261026": {
+"date": "20261026",
+"net": 62699.0,
+"long_total": 219781,
+"short_total": 157082,
+"long_chg": 2998,
+"short_chg": 2775
+},
+"20261028": {
+"date": "20261028",
+"net": 70834.0,
+"long_total": 213663,
+"short_total": 142829,
+"long_chg": 2052,
+"short_chg": -6131
+},
+"20261030": {
+"date": "20261030",
+"net": 70281.0,
+"long_total": 181843,
+"short_total": 111562,
+"long_chg": -13953,
+"short_chg": -17130
+},
+"20261102": {
+"date": "20261102",
+"net": -138717,
+"long_total": 2815052,
+"short_total": 2953769,
+"long_chg": 43217,
+"short_chg": 91549
+},
+"20261103": {
+"date": "20261103",
+"net": -130814,
+"long_total": 2891997,
+"short_total": 3022811,
+"long_chg": 64552,
+"short_chg": 58407
+}
+}
+}

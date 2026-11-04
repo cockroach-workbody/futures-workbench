@@ -1,0 +1,102 @@
+{
+"code": "LH",
+"variety": "LH.DCE",
+"data": {
+"20260930": {
+"date": "20260930",
+"net": 65226.0,
+"long_total": 148089,
+"short_total": 82863,
+"long_chg": -15006,
+"short_chg": -16294
+},
+"20261008": {
+"date": "20261008",
+"net": 73356.0,
+"long_total": 148632,
+"short_total": 75276,
+"long_chg": 1271,
+"short_chg": -5910
+},
+"20261012": {
+"date": "20261012",
+"net": 86362.0,
+"long_total": 156188,
+"short_total": 69826,
+"long_chg": 6465,
+"short_chg": -1681
+},
+"20261014": {
+"date": "20261014",
+"net": 95342.0,
+"long_total": 152467,
+"short_total": 57125,
+"long_chg": -1339,
+"short_chg": -7731
+},
+"20261016": {
+"date": "20261016",
+"net": 100434.0,
+"long_total": 146870,
+"short_total": 46436,
+"long_chg": 3837,
+"short_chg": -2017
+},
+"20261020": {
+"date": "20261020",
+"net": 109782.0,
+"long_total": 145947,
+"short_total": 36165,
+"long_chg": 2482,
+"short_chg": -7158
+},
+"20261022": {
+"date": "20261022",
+"net": 110456.0,
+"long_total": 136136,
+"short_total": 25680,
+"long_chg": -1860,
+"short_chg": -4523
+},
+"20261026": {
+"date": "20261026",
+"net": 106202.0,
+"long_total": 122562,
+"short_total": 16360,
+"long_chg": -482,
+"short_chg": -4651
+},
+"20261028": {
+"date": "20261028",
+"net": 76492.0,
+"long_total": 179215,
+"short_total": 102723,
+"long_chg": -10723,
+"short_chg": -10041
+},
+"20261030": {
+"date": "20261030",
+"net": 78402.0,
+"long_total": 180223,
+"short_total": 101821,
+"long_chg": 1367,
+"short_chg": 2114
+},
+"20261102": {
+"date": "20261102",
+"net": -348943,
+"long_total": 2351762,
+"short_total": 2700705,
+"long_chg": -17475,
+"short_chg": -16166
+},
+"20261103": {
+"date": "20261103",
+"net": -314129,
+"long_total": 2456043,
+"short_total": 2770172,
+"long_chg": 81954,
+"short_chg": 62084
+}
+}
+}

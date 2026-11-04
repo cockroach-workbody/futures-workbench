@@ -1,0 +1,131 @@
+=== START 2026-10-31 20:42:42 (pass-based, MAX_ROUNDS=8) ===
+existing: {"SA": 9, "M": 9, "C": 6, "SR": 7, "CF": 7, "A": 8}
+=== round 1: 20 pending attempts ===
+  [retryable] SA 20261008 attempt=1 reason=429
+GAP SA 20260925 (empty result, permanent)
+  [retryable] M 20261014 attempt=1 reason=429
+GAP M 20260925 (empty result, permanent)
+  [retryable] C 20261028 attempt=1 reason=429
+  [retryable] C 20261016 attempt=1 reason=429
+  [retryable] C 20261012 attempt=1 reason=429
+  [retryable] C 20261008 attempt=1 reason=429
+GAP C 20260925 (empty result, permanent)
+  [retryable] SR 20261016 attempt=1 reason=429
+  [retryable] SR 20261012 attempt=1 reason=429
+  [retryable] SR 20260930 attempt=1 reason=429
+GAP SR 20260925 (empty result, permanent)
+  [retryable] CF 20261030 attempt=1 reason=429
+  [retryable] CF 20261016 attempt=1 reason=429
+  [retryable] CF 20261008 attempt=1 reason=429
+GAP CF 20260925 (empty result, permanent)
+  [retryable] A 20261028 attempt=1 reason=429
+  [retryable] A 20261012 attempt=1 reason=429
+GAP A 20260925 (empty result, permanent)
+round 1 end: collected=46/66 gaps=6
+  sleep 120s before next round
+=== round 2: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=2 reason=429
+  [retryable] M 20261014 attempt=2 reason=429
+  [retryable] C 20261028 attempt=2 reason=429
+  [retryable] C 20261016 attempt=2 reason=429
+  [retryable] C 20261012 attempt=2 reason=429
+  [retryable] C 20261008 attempt=2 reason=429
+  [retryable] SR 20261016 attempt=2 reason=429
+  [retryable] SR 20261012 attempt=2 reason=429
+  [retryable] SR 20260930 attempt=2 reason=429
+  [retryable] CF 20261030 attempt=2 reason=429
+  [retryable] CF 20261016 attempt=2 reason=429
+  [retryable] CF 20261008 attempt=2 reason=429
+  [retryable] A 20261028 attempt=2 reason=429
+  [retryable] A 20261012 attempt=2 reason=429
+round 2 end: collected=46/66 gaps=6
+  sleep 120s before next round
+=== round 3: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=3 reason=429
+  [retryable] M 20261014 attempt=3 reason=429
+  [retryable] C 20261028 attempt=3 reason=429
+  [retryable] C 20261016 attempt=3 reason=429
+  [retryable] C 20261012 attempt=3 reason=429
+  [retryable] C 20261008 attempt=3 reason=429
+  [retryable] SR 20261016 attempt=3 reason=429
+  [retryable] SR 20261012 attempt=3 reason=429
+  [retryable] SR 20260930 attempt=3 reason=429
+  [retryable] CF 20261030 attempt=3 reason=429
+  [retryable] CF 20261016 attempt=3 reason=429
+  [retryable] CF 20261008 attempt=3 reason=429
+  [retryable] A 20261028 attempt=3 reason=429
+  [retryable] A 20261012 attempt=3 reason=429
+round 3 end: collected=46/66 gaps=6
+  sleep 120s before next round
+=== round 4: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=4 reason=429
+  [retryable] M 20261014 attempt=4 reason=429
+  [retryable] C 20261028 attempt=4 reason=429
+  [retryable] C 20261016 attempt=4 reason=429
+  [retryable] C 20261012 attempt=4 reason=429
+  [retryable] C 20261008 attempt=4 reason=429
+  [retryable] SR 20261016 attempt=4 reason=429
+  [retryable] SR 20261012 attempt=4 reason=429
+  [retryable] SR 20260930 attempt=4 reason=429
+  [retryable] CF 20261030 attempt=4 reason=429
+  [retryable] CF 20261016 attempt=4 reason=429
+  [retryable] CF 20261008 attempt=4 reason=429
+  [retryable] A 20261028 attempt=4 reason=429
+  [retryable] A 20261012 attempt=4 reason=429
+round 4 end: collected=46/66 gaps=6
+  sleep 120s before next round
+=== round 5: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=5 reason=429
+  [retryable] M 20261014 attempt=5 reason=429
+  [retryable] C 20261028 attempt=5 reason=429
+  [retryable] C 20261016 attempt=5 reason=429
+  [retryable] C 20261012 attempt=5 reason=429
+  [retryable] C 20261008 attempt=5 reason=429
+  [retryable] SR 20261016 attempt=5 reason=429
+  [retryable] SR 20261012 attempt=5 reason=429
+  [retryable] SR 20260930 attempt=5 reason=429
+  [retryable] CF 20261030 attempt=5 reason=429
+  [retryable] CF 20261016 attempt=5 reason=429
+  [retryable] CF 20261008 attempt=5 reason=429
+  [retryable] A 20261028 attempt=5 reason=429
+  [retryable] A 20261012 attempt=5 reason=429
+round 5 end: collected=46/66 gaps=6
+  sleep 120s before next round
+=== round 6: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=6 reason=429
+  [retryable] M 20261014 attempt=6 reason=429
+  [retryable] C 20261028 attempt=6 reason=429
+  [retryable] C 20261016 attempt=6 reason=429
+  [retryable] C 20261012 attempt=6 reason=429
+  [retryable] C 20261008 attempt=6 reason=429
+  [retryable] SR 20261016 attempt=6 reason=429
+  [retryable] SR 20261012 attempt=6 reason=429
+  [retryable] SR 20260930 attempt=6 reason=429
+  [retryable] CF 20261030 attempt=6 reason=429
+  [retryable] CF 20261016 attempt=6 reason=429
+  [retryable] CF 20261008 attempt=6 reason=429
+  [retryable] A 20261028 attempt=6 reason=429
+  [retryable] A 20261012 attempt=6 reason=429
+round 6 end: collected=46/66 gaps=6
+  sleep 120s before next round
+=== round 7: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=7 reason=429
+  [retryable] M 20261014 attempt=7 reason=429
+  [retryable] C 20261028 attempt=7 reason=429
+  [retryable] C 20261016 attempt=7 reason=429
+  [retryable] C 20261012 attempt=7 reason=429
+  [retryable] C 20261008 attempt=7 reason=429
+  [retryable] SR 20261016 attempt=7 reason=429
+  [retryable] SR 20261012 attempt=7 reason=429
+  [retryable] SR 20260930 attempt=7 reason=429
+  [retryable] CF 20261030 attempt=7 reason=429
+  [retryable] CF 20261016 attempt=7 reason=429
+  [retryable] CF 20261008 attempt=7 reason=429
+  [retryable] A 20261028 attempt=7 reason=429
+  [retryable] A 20261012 attempt=7 reason=429
+round 7 end: collected=46/66 gaps=6
+  sleep 120s before next round
+=== round 8: 14 pending attempts ===
+  [retryable] SA 20261008 attempt=8 reason=429
+  [retryable] M 20261014 attempt=8 reason=429
+  [retryable] C 20261028 attempt=8 reason=429

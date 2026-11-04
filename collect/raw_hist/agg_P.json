@@ -1,0 +1,102 @@
+{
+"code": "P",
+"variety": "P.DCE",
+"data": {
+"20260930": {
+"date": "20260930",
+"net": 38849.0,
+"long_total": 82513,
+"short_total": 43664,
+"long_chg": -1127,
+"short_chg": -979
+},
+"20261008": {
+"date": "20261008",
+"net": 39199.0,
+"long_total": 81701,
+"short_total": 42502,
+"long_chg": -724,
+"short_chg": -964
+},
+"20261012": {
+"date": "20261012",
+"net": 36234.0,
+"long_total": 74075,
+"short_total": 37841,
+"long_chg": -3908,
+"short_chg": -1802
+},
+"20261014": {
+"date": "20261014",
+"net": 36566.0,
+"long_total": 70791,
+"short_total": 34225,
+"long_chg": -2818,
+"short_chg": -2712
+},
+"20261016": {
+"date": "20261016",
+"net": 38481.0,
+"long_total": 72297,
+"short_total": 33816,
+"long_chg": 41,
+"short_chg": -776
+},
+"20261020": {
+"date": "20261020",
+"net": 37798.0,
+"long_total": 66958,
+"short_total": 29160,
+"long_chg": -2076,
+"short_chg": -1973
+},
+"20261022": {
+"date": "20261022",
+"net": 38418.0,
+"long_total": 65222,
+"short_total": 26804,
+"long_chg": 374,
+"short_chg": -411
+},
+"20261026": {
+"date": "20261026",
+"net": 381341.0,
+"long_total": 420703,
+"short_total": 39362,
+"long_chg": 9035,
+"short_chg": 1499
+},
+"20261028": {
+"date": "20261028",
+"net": 410546.0,
+"long_total": 452408,
+"short_total": 41862,
+"long_chg": -1630,
+"short_chg": 725
+},
+"20261030": {
+"date": "20261030",
+"net": 414281.0,
+"long_total": 455281,
+"short_total": 41000,
+"long_chg": -3865,
+"short_chg": -2098
+},
+"20261102": {
+"date": "20261102",
+"net": -466986,
+"long_total": 7075031,
+"short_total": 7542017,
+"long_chg": -136328,
+"short_chg": -147083
+},
+"20261103": {
+"date": "20261103",
+"net": -520123,
+"long_total": 6903773,
+"short_total": 7423896,
+"long_chg": -96546,
+"short_chg": -27857
+}
+}
+}

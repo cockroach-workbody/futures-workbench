@@ -1,0 +1,18 @@
+# 期货分析工作台 —— 定时刷新计划（自托管 cron，彻底脱离本机/WorkBuddy 客户端）
+# 与工作台一致的时间表：
+#   工作日 19:30 交易所直抓数据刷新主跑（K线/标准仓单/前20净持仓等收盘数据）
+#   每日   08:30 市场情绪/机构观点自动抓取（qhkch 每日直抓 + 合并已有 WebSearch 补丁；
+#                      WebSearch 全网部分若无 AI 代理落盘补丁则自动跳过，仅保留上次结果）
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+MAILTO=""
+
+# 数据主跑：周一~周五 19:30
+30 19 * * 1-5 cd /opt/futures-workbench && python cloud_cron.py data    >> /var/log/futures-cron.log 2>&1
+
+# 市场情绪/机构观点：每天 08:30（qhkch 直抓 + 合并）
+30 8 * * *    cd /opt/futures-workbench && python cloud_cron.py opinion  >> /var/log/futures-cron.log 2>&1
+
+# ===== 以下为可选补跑（纯服务器 cron 不依赖客户端，补跑零成本，建议按需启用）=====
+# 30 12 * * *   cd /opt/futures-workbench && python cloud_cron.py both    >> /var/log/futures-cron.log 2>&1
+# 30 18 * * *   cd /opt/futures-workbench && python cloud_cron.py both    >> /var/log/futures-cron.log 2>&1

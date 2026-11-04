@@ -1,0 +1,45 @@
+# ============ 数据产物（每次刷新重建，不纳入版本库）============
+data/
+web/
+dist/
+collect/*_daily.json
+collect/neodata_*.json
+collect/warehouse_*.json
+collect/opinions_*.json
+collect/inventory_*.json
+collect/ima_push_*.json
+# 抓取中间数据
+collect/raw/
+collect/_websearch_partial_*.json
+collect/_run_report_*.md
+collect/_t20_dates.json
+collect/_t20_variety.json
+collect/_collect_*.log
+collect/_*.log
+_*.log
+run_report.json
+
+# 顶层调试/临时脚本与记录（仅根目录，不影响 collect/ 下合法脚本）
+/_*.py
+/_*.md
+/cloud_*_result.md
+/cloud_*_probe.md
+
+# ============ 但保留：前20净持仓历史曲线 + 人工维护的观点补丁 ============
+!collect/raw_hist/
+!collect/_websearch_opinions.json
+
+# ============ Python ============
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+
+# ============ 本地/平台特定 ============
+.workbuddy/
+.wbapp*
+.DS_Store
+node_modules/
+*.tmp
