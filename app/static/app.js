@@ -185,7 +185,7 @@
         <div id="sentCurveCap" class="note" style="margin:4px 0 2px"></div>
         <div id="chSentCurve" class="chart" style="height:240px"></div>
       </div>
-      <div class="note" style="width:100%">样本：全市场 ${SENT.total_products || 0} 个品种、共 ${t.opinions} 条机构研报观点（WebSearch + NeoData social_opinion，近1月）；数据截至 ${SENT.as_of || "—"}。净情绪 = 看多 − 看空。</div>`;
+      <div class="note" style="width:100%">样本：全市场 ${SENT.total_products || 0} 个品种、共 ${t.opinions} 条机构研报观点（奇货可查 qhkch 每日直抓 + WebSearch 全网检索 + 多源研报，近30天）；数据截至 ${SENT.as_of || "—"}。净情绪 = 看多 − 看空。</div>`;
     return card("⑪ 全市场机构情绪总览", "Sentiment", "span12", body, tone);
   }
 
