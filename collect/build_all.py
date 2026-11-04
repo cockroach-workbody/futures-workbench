@@ -378,9 +378,12 @@ def build_market_sentiment(cfg, net_info, structure, spread, warehouse_total, wa
     struct_signal = "待接入"
     if structure is not None:
         struct_signal = "偏多" if structure == "back" else "偏空"
-    label = "待接入"
-    if cot_signal != "待接入" and struct_signal != "待接入":
-        label = "偏多" if cot_signal == "偏多" and struct_signal == "偏多" else "中性"
+    # 综合情绪以持仓 COT（依赖前20会员）为主信号；期限结构为可选增强项。
+    # 只要有 COT 信号即给出综合倾向，避免云端缺期限结构数据时整体显“待接入”。
+    if cot_signal != "待接入":
+        label = cot_signal
+    else:
+        label = "待接入"
     rc_signal = "中性" if warehouse_total is not None else "待接入"
     return {"label": label, "score": None,
             "cot": {"net_long_pct": net_long_pct, "long_short_ratio": long_short_ratio,
