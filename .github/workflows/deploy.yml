@@ -54,8 +54,16 @@ jobs:
       - name: 准备 Pages 产物
         run: |
           mkdir -p public
-          cp dist/*.html public/ || echo "::warning::dist 未生成"
+          # GitHub Pages 根路径只认 index.html；把单文件网页重命名为 index.html
+          shopt -s nullglob
+          files=(dist/*.html)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::dist 未生成，构建失败，停止部署"
+            exit 1
+          fi
+          cp "${files[0]}" public/index.html
           touch public/.nojekyll
+          echo "已生成 public/index.html（源: ${files[0]}）"
 
       - name: 上传 Pages 产物
         uses: actions/upload-pages-artifact@v3
