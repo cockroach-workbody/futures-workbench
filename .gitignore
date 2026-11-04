@@ -8,6 +8,8 @@ collect/warehouse_*.json
 collect/opinions_*.json
 collect/inventory_*.json
 collect/ima_push_*.json
+# 运行生成的状态文件（不应入库，避免本地 / GitHub 互推冲突）
+collect/refresh_status.json
 # 抓取中间数据
 collect/raw/
 collect/_websearch_partial_*.json
