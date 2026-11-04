@@ -1,0 +1,269 @@
+{
+ "code": "SN",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "SN2612.SHF",
+ "members": [
+  {
+   "name": "国泰君安",
+   "long": 4843.0,
+   "long_chg": 118.0,
+   "short": 3498.0,
+   "short_chg": 309.0,
+   "net": 1345.0,
+   "net_chg": -191.0
+  },
+  {
+   "name": "金瑞期货",
+   "long": 1332.0,
+   "long_chg": 39.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 1332.0,
+   "net_chg": 39.0
+  },
+  {
+   "name": "新湖期货",
+   "long": 1308.0,
+   "long_chg": 11.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 1308.0,
+   "net_chg": 11.0
+  },
+  {
+   "name": "中信期货",
+   "long": 3928.0,
+   "long_chg": -255.0,
+   "short": 2705.0,
+   "short_chg": -139.0,
+   "net": 1223.0,
+   "net_chg": -116.0
+  },
+  {
+   "name": "中信建投",
+   "long": 2297.0,
+   "long_chg": 183.0,
+   "short": 1118.0,
+   "short_chg": 157.0,
+   "net": 1179.0,
+   "net_chg": 26.0
+  },
+  {
+   "name": "银河期货",
+   "long": 1342.0,
+   "long_chg": 200.0,
+   "short": 2512.0,
+   "short_chg": 201.0,
+   "net": -1170.0,
+   "net_chg": -1.0
+  },
+  {
+   "name": "广发期货",
+   "long": 1122.0,
+   "long_chg": 45.0,
+   "short": 2205.0,
+   "short_chg": 238.0,
+   "net": -1083.0,
+   "net_chg": -193.0
+  },
+  {
+   "name": "中金财富",
+   "long": 1049.0,
+   "long_chg": 42.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 1049.0,
+   "net_chg": 42.0
+  },
+  {
+   "name": "东证期货",
+   "long": 1328.0,
+   "long_chg": 289.0,
+   "short": 2222.0,
+   "short_chg": -273.0,
+   "net": -894.0,
+   "net_chg": 562.0
+  },
+  {
+   "name": "平安期货",
+   "long": 706.0,
+   "long_chg": 26.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 706.0,
+   "net_chg": 26.0
+  },
+  {
+   "name": "中泰期货",
+   "long": 1393.0,
+   "long_chg": 49.0,
+   "short": 692.0,
+   "short_chg": 291.0,
+   "net": 701.0,
+   "net_chg": -242.0
+  },
+  {
+   "name": "国信期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 654.0,
+   "short_chg": -70.0,
+   "net": -654.0,
+   "net_chg": 70.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 662.0,
+   "long_chg": 112.0,
+   "short": 1300.0,
+   "short_chg": -44.0,
+   "net": -638.0,
+   "net_chg": 156.0
+  },
+  {
+   "name": "大地期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 579.0,
+   "short_chg": 54.0,
+   "net": -579.0,
+   "net_chg": -54.0
+  },
+  {
+   "name": "国投期货",
+   "long": 556.0,
+   "long_chg": 15.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 556.0,
+   "net_chg": 15.0
+  },
+  {
+   "name": "一德期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 512.0,
+   "short_chg": -46.0,
+   "net": -512.0,
+   "net_chg": 46.0
+  },
+  {
+   "name": "创元期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 496.0,
+   "short_chg": 28.0,
+   "net": -496.0,
+   "net_chg": -28.0
+  },
+  {
+   "name": "华金期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 486.0,
+   "short_chg": 27.0,
+   "net": -486.0,
+   "net_chg": -27.0
+  },
+  {
+   "name": "南华期货",
+   "long": 1220.0,
+   "long_chg": 45.0,
+   "short": 830.0,
+   "short_chg": -44.0,
+   "net": 390.0,
+   "net_chg": 89.0
+  },
+  {
+   "name": "东海期货",
+   "long": 580.0,
+   "long_chg": 104.0,
+   "short": 960.0,
+   "short_chg": 90.0,
+   "net": -380.0,
+   "net_chg": 14.0
+  }
+ ],
+ "summary": {
+  "long_total": 23666.0,
+  "short_total": 20769.0,
+  "net": 2897.0,
+  "long_chg": 1023.0,
+  "short_chg": 779.0,
+  "net_chg": 244.0
+ },
+ "bias": "多头占优·净多增仓偏多",
+ "warehouse": {
+  "standard": {
+   "total": 1957.0,
+   "change": -25.0,
+   "unit": "吨",
+   "date": "20261027"
+  },
+  "mill": null,
+  "breakdown": [
+   {
+    "name": "锡仓00020001",
+    "qty": 142.0,
+    "change": 18.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锡仓00020002",
+    "qty": 56.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锡仓00110001",
+    "qty": 574.0,
+    "change": -10.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锡仓00090001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锡仓00060001",
+    "qty": 48.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锡仓00030001",
+    "qty": 813.0,
+    "change": 4.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锡仓00010001",
+    "qty": 80.0,
+    "change": -12.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锡仓00100001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锡仓00070001",
+    "qty": 244.0,
+    "change": -25.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锡仓00080001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   }
+  ]
+ }
+}

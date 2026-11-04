@@ -1,0 +1,281 @@
+{
+ "code": "CJ",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261027",
+ "dominant_contract": "CJ701.ZCE",
+ "members": [
+  {
+   "name": "国泰君安",
+   "long": 9938.0,
+   "long_chg": 1547.0,
+   "short": 20795.0,
+   "short_chg": -2951.0,
+   "net": -10857.0,
+   "net_chg": 4498.0
+  },
+  {
+   "name": "徽商期货",
+   "long": 7199.0,
+   "long_chg": -307.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 7199.0,
+   "net_chg": -307.0
+  },
+  {
+   "name": "东方财富",
+   "long": 5172.0,
+   "long_chg": -676.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5172.0,
+   "net_chg": -676.0
+  },
+  {
+   "name": "大地期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4689.0,
+   "short_chg": 722.0,
+   "net": -4689.0,
+   "net_chg": -722.0
+  },
+  {
+   "name": "一德期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4314.0,
+   "short_chg": -424.0,
+   "net": -4314.0,
+   "net_chg": 424.0
+  },
+  {
+   "name": "海证期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4069.0,
+   "short_chg": -474.0,
+   "net": -4069.0,
+   "net_chg": 474.0
+  },
+  {
+   "name": "中财期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4050.0,
+   "short_chg": 79.0,
+   "net": -4050.0,
+   "net_chg": -79.0
+  },
+  {
+   "name": "中粮期货",
+   "long": 3608.0,
+   "long_chg": -1212.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3608.0,
+   "net_chg": -1212.0
+  },
+  {
+   "name": "浙商期货",
+   "long": 3513.0,
+   "long_chg": -477.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3513.0,
+   "net_chg": -477.0
+  },
+  {
+   "name": "平安期货",
+   "long": 3382.0,
+   "long_chg": -173.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3382.0,
+   "net_chg": -173.0
+  },
+  {
+   "name": "瑞达期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3343.0,
+   "short_chg": -1169.0,
+   "net": -3343.0,
+   "net_chg": 1169.0
+  },
+  {
+   "name": "创元期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3325.0,
+   "short_chg": 275.0,
+   "net": -3325.0,
+   "net_chg": -275.0
+  },
+  {
+   "name": "齐盛期货",
+   "long": 3300.0,
+   "long_chg": 495.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3300.0,
+   "net_chg": 495.0
+  },
+  {
+   "name": "东吴期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3265.0,
+   "short_chg": -634.0,
+   "net": -3265.0,
+   "net_chg": 634.0
+  },
+  {
+   "name": "华安期货",
+   "long": 3232.0,
+   "long_chg": -409.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3232.0,
+   "net_chg": -409.0
+  },
+  {
+   "name": "银河期货",
+   "long": 6173.0,
+   "long_chg": -712.0,
+   "short": 8770.0,
+   "short_chg": -214.0,
+   "net": -2597.0,
+   "net_chg": -498.0
+  },
+  {
+   "name": "方正中期",
+   "long": 5616.0,
+   "long_chg": -1029.0,
+   "short": 3953.0,
+   "short_chg": 501.0,
+   "net": 1663.0,
+   "net_chg": -1530.0
+  },
+  {
+   "name": "国投期货",
+   "long": 3223.0,
+   "long_chg": -70.0,
+   "short": 4809.0,
+   "short_chg": -213.0,
+   "net": -1586.0,
+   "net_chg": 143.0
+  },
+  {
+   "name": "中信建投",
+   "long": 5268.0,
+   "long_chg": -255.0,
+   "short": 3821.0,
+   "short_chg": -195.0,
+   "net": 1447.0,
+   "net_chg": -60.0
+  },
+  {
+   "name": "中辉期货",
+   "long": 3632.0,
+   "long_chg": -277.0,
+   "short": 4883.0,
+   "short_chg": 388.0,
+   "net": -1251.0,
+   "net_chg": -665.0
+  }
+ ],
+ "summary": {
+  "long_total": 63256.0,
+  "short_total": 74086.0,
+  "net": -10830.0,
+  "long_chg": -3555.0,
+  "short_chg": -4309.0,
+  "net_chg": 754.0
+ },
+ "bias": "空头占优·净空减仓",
+ "warehouse": {
+  "standard": {
+   "total": 0.0,
+   "change": 0.0,
+   "unit": "张",
+   "date": "20261027"
+  },
+  "mill": null,
+  "breakdown": [
+   {
+    "name": "1920",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1917",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1918",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1927",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1921",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1901",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1902",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1912",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1914",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1903",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1904",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1915",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   }
+  ]
+ }
+}

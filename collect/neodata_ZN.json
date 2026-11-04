@@ -1,0 +1,353 @@
+{
+ "code": "ZN",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "ZN2612.SHF",
+ "members": [
+  {
+   "name": "中信期货",
+   "long": 17046.0,
+   "long_chg": -362.0,
+   "short": 8221.0,
+   "short_chg": -671.0,
+   "net": 8825.0,
+   "net_chg": 309.0
+  },
+  {
+   "name": "国泰君安",
+   "long": 14621.0,
+   "long_chg": -445.0,
+   "short": 6202.0,
+   "short_chg": -591.0,
+   "net": 8419.0,
+   "net_chg": 146.0
+  },
+  {
+   "name": "银河期货",
+   "long": 3567.0,
+   "long_chg": -97.0,
+   "short": 8501.0,
+   "short_chg": -232.0,
+   "net": -4934.0,
+   "net_chg": 135.0
+  },
+  {
+   "name": "华泰期货",
+   "long": 4353.0,
+   "long_chg": 315.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 4353.0,
+   "net_chg": 315.0
+  },
+  {
+   "name": "中粮期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4324.0,
+   "short_chg": 840.0,
+   "net": -4324.0,
+   "net_chg": -840.0
+  },
+  {
+   "name": "光大期货",
+   "long": 4097.0,
+   "long_chg": 423.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 4097.0,
+   "net_chg": 423.0
+  },
+  {
+   "name": "中信建投",
+   "long": 4005.0,
+   "long_chg": -33.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 4005.0,
+   "net_chg": -33.0
+  },
+  {
+   "name": "国投期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3533.0,
+   "short_chg": -63.0,
+   "net": -3533.0,
+   "net_chg": 63.0
+  },
+  {
+   "name": "紫金天风",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3259.0,
+   "short_chg": 57.0,
+   "net": -3259.0,
+   "net_chg": -57.0
+  },
+  {
+   "name": "方正中期",
+   "long": 2881.0,
+   "long_chg": 492.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2881.0,
+   "net_chg": 492.0
+  },
+  {
+   "name": "国信期货",
+   "long": 2864.0,
+   "long_chg": 785.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2864.0,
+   "net_chg": 785.0
+  },
+  {
+   "name": "南华期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2655.0,
+   "short_chg": -101.0,
+   "net": -2655.0,
+   "net_chg": 101.0
+  },
+  {
+   "name": "铜冠金源",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2491.0,
+   "short_chg": 15.0,
+   "net": -2491.0,
+   "net_chg": -15.0
+  },
+  {
+   "name": "中银期货",
+   "long": 2438.0,
+   "long_chg": -123.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2438.0,
+   "net_chg": -123.0
+  },
+  {
+   "name": "中金财富",
+   "long": 2437.0,
+   "long_chg": 435.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2437.0,
+   "net_chg": 435.0
+  },
+  {
+   "name": "摩根大通",
+   "long": 2365.0,
+   "long_chg": 56.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2365.0,
+   "net_chg": 56.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2342.0,
+   "short_chg": -416.0,
+   "net": -2342.0,
+   "net_chg": 416.0
+  },
+  {
+   "name": "国贸期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2229.0,
+   "short_chg": 257.0,
+   "net": -2229.0,
+   "net_chg": -257.0
+  },
+  {
+   "name": "云晨期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2211.0,
+   "short_chg": 196.0,
+   "net": -2211.0,
+   "net_chg": -196.0
+  },
+  {
+   "name": "盛达期货",
+   "long": 2102.0,
+   "long_chg": 335.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2102.0,
+   "net_chg": 335.0
+  }
+ ],
+ "summary": {
+  "long_total": 62776.0,
+  "short_total": 45968.0,
+  "net": 16808.0,
+  "long_chg": 1781.0,
+  "short_chg": -709.0,
+  "net_chg": 2490.0
+ },
+ "bias": "多头占优·净多增仓偏多",
+ "warehouse": {
+  "standard": {
+   "total": 63399.0,
+   "change": -1722.0,
+   "unit": "吨",
+   "date": "20261027"
+  },
+  "mill": null,
+  "breakdown": [
+   {
+    "name": "锌仓00040002",
+    "qty": 649.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00240002",
+    "qty": 7628.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00240001",
+    "qty": 100.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00020001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00030001",
+    "qty": 245.0,
+    "change": -49.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌集00050001",
+    "qty": 17752.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00020004",
+    "qty": 3500.0,
+    "change": -50.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00050001",
+    "qty": 1782.0,
+    "change": -777.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00050002",
+    "qty": 201.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00020003",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00170001",
+    "qty": 5029.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00140001",
+    "qty": 1219.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00140002",
+    "qty": 7515.0,
+    "change": -101.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00140003",
+    "qty": 2760.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌集00040001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00080001",
+    "qty": 447.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00010001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00110001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌集00020001",
+    "qty": 6602.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00090001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00200001",
+    "qty": 3701.0,
+    "change": -99.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00100001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00190001",
+    "qty": 4269.0,
+    "change": -646.0,
+    "unit": "吨"
+   },
+   {
+    "name": "锌仓00150001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   }
+  ]
+ }
+}

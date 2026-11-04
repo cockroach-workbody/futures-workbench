@@ -1,0 +1,274 @@
+{
+ "code": "LC",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "LC2701.GFE",
+ "members": [
+  {
+   "name": "国泰君安期货",
+   "long": 92360.0,
+   "long_chg": -310.0,
+   "short": 45102.0,
+   "short_chg": 2721.0,
+   "net": 47258.0,
+   "net_chg": -3031.0
+  },
+  {
+   "name": "中信期货",
+   "long": 66110.0,
+   "long_chg": -265.0,
+   "short": 34274.0,
+   "short_chg": 793.0,
+   "net": 31836.0,
+   "net_chg": -1058.0
+  },
+  {
+   "name": "东证期货",
+   "long": 17422.0,
+   "long_chg": -1311.0,
+   "short": 46808.0,
+   "short_chg": 1780.0,
+   "net": -29386.0,
+   "net_chg": -3091.0
+  },
+  {
+   "name": "一德期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 13530.0,
+   "short_chg": 41.0,
+   "net": -13530.0,
+   "net_chg": -41.0
+  },
+  {
+   "name": "银河期货",
+   "long": 12320.0,
+   "long_chg": 513.0,
+   "short": 25065.0,
+   "short_chg": -2229.0,
+   "net": -12745.0,
+   "net_chg": 2742.0
+  },
+  {
+   "name": "中粮期货",
+   "long": 4883.0,
+   "long_chg": -158.0,
+   "short": 16079.0,
+   "short_chg": -406.0,
+   "net": -11196.0,
+   "net_chg": 248.0
+  },
+  {
+   "name": "华泰期货",
+   "long": 14439.0,
+   "long_chg": -102.0,
+   "short": 25588.0,
+   "short_chg": -800.0,
+   "net": -11149.0,
+   "net_chg": 698.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 5781.0,
+   "long_chg": -142.0,
+   "short": 16774.0,
+   "short_chg": -144.0,
+   "net": -10993.0,
+   "net_chg": 2.0
+  },
+  {
+   "name": "国投期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 10395.0,
+   "short_chg": -763.0,
+   "net": -10395.0,
+   "net_chg": 763.0
+  },
+  {
+   "name": "中泰期货",
+   "long": 10235.0,
+   "long_chg": 405.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 10235.0,
+   "net_chg": 405.0
+  },
+  {
+   "name": "瑞达期货",
+   "long": 4552.0,
+   "long_chg": -523.0,
+   "short": 14523.0,
+   "short_chg": -323.0,
+   "net": -9971.0,
+   "net_chg": -200.0
+  },
+  {
+   "name": "方正中期",
+   "long": 7387.0,
+   "long_chg": 725.0,
+   "short": 17148.0,
+   "short_chg": 590.0,
+   "net": -9761.0,
+   "net_chg": 135.0
+  },
+  {
+   "name": "宝城期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 8918.0,
+   "short_chg": 392.0,
+   "net": -8918.0,
+   "net_chg": -392.0
+  },
+  {
+   "name": "东吴期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 7090.0,
+   "short_chg": 286.0,
+   "net": -7090.0,
+   "net_chg": -286.0
+  },
+  {
+   "name": "申银万国",
+   "long": 5833.0,
+   "long_chg": -440.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5833.0,
+   "net_chg": -440.0
+  },
+  {
+   "name": "广发期货",
+   "long": 11365.0,
+   "long_chg": -375.0,
+   "short": 17083.0,
+   "short_chg": 646.0,
+   "net": -5718.0,
+   "net_chg": -1021.0
+  },
+  {
+   "name": "徽商期货",
+   "long": 5615.0,
+   "long_chg": 1011.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5615.0,
+   "net_chg": 1011.0
+  },
+  {
+   "name": "浙商期货",
+   "long": 11419.0,
+   "long_chg": 527.0,
+   "short": 5926.0,
+   "short_chg": 1304.0,
+   "net": 5493.0,
+   "net_chg": -777.0
+  },
+  {
+   "name": "光大期货",
+   "long": 5417.0,
+   "long_chg": 447.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5417.0,
+   "net_chg": 447.0
+  },
+  {
+   "name": "南华期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 5395.0,
+   "short_chg": 207.0,
+   "net": -5395.0,
+   "net_chg": -207.0
+  }
+ ],
+ "summary": {
+  "long_total": 275138.0,
+  "short_total": 309698.0,
+  "net": -34560.0,
+  "long_chg": 2.0,
+  "short_chg": 4095.0,
+  "net_chg": -4093.0
+ },
+ "bias": "空头占优·净空增仓偏空",
+ "warehouse": {
+  "standard": {
+   "total": 17121.0,
+   "change": 90.0,
+   "unit": "手",
+   "date": "20261030"
+  },
+  "mill": {
+   "total": 3053.0,
+   "change": 0.0,
+   "unit": "手",
+   "date": "20261030"
+  },
+  "breakdown": [
+   {
+    "name": "",
+    "qty": 30.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 561.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 1782.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 4563.0,
+    "change": 30.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 150.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 1970.0,
+    "change": 60.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 3647.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 389.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 101.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 875.0,
+    "change": 0.0,
+    "unit": "手"
+   }
+  ]
+ }
+}

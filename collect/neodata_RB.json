@@ -1,0 +1,292 @@
+{
+ "code": "RB",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261027",
+ "dominant_contract": "RB2701.SHF",
+ "members": [
+  {
+   "name": "中信期货",
+   "long": 266918.0,
+   "long_chg": 3314.0,
+   "short": 140782.0,
+   "short_chg": 11651.0,
+   "net": 126136.0,
+   "net_chg": -8337.0
+  },
+  {
+   "name": "高盛期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 78148.0,
+   "short_chg": 2815.0,
+   "net": -78148.0,
+   "net_chg": -2815.0
+  },
+  {
+   "name": "一德期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 57533.0,
+   "short_chg": -8628.0,
+   "net": -57533.0,
+   "net_chg": 8628.0
+  },
+  {
+   "name": "瑞银期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 56803.0,
+   "short_chg": 2106.0,
+   "net": -56803.0,
+   "net_chg": -2106.0
+  },
+  {
+   "name": "国投期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 48925.0,
+   "short_chg": 1385.0,
+   "net": -48925.0,
+   "net_chg": -1385.0
+  },
+  {
+   "name": "华泰期货",
+   "long": 90586.0,
+   "long_chg": 2638.0,
+   "short": 42804.0,
+   "short_chg": 301.0,
+   "net": 47782.0,
+   "net_chg": 2337.0
+  },
+  {
+   "name": "国泰君安",
+   "long": 154335.0,
+   "long_chg": 6148.0,
+   "short": 193361.0,
+   "short_chg": 4148.0,
+   "net": -39026.0,
+   "net_chg": 2000.0
+  },
+  {
+   "name": "物产中大",
+   "long": 38529.0,
+   "long_chg": 1053.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 38529.0,
+   "net_chg": 1053.0
+  },
+  {
+   "name": "中金财富",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 36717.0,
+   "short_chg": 492.0,
+   "net": -36717.0,
+   "net_chg": -492.0
+  },
+  {
+   "name": "东海期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 33928.0,
+   "short_chg": -486.0,
+   "net": -33928.0,
+   "net_chg": 486.0
+  },
+  {
+   "name": "中信建投",
+   "long": 32411.0,
+   "long_chg": 1671.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 32411.0,
+   "net_chg": 1671.0
+  },
+  {
+   "name": "广发期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 29796.0,
+   "short_chg": 22.0,
+   "net": -29796.0,
+   "net_chg": -22.0
+  },
+  {
+   "name": "大地期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 28136.0,
+   "short_chg": -1213.0,
+   "net": -28136.0,
+   "net_chg": 1213.0
+  },
+  {
+   "name": "申万期货",
+   "long": 25698.0,
+   "long_chg": -190.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 25698.0,
+   "net_chg": -190.0
+  },
+  {
+   "name": "光大期货",
+   "long": 24602.0,
+   "long_chg": -1516.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 24602.0,
+   "net_chg": -1516.0
+  },
+  {
+   "name": "徽商期货",
+   "long": 24016.0,
+   "long_chg": 754.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 24016.0,
+   "net_chg": 754.0
+  },
+  {
+   "name": "海通期货",
+   "long": 23708.0,
+   "long_chg": 333.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 23708.0,
+   "net_chg": 333.0
+  },
+  {
+   "name": "宝城期货",
+   "long": 21798.0,
+   "long_chg": 695.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 21798.0,
+   "net_chg": 695.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 21238.0,
+   "long_chg": 109.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 21238.0,
+   "net_chg": 109.0
+  },
+  {
+   "name": "方正中期",
+   "long": 82166.0,
+   "long_chg": -82.0,
+   "short": 61653.0,
+   "short_chg": -4179.0,
+   "net": 20513.0,
+   "net_chg": 4097.0
+  }
+ ],
+ "summary": {
+  "long_total": 806005.0,
+  "short_total": 808586.0,
+  "net": -2581.0,
+  "long_chg": 14927.0,
+  "short_chg": 8414.0,
+  "net_chg": 6513.0
+ },
+ "bias": "空头占优·净空减仓",
+ "warehouse": {
+  "standard": {
+   "total": 34500.0,
+   "change": 0.0,
+   "unit": "吨",
+   "date": "20261027"
+  },
+  "mill": {
+   "total": 34500.0,
+   "change": 0.0,
+   "unit": "吨",
+   "date": "20261027"
+  },
+  "breakdown": [
+   {
+    "name": "螺纹钢仓00060001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢集00020002",
+    "qty": 10058.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00030004",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00030001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00030003",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢集00020001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00030002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00100001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00090001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00110001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00050001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00020002",
+    "qty": 24367.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "螺纹钢仓00080001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   }
+  ]
+ }
+}

@@ -1,0 +1,280 @@
+{
+ "code": "BU",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "BU2701.SHF",
+ "members": [
+  {
+   "name": "中信期货",
+   "long": 27258.0,
+   "long_chg": 3494.0,
+   "short": 10136.0,
+   "short_chg": 1271.0,
+   "net": 17122.0,
+   "net_chg": 2223.0
+  },
+  {
+   "name": "高盛期货",
+   "long": 12997.0,
+   "long_chg": 284.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 12997.0,
+   "net_chg": 284.0
+  },
+  {
+   "name": "浙商期货",
+   "long": 12583.0,
+   "long_chg": 354.0,
+   "short": 5283.0,
+   "short_chg": 570.0,
+   "net": 7300.0,
+   "net_chg": -216.0
+  },
+  {
+   "name": "广发期货",
+   "long": 2387.0,
+   "long_chg": 2.0,
+   "short": 9627.0,
+   "short_chg": 1166.0,
+   "net": -7240.0,
+   "net_chg": -1164.0
+  },
+  {
+   "name": "中泰期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 7145.0,
+   "short_chg": 792.0,
+   "net": -7145.0,
+   "net_chg": -792.0
+  },
+  {
+   "name": "国泰君安",
+   "long": 21441.0,
+   "long_chg": 4399.0,
+   "short": 14980.0,
+   "short_chg": 1093.0,
+   "net": 6461.0,
+   "net_chg": 3306.0
+  },
+  {
+   "name": "中金财富",
+   "long": 6257.0,
+   "long_chg": -254.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 6257.0,
+   "net_chg": -254.0
+  },
+  {
+   "name": "盛达期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 5274.0,
+   "short_chg": 1110.0,
+   "net": -5274.0,
+   "net_chg": -1110.0
+  },
+  {
+   "name": "安粮期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 5065.0,
+   "short_chg": 240.0,
+   "net": -5065.0,
+   "net_chg": -240.0
+  },
+  {
+   "name": "中粮期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4321.0,
+   "short_chg": 291.0,
+   "net": -4321.0,
+   "net_chg": -291.0
+  },
+  {
+   "name": "创元期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3730.0,
+   "short_chg": -362.0,
+   "net": -3730.0,
+   "net_chg": 362.0
+  },
+  {
+   "name": "申万期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3396.0,
+   "short_chg": 199.0,
+   "net": -3396.0,
+   "net_chg": -199.0
+  },
+  {
+   "name": "国联期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3298.0,
+   "short_chg": 746.0,
+   "net": -3298.0,
+   "net_chg": -746.0
+  },
+  {
+   "name": "中信建投",
+   "long": 3267.0,
+   "long_chg": 530.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3267.0,
+   "net_chg": 530.0
+  },
+  {
+   "name": "国贸期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3266.0,
+   "short_chg": -104.0,
+   "net": -3266.0,
+   "net_chg": 104.0
+  },
+  {
+   "name": "东吴期货",
+   "long": 3055.0,
+   "long_chg": 461.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3055.0,
+   "net_chg": 461.0
+  },
+  {
+   "name": "银河期货",
+   "long": 5657.0,
+   "long_chg": 1094.0,
+   "short": 8709.0,
+   "short_chg": 96.0,
+   "net": -3052.0,
+   "net_chg": 998.0
+  },
+  {
+   "name": "东证期货",
+   "long": 9635.0,
+   "long_chg": 2412.0,
+   "short": 7012.0,
+   "short_chg": 1563.0,
+   "net": 2623.0,
+   "net_chg": 849.0
+  },
+  {
+   "name": "平安期货",
+   "long": 2598.0,
+   "long_chg": 358.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2598.0,
+   "net_chg": 358.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 2469.0,
+   "long_chg": 1062.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2469.0,
+   "net_chg": 1062.0
+  }
+ ],
+ "summary": {
+  "long_total": 109604.0,
+  "short_total": 91242.0,
+  "net": 18362.0,
+  "long_chg": 14196.0,
+  "short_chg": 8671.0,
+  "net_chg": 5525.0
+ },
+ "bias": "多头占优·净多增仓偏多",
+ "warehouse": {
+  "standard": {
+   "total": 1560.0,
+   "change": 0.0,
+   "unit": "吨",
+   "date": "20261027"
+  },
+  "mill": {
+   "total": 1560.0,
+   "change": 0.0,
+   "unit": "吨",
+   "date": "20261027"
+  },
+  "breakdown": [
+   {
+    "name": "石油沥青仓00160001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00050001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00100001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00150001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00130001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00030001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00070001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00110001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00040001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00060001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "石油沥青仓00010001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   }
+  ]
+ }
+}

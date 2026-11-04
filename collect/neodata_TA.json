@@ -1,0 +1,328 @@
+{
+ "code": "TA",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "TA701.ZCE",
+ "members": [
+  {
+   "name": "东吴期货",
+   "long": 10651.0,
+   "long_chg": 656.0,
+   "short": 103512.0,
+   "short_chg": 5982.0,
+   "net": -92861.0,
+   "net_chg": -5326.0
+  },
+  {
+   "name": "高盛期货",
+   "long": 71933.0,
+   "long_chg": 2500.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 71933.0,
+   "net_chg": 2500.0
+  },
+  {
+   "name": "东证期货",
+   "long": 108593.0,
+   "long_chg": 4712.0,
+   "short": 45254.0,
+   "short_chg": -1047.0,
+   "net": 63339.0,
+   "net_chg": 5759.0
+  },
+  {
+   "name": "恒力期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 46833.0,
+   "short_chg": 1119.0,
+   "net": -46833.0,
+   "net_chg": -1119.0
+  },
+  {
+   "name": "中信期货",
+   "long": 102741.0,
+   "long_chg": 1830.0,
+   "short": 59103.0,
+   "short_chg": 3183.0,
+   "net": 43638.0,
+   "net_chg": -1353.0
+  },
+  {
+   "name": "国贸期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 41065.0,
+   "short_chg": 2884.0,
+   "net": -41065.0,
+   "net_chg": -2884.0
+  },
+  {
+   "name": "摩根大通",
+   "long": 40057.0,
+   "long_chg": 2242.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 40057.0,
+   "net_chg": 2242.0
+  },
+  {
+   "name": "国泰君安",
+   "long": 106395.0,
+   "long_chg": 3523.0,
+   "short": 140378.0,
+   "short_chg": -4414.0,
+   "net": -33983.0,
+   "net_chg": 7937.0
+  },
+  {
+   "name": "光大期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 33372.0,
+   "short_chg": 513.0,
+   "net": -33372.0,
+   "net_chg": -513.0
+  },
+  {
+   "name": "瑞银期货",
+   "long": 31163.0,
+   "long_chg": 140.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 31163.0,
+   "net_chg": 140.0
+  },
+  {
+   "name": "中粮期货",
+   "long": 30762.0,
+   "long_chg": 866.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 30762.0,
+   "net_chg": 866.0
+  },
+  {
+   "name": "中金财富",
+   "long": 25322.0,
+   "long_chg": -1494.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 25322.0,
+   "net_chg": -1494.0
+  },
+  {
+   "name": "建信期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 22247.0,
+   "short_chg": -1386.0,
+   "net": -22247.0,
+   "net_chg": 1386.0
+  },
+  {
+   "name": "永安期货",
+   "long": 40383.0,
+   "long_chg": -56022.0,
+   "short": 20675.0,
+   "short_chg": 1087.0,
+   "net": 19708.0,
+   "net_chg": -57109.0
+  },
+  {
+   "name": "海通期货",
+   "long": 16295.0,
+   "long_chg": 1795.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 16295.0,
+   "net_chg": 1795.0
+  },
+  {
+   "name": "东海期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 14211.0,
+   "short_chg": 224.0,
+   "net": -14211.0,
+   "net_chg": -224.0
+  },
+  {
+   "name": "海证期货",
+   "long": 12553.0,
+   "long_chg": 1910.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 12553.0,
+   "net_chg": 1910.0
+  },
+  {
+   "name": "弘业期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 12432.0,
+   "short_chg": 186.0,
+   "net": -12432.0,
+   "net_chg": -186.0
+  },
+  {
+   "name": "物产中大",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 12169.0,
+   "short_chg": 681.0,
+   "net": -12169.0,
+   "net_chg": -681.0
+  },
+  {
+   "name": "中银国际",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 11769.0,
+   "short_chg": -1424.0,
+   "net": -11769.0,
+   "net_chg": 1424.0
+  }
+ ],
+ "summary": {
+  "long_total": 596848.0,
+  "short_total": 563020.0,
+  "net": 33828.0,
+  "long_chg": -37342.0,
+  "short_chg": 7588.0,
+  "net_chg": -44930.0
+ },
+ "bias": "多头占优·净多减仓谨慎",
+ "warehouse": {
+  "standard": {
+   "total": 3573.0,
+   "change": -34.0,
+   "unit": "张",
+   "date": "20261027"
+  },
+  "mill": {
+   "total": 198.0,
+   "change": 0.0,
+   "unit": "张",
+   "date": "20261027"
+  },
+  "breakdown": [
+   {
+    "name": "0530",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0531",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0513",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0533",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0538",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0503",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0506",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0508",
+    "qty": 183.0,
+    "change": -34.0,
+    "unit": "张"
+   },
+   {
+    "name": "1517",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0504",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0516",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0509",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0505",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0527",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0514",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0314",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0534",
+    "qty": 3192.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0523",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "0541",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   }
+  ]
+ }
+}

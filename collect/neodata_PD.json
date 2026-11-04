@@ -1,0 +1,50 @@
+{
+ "code": "PD",
+ "available": false,
+ "source": "NeoData",
+ "as_of": null,
+ "dominant_contract": null,
+ "members": [],
+ "summary": null,
+ "bias": null,
+ "warehouse": {
+  "standard": {
+   "total": 5070.0,
+   "change": -3.0,
+   "unit": "手",
+   "date": "20261030"
+  },
+  "mill": {
+   "total": 197.0,
+   "change": 0.0,
+   "unit": "手",
+   "date": "20261030"
+  },
+  "breakdown": [
+   {
+    "name": "",
+    "qty": 10.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 557.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 500.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "",
+    "qty": 3806.0,
+    "change": -3.0,
+    "unit": "手"
+   }
+  ]
+ }
+}

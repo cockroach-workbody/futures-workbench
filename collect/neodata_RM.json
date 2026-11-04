@@ -1,0 +1,244 @@
+{
+ "code": "RM",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "RM701.ZCE",
+ "members": [
+  {
+   "name": "高盛期货",
+   "long": 14475.0,
+   "long_chg": -1432.0,
+   "short": 77180.0,
+   "short_chg": 4233.0,
+   "net": -62705.0,
+   "net_chg": -5665.0
+  },
+  {
+   "name": "中信期货",
+   "long": 37075.0,
+   "long_chg": 609.0,
+   "short": 78950.0,
+   "short_chg": 5786.0,
+   "net": -41875.0,
+   "net_chg": -5177.0
+  },
+  {
+   "name": "中粮期货",
+   "long": 13802.0,
+   "long_chg": 457.0,
+   "short": 42467.0,
+   "short_chg": -8268.0,
+   "net": -28665.0,
+   "net_chg": 8725.0
+  },
+  {
+   "name": "海证期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 28178.0,
+   "short_chg": -189.0,
+   "net": -28178.0,
+   "net_chg": 189.0
+  },
+  {
+   "name": "瑞银期货",
+   "long": 27656.0,
+   "long_chg": -1522.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 27656.0,
+   "net_chg": -1522.0
+  },
+  {
+   "name": "东证期货",
+   "long": 61835.0,
+   "long_chg": -1315.0,
+   "short": 35609.0,
+   "short_chg": 6052.0,
+   "net": 26226.0,
+   "net_chg": -7367.0
+  },
+  {
+   "name": "国泰君安",
+   "long": 65938.0,
+   "long_chg": -2439.0,
+   "short": 46828.0,
+   "short_chg": -514.0,
+   "net": 19110.0,
+   "net_chg": -1925.0
+  },
+  {
+   "name": "银河期货",
+   "long": 28893.0,
+   "long_chg": 6924.0,
+   "short": 9934.0,
+   "short_chg": -282.0,
+   "net": 18959.0,
+   "net_chg": 7206.0
+  },
+  {
+   "name": "海通期货",
+   "long": 16177.0,
+   "long_chg": -613.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 16177.0,
+   "net_chg": -613.0
+  },
+  {
+   "name": "中金财富",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 11585.0,
+   "short_chg": 1519.0,
+   "net": -11585.0,
+   "net_chg": -1519.0
+  },
+  {
+   "name": "华泰期货",
+   "long": 14654.0,
+   "long_chg": -496.0,
+   "short": 26143.0,
+   "short_chg": 903.0,
+   "net": -11489.0,
+   "net_chg": -1399.0
+  },
+  {
+   "name": "瑞达期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 10981.0,
+   "short_chg": -736.0,
+   "net": -10981.0,
+   "net_chg": 736.0
+  },
+  {
+   "name": "物产中大",
+   "long": 10369.0,
+   "long_chg": -30.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 10369.0,
+   "net_chg": -30.0
+  },
+  {
+   "name": "永安期货",
+   "long": 16509.0,
+   "long_chg": 109.0,
+   "short": 7288.0,
+   "short_chg": -587.0,
+   "net": 9221.0,
+   "net_chg": 696.0
+  },
+  {
+   "name": "徽商期货",
+   "long": 8924.0,
+   "long_chg": 194.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 8924.0,
+   "net_chg": 194.0
+  },
+  {
+   "name": "东吴期货",
+   "long": 8872.0,
+   "long_chg": -832.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 8872.0,
+   "net_chg": -832.0
+  },
+  {
+   "name": "国投期货",
+   "long": 11600.0,
+   "long_chg": 2944.0,
+   "short": 20199.0,
+   "short_chg": -1184.0,
+   "net": -8599.0,
+   "net_chg": 4128.0
+  },
+  {
+   "name": "摩根大通",
+   "long": 13231.0,
+   "long_chg": -1507.0,
+   "short": 21692.0,
+   "short_chg": 5407.0,
+   "net": -8461.0,
+   "net_chg": -6914.0
+  },
+  {
+   "name": "方正中期",
+   "long": 8270.0,
+   "long_chg": -128.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 8270.0,
+   "net_chg": -128.0
+  },
+  {
+   "name": "南华期货",
+   "long": 7573.0,
+   "long_chg": 73.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 7573.0,
+   "net_chg": 73.0
+  }
+ ],
+ "summary": {
+  "long_total": 365853.0,
+  "short_total": 417034.0,
+  "net": -51181.0,
+  "long_chg": 996.0,
+  "short_chg": 12140.0,
+  "net_chg": -11144.0
+ },
+ "bias": "空头占优·净空增仓偏空",
+ "warehouse": {
+  "standard": {
+   "total": 4820.0,
+   "change": 0.0,
+   "unit": "张",
+   "date": "20261027"
+  },
+  "mill": {
+   "total": 4820.0,
+   "change": 0.0,
+   "unit": "张",
+   "date": "20261027"
+  },
+  "breakdown": [
+   {
+    "name": "0607",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1008",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1006",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "1004",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   }
+  ]
+ }
+}

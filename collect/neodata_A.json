@@ -1,0 +1,311 @@
+{
+ "code": "A",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "A2701.DCE",
+ "members": [
+  {
+   "name": "华泰期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 24899.0,
+   "short_chg": 588.0,
+   "net": -24899.0,
+   "net_chg": -588.0
+  },
+  {
+   "name": "摩根大通",
+   "long": 22164.0,
+   "long_chg": -1334.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 22164.0,
+   "net_chg": -1334.0
+  },
+  {
+   "name": "南华期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 21565.0,
+   "short_chg": -190.0,
+   "net": -21565.0,
+   "net_chg": 190.0
+  },
+  {
+   "name": "高盛期货",
+   "long": 12251.0,
+   "long_chg": -781.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 12251.0,
+   "net_chg": -781.0
+  },
+  {
+   "name": "国泰君安",
+   "long": 20476.0,
+   "long_chg": -2719.0,
+   "short": 32574.0,
+   "short_chg": -69.0,
+   "net": -12098.0,
+   "net_chg": -2650.0
+  },
+  {
+   "name": "一德期货",
+   "long": 26550.0,
+   "long_chg": 2739.0,
+   "short": 15675.0,
+   "short_chg": 387.0,
+   "net": 10875.0,
+   "net_chg": 2352.0
+  },
+  {
+   "name": "银河期货",
+   "long": 14125.0,
+   "long_chg": 2706.0,
+   "short": 23116.0,
+   "short_chg": 1470.0,
+   "net": -8991.0,
+   "net_chg": 1236.0
+  },
+  {
+   "name": "中信建投",
+   "long": 8140.0,
+   "long_chg": 16.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 8140.0,
+   "net_chg": 16.0
+  },
+  {
+   "name": "国投期货",
+   "long": 15956.0,
+   "long_chg": -168.0,
+   "short": 7827.0,
+   "short_chg": 802.0,
+   "net": 8129.0,
+   "net_chg": -970.0
+  },
+  {
+   "name": "金瑞期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 7635.0,
+   "short_chg": -249.0,
+   "net": -7635.0,
+   "net_chg": 249.0
+  },
+  {
+   "name": "浙商期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 7589.0,
+   "short_chg": -133.0,
+   "net": -7589.0,
+   "net_chg": 133.0
+  },
+  {
+   "name": "东海期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 7128.0,
+   "short_chg": 57.0,
+   "net": -7128.0,
+   "net_chg": -57.0
+  },
+  {
+   "name": "广发期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 6891.0,
+   "short_chg": 23.0,
+   "net": -6891.0,
+   "net_chg": -23.0
+  },
+  {
+   "name": "东吴期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 6887.0,
+   "short_chg": -1261.0,
+   "net": -6887.0,
+   "net_chg": 1261.0
+  },
+  {
+   "name": "北京金鹏",
+   "long": 5450.0,
+   "long_chg": 13.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5450.0,
+   "net_chg": 13.0
+  },
+  {
+   "name": "申银万国",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 5359.0,
+   "short_chg": -186.0,
+   "net": -5359.0,
+   "net_chg": 186.0
+  },
+  {
+   "name": "弘业期货",
+   "long": 5270.0,
+   "long_chg": 55.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5270.0,
+   "net_chg": 55.0
+  },
+  {
+   "name": "瑞达期货",
+   "long": 5227.0,
+   "long_chg": -79.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5227.0,
+   "net_chg": -79.0
+  },
+  {
+   "name": "中州期货",
+   "long": 5044.0,
+   "long_chg": 109.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5044.0,
+   "net_chg": 109.0
+  },
+  {
+   "name": "宏源期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4825.0,
+   "short_chg": -626.0,
+   "net": -4825.0,
+   "net_chg": 626.0
+  }
+ ],
+ "summary": {
+  "long_total": 140653.0,
+  "short_total": 171970.0,
+  "net": -31317.0,
+  "long_chg": 557.0,
+  "short_chg": 613.0,
+  "net_chg": -56.0
+ },
+ "bias": "空头占优·净空增仓偏空",
+ "warehouse": {
+  "standard": {
+   "total": 81242.0,
+   "change": 439.0,
+   "unit": "手",
+   "date": "20261027"
+  },
+  "mill": null,
+  "breakdown": [
+   {
+    "name": "黄大豆1号仓00250001",
+    "qty": 282.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号集仓00030003",
+    "qty": 940.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号集仓00030001",
+    "qty": 3215.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号集仓00030002",
+    "qty": 1096.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00130001",
+    "qty": 3972.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00100001",
+    "qty": 4808.0,
+    "change": -46.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00020001",
+    "qty": 7250.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号集仓00020001",
+    "qty": 3066.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00220001",
+    "qty": 9151.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号集仓00010003",
+    "qty": 7206.0,
+    "change": 485.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00160001",
+    "qty": 547.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00070001",
+    "qty": 11151.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00050001",
+    "qty": 8779.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00260001",
+    "qty": 2770.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00040001",
+    "qty": 3989.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00080001",
+    "qty": 8448.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "黄大豆1号仓00060001",
+    "qty": 4572.0,
+    "change": 0.0,
+    "unit": "手"
+   }
+  ]
+ }
+}

@@ -1,0 +1,406 @@
+{
+ "code": "V",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "V2701.DCE",
+ "members": [
+  {
+   "name": "中财期货",
+   "long": 139477.0,
+   "long_chg": 151.0,
+   "short": 18186.0,
+   "short_chg": 676.0,
+   "net": 121291.0,
+   "net_chg": -525.0
+  },
+  {
+   "name": "国泰君安",
+   "long": 51659.0,
+   "long_chg": 2962.0,
+   "short": 129720.0,
+   "short_chg": -2404.0,
+   "net": -78061.0,
+   "net_chg": 5366.0
+  },
+  {
+   "name": "恒力期货",
+   "long": 48574.0,
+   "long_chg": 116.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 48574.0,
+   "net_chg": 116.0
+  },
+  {
+   "name": "银河期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 37690.0,
+   "short_chg": 7171.0,
+   "net": -37690.0,
+   "net_chg": -7171.0
+  },
+  {
+   "name": "浙商期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 36734.0,
+   "short_chg": 656.0,
+   "net": -36734.0,
+   "net_chg": -656.0
+  },
+  {
+   "name": "申银万国",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 31373.0,
+   "short_chg": 11956.0,
+   "net": -31373.0,
+   "net_chg": -11956.0
+  },
+  {
+   "name": "信达期货",
+   "long": 28559.0,
+   "long_chg": 362.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 28559.0,
+   "net_chg": 362.0
+  },
+  {
+   "name": "中信建投",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 26532.0,
+   "short_chg": 2947.0,
+   "net": -26532.0,
+   "net_chg": -2947.0
+  },
+  {
+   "name": "国投期货",
+   "long": 25988.0,
+   "long_chg": 2674.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 25988.0,
+   "net_chg": 2674.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 24866.0,
+   "long_chg": -138.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 24866.0,
+   "net_chg": -138.0
+  },
+  {
+   "name": "海通期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 24761.0,
+   "short_chg": 1492.0,
+   "net": -24761.0,
+   "net_chg": -1492.0
+  },
+  {
+   "name": "大地期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 23675.0,
+   "short_chg": 2707.0,
+   "net": -23675.0,
+   "net_chg": -2707.0
+  },
+  {
+   "name": "物产中大",
+   "long": 34695.0,
+   "long_chg": -848.0,
+   "short": 14806.0,
+   "short_chg": 2428.0,
+   "net": 19889.0,
+   "net_chg": -3276.0
+  },
+  {
+   "name": "大越期货",
+   "long": 19299.0,
+   "long_chg": 60.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 19299.0,
+   "net_chg": 60.0
+  },
+  {
+   "name": "盛达期货",
+   "long": 18696.0,
+   "long_chg": 445.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 18696.0,
+   "net_chg": 445.0
+  },
+  {
+   "name": "安粮期货",
+   "long": 18654.0,
+   "long_chg": 524.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 18654.0,
+   "net_chg": 524.0
+  },
+  {
+   "name": "建信期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 17794.0,
+   "short_chg": 922.0,
+   "net": -17794.0,
+   "net_chg": -922.0
+  },
+  {
+   "name": "中泰期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 16563.0,
+   "short_chg": 1128.0,
+   "net": -16563.0,
+   "net_chg": -1128.0
+  },
+  {
+   "name": "永安期货",
+   "long": 44523.0,
+   "long_chg": -1646.0,
+   "short": 60863.0,
+   "short_chg": 2401.0,
+   "net": -16340.0,
+   "net_chg": -4047.0
+  },
+  {
+   "name": "上海中期",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 15683.0,
+   "short_chg": 760.0,
+   "net": -15683.0,
+   "net_chg": -760.0
+  }
+ ],
+ "summary": {
+  "long_total": 454990.0,
+  "short_total": 454380.0,
+  "net": 610.0,
+  "long_chg": 4662.0,
+  "short_chg": 32840.0,
+  "net_chg": -28178.0
+ },
+ "bias": "多头占优·净多减仓谨慎",
+ "warehouse": {
+  "standard": {
+   "total": 115166.0,
+   "change": -400.0,
+   "unit": "手",
+   "date": "20261027"
+  },
+  "mill": {
+   "total": 5739.0,
+   "change": 0.0,
+   "unit": "手",
+   "date": "20261027"
+  },
+  "breakdown": [
+   {
+    "name": "聚氯乙烯（PVC）集仓00020001",
+    "qty": 1718.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00040001",
+    "qty": 238.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00030001",
+    "qty": 10299.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00010001",
+    "qty": 8046.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00010004",
+    "qty": 198.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00010002",
+    "qty": 405.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00010007",
+    "qty": 232.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00010006",
+    "qty": 2191.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00400003",
+    "qty": 3337.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00400001",
+    "qty": 8552.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00400002",
+    "qty": 5799.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00400005",
+    "qty": 3064.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00400006",
+    "qty": 68.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00400004",
+    "qty": 9408.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00010009",
+    "qty": 720.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00050005",
+    "qty": 12553.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00010002",
+    "qty": 1288.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00280001",
+    "qty": 406.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00050004",
+    "qty": 422.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00100001",
+    "qty": 300.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00140001",
+    "qty": 16438.0,
+    "change": -200.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00210001",
+    "qty": 5620.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00160001",
+    "qty": 180.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00270001",
+    "qty": 2667.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00090001",
+    "qty": 5394.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00150001",
+    "qty": 1789.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00050003",
+    "qty": 2377.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00130001",
+    "qty": 3705.0,
+    "change": -200.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00030002",
+    "qty": 12.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00050001",
+    "qty": 386.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）仓00300001",
+    "qty": 1544.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "聚氯乙烯（PVC）集仓00010005",
+    "qty": 71.0,
+    "change": 0.0,
+    "unit": "手"
+   }
+  ]
+ }
+}

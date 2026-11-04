@@ -1,0 +1,238 @@
+{
+ "code": "L",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "L2701.DCE",
+ "members": [
+  {
+   "name": "中信期货",
+   "long": 60997.0,
+   "long_chg": -4917.0,
+   "short": 33074.0,
+   "short_chg": 74.0,
+   "net": 27923.0,
+   "net_chg": -4991.0
+  },
+  {
+   "name": "高盛期货",
+   "long": 19788.0,
+   "long_chg": 1445.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 19788.0,
+   "net_chg": 1445.0
+  },
+  {
+   "name": "中金财富",
+   "long": 19502.0,
+   "long_chg": 2405.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 19502.0,
+   "net_chg": 2405.0
+  },
+  {
+   "name": "东吴期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 16497.0,
+   "short_chg": 4437.0,
+   "net": -16497.0,
+   "net_chg": -4437.0
+  },
+  {
+   "name": "申银万国",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 11922.0,
+   "short_chg": 210.0,
+   "net": -11922.0,
+   "net_chg": -210.0
+  },
+  {
+   "name": "国贸期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 11718.0,
+   "short_chg": 133.0,
+   "net": -11718.0,
+   "net_chg": -133.0
+  },
+  {
+   "name": "国海良时",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 11330.0,
+   "short_chg": 806.0,
+   "net": -11330.0,
+   "net_chg": -806.0
+  },
+  {
+   "name": "东海期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 10210.0,
+   "short_chg": 116.0,
+   "net": -10210.0,
+   "net_chg": -116.0
+  },
+  {
+   "name": "中银期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 10160.0,
+   "short_chg": -384.0,
+   "net": -10160.0,
+   "net_chg": 384.0
+  },
+  {
+   "name": "海证期货",
+   "long": 9790.0,
+   "long_chg": 819.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 9790.0,
+   "net_chg": 819.0
+  },
+  {
+   "name": "浙商期货",
+   "long": 8212.0,
+   "long_chg": 204.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 8212.0,
+   "net_chg": 204.0
+  },
+  {
+   "name": "瑞银期货",
+   "long": 7522.0,
+   "long_chg": -364.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 7522.0,
+   "net_chg": -364.0
+  },
+  {
+   "name": "海通期货",
+   "long": 7252.0,
+   "long_chg": -678.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 7252.0,
+   "net_chg": -678.0
+  },
+  {
+   "name": "国盛期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 7168.0,
+   "short_chg": 22.0,
+   "net": -7168.0,
+   "net_chg": -22.0
+  },
+  {
+   "name": "中泰期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 6427.0,
+   "short_chg": -479.0,
+   "net": -6427.0,
+   "net_chg": 479.0
+  },
+  {
+   "name": "南华期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 6133.0,
+   "short_chg": -46.0,
+   "net": -6133.0,
+   "net_chg": 46.0
+  },
+  {
+   "name": "国投期货",
+   "long": 5988.0,
+   "long_chg": 345.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5988.0,
+   "net_chg": 345.0
+  },
+  {
+   "name": "徽商期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 5985.0,
+   "short_chg": 520.0,
+   "net": -5985.0,
+   "net_chg": -520.0
+  },
+  {
+   "name": "华泰期货",
+   "long": 19768.0,
+   "long_chg": 408.0,
+   "short": 13894.0,
+   "short_chg": -253.0,
+   "net": 5874.0,
+   "net_chg": 661.0
+  },
+  {
+   "name": "平安期货",
+   "long": 5808.0,
+   "long_chg": 359.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5808.0,
+   "net_chg": 359.0
+  }
+ ],
+ "summary": {
+  "long_total": 164627.0,
+  "short_total": 144518.0,
+  "net": 20109.0,
+  "long_chg": 26.0,
+  "short_chg": 5156.0,
+  "net_chg": -5130.0
+ },
+ "bias": "多头占优·净多减仓谨慎",
+ "warehouse": {
+  "standard": {
+   "total": 6847.0,
+   "change": -483.0,
+   "unit": "手",
+   "date": "20261027"
+  },
+  "mill": {
+   "total": 5224.0,
+   "change": -200.0,
+   "unit": "手",
+   "date": "20261027"
+  },
+  "breakdown": [
+   {
+    "name": "线型低密度聚乙烯仓00330001",
+    "qty": 108.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "线型低密度聚乙烯仓00010001",
+    "qty": 263.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "线型低密度聚乙烯仓00080001",
+    "qty": 52.0,
+    "change": -283.0,
+    "unit": "手"
+   },
+   {
+    "name": "线型低密度聚乙烯仓00340007",
+    "qty": 1200.0,
+    "change": 0.0,
+    "unit": "手"
+   }
+  ]
+ }
+}

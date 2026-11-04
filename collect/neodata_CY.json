@@ -1,0 +1,286 @@
+{
+ "code": "CY",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "CY701.ZCE",
+ "members": [
+  {
+   "name": "银河期货",
+   "long": 660.0,
+   "long_chg": -44.0,
+   "short": 139.0,
+   "short_chg": 28.0,
+   "net": 521.0,
+   "net_chg": -72.0
+  },
+  {
+   "name": "广州期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 352.0,
+   "short_chg": 0.0,
+   "net": -352.0,
+   "net_chg": 0.0
+  },
+  {
+   "name": "瑞达期货",
+   "long": 335.0,
+   "long_chg": 40.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 335.0,
+   "net_chg": 40.0
+  },
+  {
+   "name": "东方财富",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 246.0,
+   "short_chg": 0.0,
+   "net": -246.0,
+   "net_chg": 0.0
+  },
+  {
+   "name": "首创京都期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 196.0,
+   "short_chg": 12.0,
+   "net": -196.0,
+   "net_chg": -12.0
+  },
+  {
+   "name": "格林大华期货",
+   "long": 180.0,
+   "long_chg": 2.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 180.0,
+   "net_chg": 2.0
+  },
+  {
+   "name": "华泰期货",
+   "long": 174.0,
+   "long_chg": 26.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 174.0,
+   "net_chg": 26.0
+  },
+  {
+   "name": "国投期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 160.0,
+   "short_chg": 3.0,
+   "net": -160.0,
+   "net_chg": -3.0
+  },
+  {
+   "name": "东吴期货",
+   "long": 710.0,
+   "long_chg": -7.0,
+   "short": 569.0,
+   "short_chg": -78.0,
+   "net": 141.0,
+   "net_chg": 71.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 136.0,
+   "short_chg": -48.0,
+   "net": -136.0,
+   "net_chg": 48.0
+  },
+  {
+   "name": "中信期货",
+   "long": 1196.0,
+   "long_chg": 30.0,
+   "short": 1312.0,
+   "short_chg": 33.0,
+   "net": -116.0,
+   "net_chg": -3.0
+  },
+  {
+   "name": "铜冠金源",
+   "long": 113.0,
+   "long_chg": 13.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 113.0,
+   "net_chg": 13.0
+  },
+  {
+   "name": "宝城期货",
+   "long": 112.0,
+   "long_chg": -25.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 112.0,
+   "net_chg": -25.0
+  },
+  {
+   "name": "方正中期",
+   "long": 142.0,
+   "long_chg": 0.0,
+   "short": 221.0,
+   "short_chg": 18.0,
+   "net": -79.0,
+   "net_chg": -18.0
+  },
+  {
+   "name": "国泰君安",
+   "long": 803.0,
+   "long_chg": -136.0,
+   "short": 726.0,
+   "short_chg": 43.0,
+   "net": 77.0,
+   "net_chg": -179.0
+  },
+  {
+   "name": "中信建投",
+   "long": 707.0,
+   "long_chg": 25.0,
+   "short": 637.0,
+   "short_chg": 7.0,
+   "net": 70.0,
+   "net_chg": 18.0
+  },
+  {
+   "name": "浙江新世纪",
+   "long": 150.0,
+   "long_chg": 32.0,
+   "short": 218.0,
+   "short_chg": -257.0,
+   "net": -68.0,
+   "net_chg": 289.0
+  },
+  {
+   "name": "东证期货",
+   "long": 250.0,
+   "long_chg": -20.0,
+   "short": 198.0,
+   "short_chg": -11.0,
+   "net": 52.0,
+   "net_chg": -9.0
+  },
+  {
+   "name": "浙商期货",
+   "long": 834.0,
+   "long_chg": -7.0,
+   "short": 790.0,
+   "short_chg": -8.0,
+   "net": 44.0,
+   "net_chg": 1.0
+  },
+  {
+   "name": "永安期货",
+   "long": 1675.0,
+   "long_chg": 34.0,
+   "short": 1690.0,
+   "short_chg": -33.0,
+   "net": -15.0,
+   "net_chg": 67.0
+  }
+ ],
+ "summary": {
+  "long_total": 8041.0,
+  "short_total": 7590.0,
+  "net": 451.0,
+  "long_chg": -37.0,
+  "short_chg": -291.0,
+  "net_chg": 254.0
+ },
+ "bias": "多头占优·净多增仓偏多",
+ "warehouse": {
+  "standard": {
+   "total": 0.0,
+   "change": 0.0,
+   "unit": "张",
+   "date": "20261030"
+  },
+  "mill": {
+   "total": 0.0,
+   "change": 0.0,
+   "unit": "张",
+   "date": "20261030"
+  },
+  "breakdown": [
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   },
+   {
+    "name": "",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "张"
+   }
+  ]
+ }
+}

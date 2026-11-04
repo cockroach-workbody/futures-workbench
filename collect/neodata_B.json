@@ -1,0 +1,199 @@
+{
+ "code": "B",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "B2612.DCE",
+ "members": [
+  {
+   "name": "国投期货",
+   "long": 11673.0,
+   "long_chg": 112.0,
+   "short": 879.0,
+   "short_chg": -102.0,
+   "net": 10794.0,
+   "net_chg": 214.0
+  },
+  {
+   "name": "东证期货",
+   "long": 6299.0,
+   "long_chg": 475.0,
+   "short": 2215.0,
+   "short_chg": 523.0,
+   "net": 4084.0,
+   "net_chg": -48.0
+  },
+  {
+   "name": "中信期货",
+   "long": 6681.0,
+   "long_chg": -30.0,
+   "short": 10496.0,
+   "short_chg": 188.0,
+   "net": -3815.0,
+   "net_chg": -218.0
+  },
+  {
+   "name": "国泰君安",
+   "long": 7966.0,
+   "long_chg": 1161.0,
+   "short": 10716.0,
+   "short_chg": 794.0,
+   "net": -2750.0,
+   "net_chg": 367.0
+  },
+  {
+   "name": "中信建投",
+   "long": 7579.0,
+   "long_chg": 698.0,
+   "short": 5407.0,
+   "short_chg": 86.0,
+   "net": 2172.0,
+   "net_chg": 612.0
+  },
+  {
+   "name": "东吴期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2070.0,
+   "short_chg": 1161.0,
+   "net": -2070.0,
+   "net_chg": -1161.0
+  },
+  {
+   "name": "国元期货",
+   "long": 1504.0,
+   "long_chg": -9.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 1504.0,
+   "net_chg": -9.0
+  },
+  {
+   "name": "海证期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1452.0,
+   "short_chg": 358.0,
+   "net": -1452.0,
+   "net_chg": -358.0
+  },
+  {
+   "name": "银河期货",
+   "long": 1060.0,
+   "long_chg": -349.0,
+   "short": 2442.0,
+   "short_chg": 1505.0,
+   "net": -1382.0,
+   "net_chg": -1854.0
+  },
+  {
+   "name": "摩根大通",
+   "long": 443.0,
+   "long_chg": 443.0,
+   "short": 1792.0,
+   "short_chg": -540.0,
+   "net": -1349.0,
+   "net_chg": 983.0
+  },
+  {
+   "name": "方正中期",
+   "long": 6149.0,
+   "long_chg": 76.0,
+   "short": 5058.0,
+   "short_chg": -5.0,
+   "net": 1091.0,
+   "net_chg": 81.0
+  },
+  {
+   "name": "国信期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1077.0,
+   "short_chg": 13.0,
+   "net": -1077.0,
+   "net_chg": -13.0
+  },
+  {
+   "name": "广发期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1016.0,
+   "short_chg": -25.0,
+   "net": -1016.0,
+   "net_chg": 25.0
+  },
+  {
+   "name": "高盛期货",
+   "long": 783.0,
+   "long_chg": -65.0,
+   "short": 1740.0,
+   "short_chg": 76.0,
+   "net": -957.0,
+   "net_chg": -141.0
+  },
+  {
+   "name": "国联期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 900.0,
+   "short_chg": 20.0,
+   "net": -900.0,
+   "net_chg": -20.0
+  },
+  {
+   "name": "永安期货",
+   "long": 1705.0,
+   "long_chg": 396.0,
+   "short": 929.0,
+   "short_chg": 236.0,
+   "net": 776.0,
+   "net_chg": 160.0
+  },
+  {
+   "name": "平安期货",
+   "long": 715.0,
+   "long_chg": 50.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 715.0,
+   "net_chg": 50.0
+  },
+  {
+   "name": "光大期货",
+   "long": 699.0,
+   "long_chg": -72.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 699.0,
+   "net_chg": -72.0
+  },
+  {
+   "name": "华泰期货",
+   "long": 6485.0,
+   "long_chg": 444.0,
+   "short": 5913.0,
+   "short_chg": -47.0,
+   "net": 572.0,
+   "net_chg": 491.0
+  },
+  {
+   "name": "宝城期货",
+   "long": 512.0,
+   "long_chg": 35.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 512.0,
+   "net_chg": 35.0
+  }
+ ],
+ "summary": {
+  "long_total": 60253.0,
+  "short_total": 54102.0,
+  "net": 6151.0,
+  "long_chg": 3365.0,
+  "short_chg": 4241.0,
+  "net_chg": -876.0
+ },
+ "bias": "多头占优·净多减仓谨慎",
+ "warehouse": null
+}

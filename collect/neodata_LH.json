@@ -1,0 +1,287 @@
+{
+ "code": "LH",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261027",
+ "dominant_contract": "LH2701.DCE",
+ "members": [
+  {
+   "name": "国泰君安",
+   "long": 13466.0,
+   "long_chg": 241.0,
+   "short": 18413.0,
+   "short_chg": -2591.0,
+   "net": -4947.0,
+   "net_chg": 2832.0
+  },
+  {
+   "name": "中粮期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4504.0,
+   "short_chg": -285.0,
+   "net": -4504.0,
+   "net_chg": 285.0
+  },
+  {
+   "name": "格林大华",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4490.0,
+   "short_chg": 159.0,
+   "net": -4490.0,
+   "net_chg": -159.0
+  },
+  {
+   "name": "国投期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4139.0,
+   "short_chg": -424.0,
+   "net": -4139.0,
+   "net_chg": 424.0
+  },
+  {
+   "name": "东方财富",
+   "long": 4010.0,
+   "long_chg": -1408.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 4010.0,
+   "net_chg": -1408.0
+  },
+  {
+   "name": "光大期货",
+   "long": 3630.0,
+   "long_chg": -495.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3630.0,
+   "net_chg": -495.0
+  },
+  {
+   "name": "招商期货",
+   "long": 3183.0,
+   "long_chg": 233.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3183.0,
+   "net_chg": 233.0
+  },
+  {
+   "name": "中泰期货",
+   "long": 4686.0,
+   "long_chg": -239.0,
+   "short": 7696.0,
+   "short_chg": -181.0,
+   "net": -3010.0,
+   "net_chg": -58.0
+  },
+  {
+   "name": "徽商期货",
+   "long": 2830.0,
+   "long_chg": -601.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2830.0,
+   "net_chg": -601.0
+  },
+  {
+   "name": "宏源期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2556.0,
+   "short_chg": 112.0,
+   "net": -2556.0,
+   "net_chg": -112.0
+  },
+  {
+   "name": "国联期货",
+   "long": 2537.0,
+   "long_chg": 258.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2537.0,
+   "net_chg": 258.0
+  },
+  {
+   "name": "国信期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2450.0,
+   "short_chg": -290.0,
+   "net": -2450.0,
+   "net_chg": 290.0
+  },
+  {
+   "name": "瑞达期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2328.0,
+   "short_chg": -303.0,
+   "net": -2328.0,
+   "net_chg": 303.0
+  },
+  {
+   "name": "平安期货",
+   "long": 2305.0,
+   "long_chg": -499.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2305.0,
+   "net_chg": -499.0
+  },
+  {
+   "name": "申银万国",
+   "long": 2267.0,
+   "long_chg": -495.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2267.0,
+   "net_chg": -495.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2243.0,
+   "short_chg": -192.0,
+   "net": -2243.0,
+   "net_chg": 192.0
+  },
+  {
+   "name": "东证期货",
+   "long": 10978.0,
+   "long_chg": 2207.0,
+   "short": 9721.0,
+   "short_chg": -2191.0,
+   "net": 1257.0,
+   "net_chg": 4398.0
+  },
+  {
+   "name": "华泰期货",
+   "long": 4838.0,
+   "long_chg": -444.0,
+   "short": 5706.0,
+   "short_chg": 141.0,
+   "net": -868.0,
+   "net_chg": -585.0
+  },
+  {
+   "name": "方正中期",
+   "long": 3834.0,
+   "long_chg": -1565.0,
+   "short": 3064.0,
+   "short_chg": -24.0,
+   "net": 770.0,
+   "net_chg": -1541.0
+  },
+  {
+   "name": "南华期货",
+   "long": 2467.0,
+   "long_chg": 402.0,
+   "short": 3181.0,
+   "short_chg": -433.0,
+   "net": -714.0,
+   "net_chg": 835.0
+  }
+ ],
+ "summary": {
+  "long_total": 61031.0,
+  "short_total": 70491.0,
+  "net": -9460.0,
+  "long_chg": -2405.0,
+  "short_chg": -6502.0,
+  "net_chg": 4097.0
+ },
+ "bias": "空头占优·净空减仓",
+ "warehouse": {
+  "standard": {
+   "total": 905.0,
+   "change": 0.0,
+   "unit": "手",
+   "date": "20261027"
+  },
+  "mill": null,
+  "breakdown": [
+   {
+    "name": "生猪车仓00010008",
+    "qty": 20.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪集仓00070007",
+    "qty": 225.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪车仓00010006",
+    "qty": 20.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪车仓00010005",
+    "qty": 40.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪集仓00170001",
+    "qty": 75.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪车仓00070005",
+    "qty": 150.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪车仓00220002",
+    "qty": 75.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪集仓00070001",
+    "qty": 50.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪集仓00010011",
+    "qty": 20.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪集仓00010009",
+    "qty": 40.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪车仓00210001",
+    "qty": 75.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪车仓00070006",
+    "qty": 75.0,
+    "change": 0.0,
+    "unit": "手"
+   },
+   {
+    "name": "生猪集仓00010002",
+    "qty": 40.0,
+    "change": 0.0,
+    "unit": "手"
+   }
+  ]
+ }
+}

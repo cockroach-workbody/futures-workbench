@@ -1,0 +1,401 @@
+{
+ "code": "CU",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "CU2612.SHF",
+ "members": [
+  {
+   "name": "金瑞期货",
+   "long": 5825.0,
+   "long_chg": 155.0,
+   "short": 14117.0,
+   "short_chg": 952.0,
+   "net": -8292.0,
+   "net_chg": -797.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 6581.0,
+   "short_chg": 222.0,
+   "net": -6581.0,
+   "net_chg": -222.0
+  },
+  {
+   "name": "中信建投",
+   "long": 6001.0,
+   "long_chg": 286.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 6001.0,
+   "net_chg": 286.0
+  },
+  {
+   "name": "物产中大",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 5572.0,
+   "short_chg": 501.0,
+   "net": -5572.0,
+   "net_chg": -501.0
+  },
+  {
+   "name": "永安期货",
+   "long": 5497.0,
+   "long_chg": 741.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 5497.0,
+   "net_chg": 741.0
+  },
+  {
+   "name": "南华期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4880.0,
+   "short_chg": 102.0,
+   "net": -4880.0,
+   "net_chg": -102.0
+  },
+  {
+   "name": "中信期货",
+   "long": 27756.0,
+   "long_chg": -1867.0,
+   "short": 22952.0,
+   "short_chg": 2234.0,
+   "net": 4804.0,
+   "net_chg": -4101.0
+  },
+  {
+   "name": "云晨期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4717.0,
+   "short_chg": 98.0,
+   "net": -4717.0,
+   "net_chg": -98.0
+  },
+  {
+   "name": "紫金天风",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4676.0,
+   "short_chg": -32.0,
+   "net": -4676.0,
+   "net_chg": 32.0
+  },
+  {
+   "name": "中金财富",
+   "long": 4617.0,
+   "long_chg": 418.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 4617.0,
+   "net_chg": 418.0
+  },
+  {
+   "name": "申万期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4412.0,
+   "short_chg": -647.0,
+   "net": -4412.0,
+   "net_chg": 647.0
+  },
+  {
+   "name": "国投期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 4383.0,
+   "short_chg": 7.0,
+   "net": -4383.0,
+   "net_chg": -7.0
+  },
+  {
+   "name": "海通期货",
+   "long": 3836.0,
+   "long_chg": 68.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3836.0,
+   "net_chg": 68.0
+  },
+  {
+   "name": "中辉期货",
+   "long": 3822.0,
+   "long_chg": -18.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3822.0,
+   "net_chg": -18.0
+  },
+  {
+   "name": "建信期货",
+   "long": 3815.0,
+   "long_chg": 121.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3815.0,
+   "net_chg": 121.0
+  },
+  {
+   "name": "信达期货",
+   "long": 3767.0,
+   "long_chg": -972.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3767.0,
+   "net_chg": -972.0
+  },
+  {
+   "name": "中粮期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3570.0,
+   "short_chg": 128.0,
+   "net": -3570.0,
+   "net_chg": -128.0
+  },
+  {
+   "name": "兴业期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3544.0,
+   "short_chg": 35.0,
+   "net": -3544.0,
+   "net_chg": -35.0
+  },
+  {
+   "name": "中财期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 3368.0,
+   "short_chg": -24.0,
+   "net": -3368.0,
+   "net_chg": 24.0
+  },
+  {
+   "name": "新湖期货",
+   "long": 3197.0,
+   "long_chg": 1089.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3197.0,
+   "net_chg": 1089.0
+  }
+ ],
+ "summary": {
+  "long_total": 68133.0,
+  "short_total": 82772.0,
+  "net": -14639.0,
+  "long_chg": 21.0,
+  "short_chg": 3576.0,
+  "net_chg": -3555.0
+ },
+ "bias": "空头占优·净空增仓偏空",
+ "warehouse": {
+  "standard": {
+   "total": 14593.0,
+   "change": -1626.0,
+   "unit": "吨",
+   "date": "20261027"
+  },
+  "mill": null,
+  "breakdown": [
+   {
+    "name": "铜仓00200001",
+    "qty": 2017.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00200004",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜集00030002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00190002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00190001",
+    "qty": 75.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00050001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜集00050006",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00020001",
+    "qty": 1074.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00020002",
+    "qty": 3140.0,
+    "change": -200.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00020003",
+    "qty": 450.0,
+    "change": -350.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00220001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00020004",
+    "qty": 25.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜集00010003",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜集00010002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00210002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00210001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00090002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00090001",
+    "qty": 850.0,
+    "change": -300.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜集00040001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00060001",
+    "qty": 648.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00010002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00010001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00140001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00070001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00120001",
+    "qty": 4764.0,
+    "change": -401.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00180001",
+    "qty": 1022.0,
+    "change": -299.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00080001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00110001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00170001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00130001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00180002",
+    "qty": 401.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铜仓00040001",
+    "qty": 127.0,
+    "change": -76.0,
+    "unit": "吨"
+   }
+  ]
+ }
+}

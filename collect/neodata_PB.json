@@ -1,0 +1,287 @@
+{
+ "code": "PB",
+ "available": true,
+ "source": "NeoData",
+ "as_of": "20261028",
+ "dominant_contract": "PB2612.SHF",
+ "members": [
+  {
+   "name": "中信期货",
+   "long": 11531.0,
+   "long_chg": 601.0,
+   "short": 4784.0,
+   "short_chg": -1174.0,
+   "net": 6747.0,
+   "net_chg": 1775.0
+  },
+  {
+   "name": "银河期货",
+   "long": 2406.0,
+   "long_chg": 520.0,
+   "short": 8781.0,
+   "short_chg": -85.0,
+   "net": -6375.0,
+   "net_chg": 605.0
+  },
+  {
+   "name": "方正中期",
+   "long": 4280.0,
+   "long_chg": -492.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 4280.0,
+   "net_chg": -492.0
+  },
+  {
+   "name": "中金财富",
+   "long": 3336.0,
+   "long_chg": -248.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 3336.0,
+   "net_chg": -248.0
+  },
+  {
+   "name": "建信期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 2632.0,
+   "short_chg": -16.0,
+   "net": -2632.0,
+   "net_chg": 16.0
+  },
+  {
+   "name": "海通期货",
+   "long": 2531.0,
+   "long_chg": 341.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2531.0,
+   "net_chg": 341.0
+  },
+  {
+   "name": "申万期货",
+   "long": 2135.0,
+   "long_chg": -88.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 2135.0,
+   "net_chg": -88.0
+  },
+  {
+   "name": "金瑞期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1992.0,
+   "short_chg": 984.0,
+   "net": -1992.0,
+   "net_chg": -984.0
+  },
+  {
+   "name": "光大期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1985.0,
+   "short_chg": 97.0,
+   "net": -1985.0,
+   "net_chg": -97.0
+  },
+  {
+   "name": "东证期货",
+   "long": 6125.0,
+   "long_chg": -1970.0,
+   "short": 4159.0,
+   "short_chg": -1100.0,
+   "net": 1966.0,
+   "net_chg": -870.0
+  },
+  {
+   "name": "平安期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1944.0,
+   "short_chg": 410.0,
+   "net": -1944.0,
+   "net_chg": -410.0
+  },
+  {
+   "name": "创元期货",
+   "long": 1918.0,
+   "long_chg": -35.0,
+   "short": 0.0,
+   "short_chg": 0.0,
+   "net": 1918.0,
+   "net_chg": -35.0
+  },
+  {
+   "name": "南华期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1673.0,
+   "short_chg": 940.0,
+   "net": -1673.0,
+   "net_chg": -940.0
+  },
+  {
+   "name": "五矿期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1604.0,
+   "short_chg": 56.0,
+   "net": -1604.0,
+   "net_chg": -56.0
+  },
+  {
+   "name": "浙商期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1591.0,
+   "short_chg": -35.0,
+   "net": -1591.0,
+   "net_chg": 35.0
+  },
+  {
+   "name": "国贸期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1540.0,
+   "short_chg": 326.0,
+   "net": -1540.0,
+   "net_chg": -326.0
+  },
+  {
+   "name": "中泰期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1522.0,
+   "short_chg": -1354.0,
+   "net": -1522.0,
+   "net_chg": 1354.0
+  },
+  {
+   "name": "中粮期货",
+   "long": 1226.0,
+   "long_chg": 356.0,
+   "short": 2734.0,
+   "short_chg": 307.0,
+   "net": -1508.0,
+   "net_chg": 49.0
+  },
+  {
+   "name": "华鑫期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1463.0,
+   "short_chg": 757.0,
+   "net": -1463.0,
+   "net_chg": -757.0
+  },
+  {
+   "name": "东海期货",
+   "long": 0.0,
+   "long_chg": 0.0,
+   "short": 1393.0,
+   "short_chg": 0.0,
+   "net": -1393.0,
+   "net_chg": 0.0
+  }
+ ],
+ "summary": {
+  "long_total": 35488.0,
+  "short_total": 39797.0,
+  "net": -4309.0,
+  "long_chg": -1015.0,
+  "short_chg": 113.0,
+  "net_chg": -1128.0
+ },
+ "bias": "空头占优·净空增仓偏空",
+ "warehouse": {
+  "standard": {
+   "total": 13008.0,
+   "change": -26.0,
+   "unit": "吨",
+   "date": "20261027"
+  },
+  "mill": null,
+  "breakdown": [
+   {
+    "name": "铅仓00010001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00010002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00010004",
+    "qty": 348.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00040001",
+    "qty": 750.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00010005",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00010003",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅集00010001",
+    "qty": 5617.0,
+    "change": -26.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00090001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00110001",
+    "qty": 876.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00030001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00020002",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00020001",
+    "qty": 0.0,
+    "change": 0.0,
+    "unit": "吨"
+   },
+   {
+    "name": "铅仓00100001",
+    "qty": 5417.0,
+    "change": 0.0,
+    "unit": "吨"
+   }
+  ]
+ }
+}
