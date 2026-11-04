@@ -30,6 +30,10 @@ run_report.json
 # ============ 但保留：前20净持仓历史曲线 + 人工维护的观点补丁 ============
 !collect/raw_hist/
 !collect/_websearch_opinions.json
+# 前20会员席位 + 标准仓单：由本地 NeoData 连接器解析生成，GitHub 云端无此连接器，
+# 故作为「静态快照」纳入版本库，使 GitHub Pages 版也能展示前20与仓单（数据滞后于本地最近一次刷新）。
+!collect/neodata_*.json
+!collect/warehouse_*.json
 
 # ============ Python ============
 __pycache__/

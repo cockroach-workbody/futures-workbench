@@ -11,6 +11,9 @@ on:
     - cron: '30 11 * * 1-5'
   # 允许在 Actions 页面手动触发，便于首次验证
   workflow_dispatch:
+  # 本地刷新后 push 自动重建 Pages（含前20会员 / 仓单的 NeoData 静态快照）
+  push:
+    branches: [main]
 
 permissions:
   contents: write        # 回写 raw_hist 历史曲线到仓库
