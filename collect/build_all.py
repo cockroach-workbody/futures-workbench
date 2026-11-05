@@ -6,7 +6,7 @@
 对每个品种读取 collect/<CODE>_daily.json（新浪财经主连日线，已落盘），
 生成统一快照 data/<板块>/<CODE>/<date>.json，覆盖 9 个模块：
   ① 概览 ② 供需关系 ③ 库存 ④ 期限基差 ⑤ 产业利润
-  ⑥ 资金面 ⑦ 前20多空 ⑧ 缠论 ⑩ 观点情绪
+  ⑥ 资金面 ⑦ 前20多空 / AKShare 资金动向(capital_flow) ⑧ 缠论 ⑩ 观点情绪
 
 数据策略：
   - K线(真实) + 缠论(真实) + 概览/资金面派生：来自新浪主连日线（全周期 OHLC）。
@@ -48,6 +48,21 @@ RAWHIST_DIR = os.path.join(NEODATA_DIR, "raw_hist")
 def load_agg_rawhist(code):
     """读取 collect/raw_hist/agg_<CODE>.json（前20全合约合计净持仓历史，每日滚动采集）。"""
     fp = os.path.join(RAWHIST_DIR, f"agg_{code}.json")
+    if not os.path.exists(fp):
+        return None
+    try:
+        return json.load(open(fp, "r", encoding="utf-8"))
+    except Exception:
+        return None
+
+
+CAPFLOW_DIR = os.path.join(NEODATA_DIR, "raw_capflow")
+
+
+def load_capflow(code):
+    """读取 collect/raw_capflow/capflow_<CODE>.json（AKShare 资金流采集器产出）。
+    第7部分（资金动向）优先使用；缺失或 available=False 时前端回退到 NeoData top20。"""
+    fp = os.path.join(CAPFLOW_DIR, f"capflow_{code}.json")
     if not os.path.exists(fp):
         return None
     try:
@@ -635,11 +650,14 @@ def build_product(cfg):
                "web_opinions_as_of": (web_views[0].get("as_of") if web_views and web_views[0].get("as_of") else None)}
 
 
+    capital_flow = load_capflow(cfg["code"])
+
     snap = {"product": cfg["code"], "name": cfg["name"], "category": cfg["cat"], "variety_code": cfg["var"],
             "exchange": cfg["exch"], "main_contract": cfg.get("main") or kline_contract, "as_of": SNAP_DATE,
             "data_date": latest["date"], "updated_at": SNAP_DATE + "T14:00:00",
             "kline": kline, "overview": overview, "inventory": inventory, "supply_demand": supply_demand,
-            "basis": basis, "profit": profit, "capital": capital, "top20": top20, "chanlun": chanlun,
+            "basis": basis, "profit": profit, "capital": capital, "top20": top20,
+            "capital_flow": capital_flow, "chanlun": chanlun,
             "market_sentiment": market_sentiment, "opinion": opinion}
     return snap
 

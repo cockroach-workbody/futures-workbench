@@ -18,7 +18,10 @@
            保留 qhkch 与多源观点，仅替换「与本次补丁同族群」的动态观点，
            其余动态族群原样保留。各门户流水线独立、反复运行互不丢数据。
        注意：WebSearch 实际检索需 AI 代理能力（见下「注意」），本脚本只负责合并补丁。
-  4) 运行 build_all.py 生成 data/<板块>/<CODE>/<SNAP_DATE>.json
+  4) 运行 build_all.py 生成 data/<板块>/<CODE>/<SNAP_DATE>.json（首遍，生成 main_contract）
+  4.5) AKShare 资金流采集 akshare_capital_flow.py（读取快照 main_contract，产出 raw_capflow；
+       含 --with-history 历史回溯；最佳努力，失败则第7部分回退前20）
+  4.6) 二次 build_all.py 把 capital_flow 注入快照（供第7部分资金动向渲染）
   5) 运行 build_web.py 生成 web/（线上部署源）+ dist/ 单文件
   6) 写 refresh_status.json 供前端/日志查看
 
@@ -28,6 +31,7 @@
   python collect/refresh_daily.py --no-opinions  # 跳过机构观点(qhkch)每日直抓
   python collect/refresh_daily.py --no-websearch # 跳过动态门户观点合并（WebSearch全网/金十期货/东方财富期货资讯）
   python collect/refresh_daily.py --no-html      # 不重建 dist 单文件
+  python collect/refresh_daily.py --no-capflow   # 跳过 AKShare 资金流采集（第7部分回退前20）
 
 注意（多空情绪两大自动数据源如何协同）：
   1) qhkch 直抓（collect/refresh_opinions_daily.py）：纯 HTTP 抓取，本脚本 3.6 步直接跑。
@@ -183,6 +187,7 @@ def main():
     ap.add_argument("--no-opinions", action="store_true", help="跳过机构观点(qhkch)每日直抓")
     ap.add_argument("--no-websearch", action="store_true", help="跳过 WebSearch 补丁合并")
     ap.add_argument("--no-html", action="store_true", help="不重建 dist 单文件")
+    ap.add_argument("--no-capflow", action="store_true", help="跳过 AKShare 资金流采集（第7部分回退前20）")
     ap.add_argument("--only", nargs="*", help="只刷新指定 CODE（调试用）")
     ap.add_argument("--allow-weekend", action="store_true",
                    help="允许周末也刷新（默认周末自动跳过，供本机开机自启场景使用）")
@@ -279,6 +284,38 @@ def main():
     else:
         log("build_all 完成")
 
+    # 4.5) AKShare 资金流（奇货可查式·交易所会员持仓排名同源）→ raw_capflow
+    #      读取刚生成的快照 main_contract，计算净持仓分布/总持仓变动/大单动向/历史回溯。
+    cf_ok = True
+    if args.no_capflow:
+        log("AKShare 资金流采集：跳过（--no-capflow）")
+    else:
+        log("AKShare 资金流采集（会员持仓排名·净持仓分层·大单动向·历史回溯） ...")
+        try:
+            r_cf = subprocess.run(
+                [sys.executable, os.path.join(COLLECT_DIR, "akshare_capital_flow.py"), "--with-history"],
+                cwd=BASE, capture_output=True, text=True,
+                env=dict(os.environ, WB_SNAP_DATE=sd), timeout=1800)
+            tail = (r_cf.stdout or "")[-900:]
+            if r_cf.returncode != 0:
+                cf_ok = False
+                log(f"[警告] AKShare 资金流采集异常(rc={r_cf.returncode})，第7部分回退前20:\n{tail}")
+            else:
+                log(f"AKShare 资金流采集完成:\n{tail}")
+        except Exception as e:  # noqa
+            cf_ok = False
+            log(f"[警告] AKShare 资金流采集运行异常(已跳过，第7部分回退前20): {e}")
+
+    # 4.6) 二次 build_all：注入 capital_flow 到快照（供第7部分资金动向渲染；缺失则前端回退前20）
+    log("重新构建 data/ 快照（注入 capital_flow） ...")
+    r1b = subprocess.run([sys.executable, os.path.join(COLLECT_DIR, "build_all.py")],
+                         cwd=BASE, capture_output=True, text=True,
+                         env=dict(os.environ, WB_SNAP_DATE=sd), timeout=1200)
+    if r1b.returncode != 0:
+        log(f"[错误] 二次 build_all 失败:\n{r1b.stderr[-2000:]}")
+    else:
+        log("二次 build_all 完成（已注入 capital_flow）")
+
     # 5) build_web
     log("构建 web/ + dist/ ...")
     bw_args = [sys.executable, os.path.join(COLLECT_DIR, "build_web.py")]
@@ -314,6 +351,7 @@ def main():
         "warehouse_ok": wh_ok,
         "sentiment_ok": op_ok,
         "build_all_ok": r1.returncode == 0,
+        "capflow_ok": cf_ok,
         "build_web_ok": r2.returncode == 0,
         "elapsed_sec": round(elapsed, 1),
     }

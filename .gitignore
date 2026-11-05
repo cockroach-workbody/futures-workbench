@@ -12,6 +12,7 @@ collect/ima_push_*.json
 collect/refresh_status.json
 # 抓取中间数据
 collect/raw/
+collect/raw_capflow/
 collect/_websearch_partial_*.json
 collect/_run_report_*.md
 collect/_t20_dates.json

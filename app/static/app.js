@@ -490,8 +490,79 @@
     return card("⑥ 资金面总览", "Capital", "span8", body, c.bias);
   }
 
+  // ⑦ 资金动向（AKShare·持仓结构·主力追踪）—— 由 capital_flow 数据驱动；缺失时回退原前20会员
+  function renderCapFlow(s, cf) {
+    const tp = cf.total_position || {};
+    const tiers = cf.tiers || [];
+    const iv = cf.institutional_vs_retail || {};
+    const lo = cf.large_orders || {};
+    const inst = iv.institutional || {}, ret = iv.retail || {};
+    const sign = (n) => (n > 0 ? "+" : "") + fmt(n);
+    const kpi = (label, val, c, sub, hero) =>
+      `<div class="netchg-card ${hero ? "hero" : ""}"><div class="k">${label}</div>
+        <div class="v ${c || ""}">${val}</div><div class="s">${sub || ""}</div></div>`;
+
+    const kpis = `<div class="netchg">
+      ${kpi("总持仓(主连)", (tp.latest != null ? fmt(tp.latest) : "—") + " 手", "", "近20日 " + (tp.chg_20d != null ? sign(tp.chg_20d) : "—"), true)}
+      ${kpi("总持仓变化(1日)", (tp.chg_1d != null ? sign(tp.chg_1d) : "—") + " 手", cls(tp.chg_1d), tp.chg_1d > 0 ? "资金流入 ↑" : "资金流出 ↓")}
+      ${kpi("总持仓变化(5日)", (tp.chg_5d != null ? sign(tp.chg_5d) : "—") + " 手", cls(tp.chg_5d), tp.chg_5d > 0 ? "5日净流入" : "5日净流出")}
+      ${kpi("机构净持仓(前" + (inst.count || 5) + ")", sign(inst.net) + " 手", cls(inst.net), "机构/主力席位", true)}
+      ${kpi("机构净持仓变化", sign(inst.net_chg) + " 手", cls(inst.net_chg), inst.net_chg > 0 ? "主力净多增仓" : "主力净空增仓")}
+      ${kpi("散户净持仓变化", sign(ret.net_chg) + " 手", cls(ret.net_chg), ret.net_chg > 0 ? "散户净多增仓" : "散户净空增仓")}
+    </div>`;
+
+    const tierRows = tiers.map(t => `<tr>
+      <td>${t.tier}</td>
+      <td class="${cls(t.net)}">${sign(t.net)}</td>
+      <td class="${cls(t.net_chg)}">${sign(t.net_chg)}</td>
+      <td>${fmt(t.long)}</td><td>${fmt(t.short)}</td><td>${t.count}</td>
+    </tr>`).join("");
+
+    const listItems = (arr, key, valCls) => (arr && arr.length
+      ? arr.map(m => `<div class="kv"><span class="k">${m.name}</span><span class="v ${valCls(m)}">${(key === "net_chg" ? sign(m.net_chg) : fmt(m[key]))}</span></div>`).join("")
+      : '<div class="note">—</div>');
+
+    const body = `${kpis}
+      <div class="verdict">${cf.summary || ""}</div>
+      <div class="flex">
+        <div style="flex:1.2">
+          <div class="t20-hist-head"><span class="t">净持仓分布 · 按账户资金规模分层（净持仓 / 当日净变化）</span></div>
+          <div id="chCapFlowTier" class="chart" style="height:230px"></div>
+          <div class="table-wrap" style="margin-top:6px">
+            <table><thead><tr><th>资金规模分层</th><th>净持仓</th><th>当日净变化</th><th>持买</th><th>持卖</th><th>席位</th></tr></thead>
+            <tbody>${tierRows}</tbody></table>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="t20-hist-head"><span class="t">总持仓变动 · 历史回溯（资金整体进出场节奏）</span></div>
+          <div id="chCapFlowTotal" class="chart" style="height:230px"></div>
+        </div>
+      </div>
+      <div class="flex" style="margin-top:10px">
+        <div style="flex:1.3">
+          <div class="t20-hist-head"><span class="t">大单动向 · 主力机构操作痕迹</span></div>
+          <div class="note">净持仓变化 = 多头增仓 − 空头增仓；正值=净多增加（偏多），负值=净空增加（偏空）。</div>
+          <div class="flex">
+            <div style="flex:1"><div class="k">净多增仓主力</div>${listItems(lo.top_net_increase, "net_chg", m => cls(m.net_chg))}</div>
+            <div style="flex:1"><div class="k">净空增仓主力</div>${listItems(lo.top_net_decrease, "net_chg", m => cls(m.net_chg))}</div>
+            <div style="flex:1"><div class="k">成交量领先席位</div>${listItems(lo.volume_leaders, "volume", () => "")}</div>
+          </div>
+        </div>
+        <div style="flex:1.2">
+          <div class="t20-hist-head"><span class="t">历史回溯 · 各资金层级净持仓变化</span></div>
+          <div id="chCapFlowHist" class="chart" style="height:220px"></div>
+        </div>
+      </div>
+      <div class="note" style="margin-top:8px">数据来源：${cf.source}。${cf.note_proxy || ""} 主力合约 ${cf.main_contract || cf.contract}；数据交易日 ${cf.as_of}。总持仓为主连口径，合约换月时或有跳变。</div>`;
+
+    const tone = inst.net_chg > 0 ? "机构净多增仓" : (inst.net_chg < 0 ? "机构净空增仓" : "中性");
+    return card("⑦ 资金动向", "AKShare·持仓结构·主力追踪", "span12", body, tone);
+  }
+
   // ⑦ 前20会员多空对比（重点突出：净持仓 + 当日净持仓变化量）
   function cardTop20(s) {
+    const cf = s.capital_flow;
+    if (cf && cf.available) return renderCapFlow(s, cf);
     const t = s.top20 || {};
     // 数据交易日：优先取净持仓曲线最新采样日，回退快照 as_of / data_date
     const t20DateRaw = (t.history && t.history.length)
@@ -725,11 +796,20 @@
     }
     if (s.inventory && s.inventory.standard && s.inventory.standard.total != null) Charts.inventory($("#chInv"), s.inventory);
     if (s.basis && s.basis.main_close != null && s.basis.sub_close != null) Charts.basisSpread($("#chBasis"), s.basis);
-    if (s.top20 && s.top20.members && s.top20.members.length) {
+    if (s.capital_flow && s.capital_flow.available) {
+      // ⑦ 资金动向（AKShare）：分层净持仓组合图 / 总持仓历史 / 各层级净持仓历史
+      if (s.capital_flow.tiers && s.capital_flow.tiers.length)
+        Charts.capitalFlowTier($("#chCapFlowTier"), s.capital_flow.tiers);
+      if (s.capital_flow.total_position && s.capital_flow.total_position.series)
+        Charts.totalPositionCurve($("#chCapFlowTotal"), s.capital_flow.total_position.series);
+      if (s.capital_flow.tier_net_history && s.capital_flow.tier_net_history.length >= 2)
+        Charts.tierNetHistory($("#chCapFlowHist"), s.capital_flow.tier_net_history);
+    } else if (s.top20 && s.top20.members && s.top20.members.length) {
+      // 回退：原前20会员图表
       Charts.butterfly($("#chFly"), s.top20.members);
       Charts.netChgBars($("#chNetChg"), s.top20.members);
     }
-    if (s.top20 && s.top20.history && s.top20.history.length >= 2) {
+    if (!(s.capital_flow && s.capital_flow.available) && s.top20 && s.top20.history && s.top20.history.length >= 2) {
       const h = s.top20.history.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
       Charts.top20NetCurve($("#chT20Hist"), h);
       const chg = h[h.length - 1].net - h[0].net;
@@ -737,7 +817,7 @@
       if (el) el.innerHTML = `期末主力净持仓 <b>${fmt(h[h.length - 1].net)}</b> 手，近1月变化 <b class="${cls(chg)}">${chg > 0 ? "+" : ""}${fmt(chg)}</b> 手`;
     }
     // 背离分析：COT 净持仓 z-score × 机构观点净情绪 z-score
-    if (s.top20 && s.top20.history && s.top20.history.length >= 2 && s.top20.opinion_series) {
+    if (!(s.capital_flow && s.capital_flow.available) && s.top20 && s.top20.history && s.top20.history.length >= 2 && s.top20.opinion_series) {
       const h2 = s.top20.history.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
       Charts.t20Divergence($("#chT20Div"), h2, s.top20.opinion_series);
       const last = h2[h2.length - 1];

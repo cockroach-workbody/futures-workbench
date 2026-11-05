@@ -15,6 +15,10 @@
       splitLine: { lineStyle: { color: "rgba(42,53,67,.5)" } },
     };
   }
+  function fmtN(n) {
+    if (n == null || isNaN(n)) return "-";
+    return Number(n).toLocaleString("en-US");
+  }
 
   // ① K 线 + 均线 + 缠论笔/中枢叠加
   function kline(dom, rows, ma5, ma10, chanlun) {
@@ -471,5 +475,99 @@
     return c;
   }
 
-  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, t20Divergence };
+  // ⑦ 资金动向：各资金规模层级 净持仓(柱) + 当日净持仓变化(线，次轴) 组合图
+  function capitalFlowTier(dom, tiers) {
+    const c = base(dom);
+    const names = tiers.map(t => t.tier);
+    const net = tiers.map(t => t.net);
+    const chg = tiers.map(t => t.net_chg);
+    c.setOption({
+      backgroundColor: "transparent",
+      tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
+        formatter: (p) => {
+          const i = p[0].dataIndex;
+          return `${names[i]}<br/>净持仓 <b>${fmtN(net[i])}</b> 手` +
+            `<br/>当日净持仓变化 <b style="color:${chg[i] >= 0 ? RED : GREEN}">${chg[i] > 0 ? "+" : ""}${fmtN(chg[i])}</b> 手` +
+            `<br/>持买 ${fmtN(tiers[i].long)} / 持卖 ${fmtN(tiers[i].short)}`;
+        } },
+      legend: { data: ["净持仓", "当日净持仓变化"], textStyle: { color: TX }, top: 2 },
+      grid: { left: 64, right: 56, top: 30, bottom: 26 },
+      xAxis: { type: "category", data: names, ...axisCommon(), axisLabel: { color: TX, fontSize: 11 } },
+      yAxis: [
+        { type: "value", ...axisCommon(), name: "净持仓", nameTextStyle: { color: TX },
+          axisLabel: { color: TX, formatter: (v) => (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
+        { type: "value", ...axisCommon(), name: "净变化", position: "right", splitLine: { show: false }, nameTextStyle: { color: TX },
+          axisLabel: { color: TX, formatter: (v) => (v > 0 ? "+" : "") + (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
+      ],
+      series: [
+        { name: "净持仓", type: "bar", yAxisIndex: 0, data: net.map(v => ({ value: v, itemStyle: { color: v >= 0 ? RED : GREEN } })),
+          barMaxWidth: 30, label: { show: true, position: "top", color: TX, formatter: (p) => (p.value > 0 ? "+" : "") + fmtN(p.value) } },
+        { name: "当日净持仓变化", type: "line", yAxisIndex: 1, data: chg, symbolSize: 8,
+          itemStyle: { color: AMBER }, lineStyle: { width: 2, color: AMBER },
+          label: { show: true, position: "bottom", color: AMBER, formatter: (p) => (p.value > 0 ? "+" : "") + fmtN(p.value) } },
+      ],
+    });
+    return c;
+  }
+
+  // ⑦ 资金动向：总持仓（主连 hold）历史回溯，揭示资金整体进出场节奏
+  function totalPositionCurve(dom, series) {
+    const c = base(dom);
+    const dates = series.map(p => p.date);
+    const hold = series.map(p => p.hold);
+    const last = series[series.length - 1] || { hold: 0, chg: 0 };
+    c.setOption({
+      backgroundColor: "transparent",
+      tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
+        formatter: (p) => { const x = series[p[0].dataIndex]; return `${x.date}<br/>总持仓 <b>${fmtN(x.hold)}</b> 手<br/>较前值 ${x.chg > 0 ? "+" : ""}${fmtN(x.chg)} 手`; } },
+      grid: { left: 62, right: 16, top: 18, bottom: 40 },
+      xAxis: { type: "category", data: dates, boundaryGap: false, ...axisCommon(),
+        axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(dates.length / 8)) } },
+      yAxis: { type: "value", ...axisCommon(), name: "总持仓", nameTextStyle: { color: TX },
+        axisLabel: { color: TX, formatter: (v) => (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
+      dataZoom: [
+        { type: "inside", start: 80, end: 100 },
+        { type: "slider", start: 80, end: 100, height: 14, bottom: 6, borderColor: AX,
+          fillerColor: "rgba(61,126,255,.15)", handleStyle: { color: BLUE }, moveHandleStyle: { color: BLUE }, textStyle: { color: TX },
+          dataBackground: { lineStyle: { color: AX }, areaStyle: { color: "rgba(61,126,255,.10)" } },
+          selectedDataBackground: { lineStyle: { color: BLUE }, areaStyle: { color: "rgba(61,126,255,.20)" } } },
+      ],
+      series: [{
+        type: "line", data: hold, smooth: true, showSymbol: true, symbolSize: 4, connectNulls: true,
+        itemStyle: { color: BLUE }, lineStyle: { width: 2, color: BLUE },
+        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1,
+          [{ offset: 0, color: "rgba(61,126,255,.26)" }, { offset: 1, color: "rgba(0,0,0,0)" }]) },
+        markLine: { silent: true, symbol: "none", lineStyle: { color: TX, type: "dashed" }, data: [{ yAxis: last.hold }] },
+      }],
+    });
+    return c;
+  }
+
+  // ⑦ 资金动向：历史回溯 —— 各资金规模层级净持仓变化曲线
+  function tierNetHistory(dom, history) {
+    const c = base(dom);
+    const tiers = Object.keys(history[0] || {}).filter(k => k !== "date");
+    const colors = [RED, AMBER, BLUE, GREEN, "#9b6dff"];
+    const dates = history.map(h => h.date);
+    const series = tiers.map((t, i) => ({
+      name: t, type: "line", data: history.map(h => h[t]), smooth: true, showSymbol: false, connectNulls: true,
+      itemStyle: { color: colors[i % colors.length] }, lineStyle: { width: 2, color: colors[i % colors.length] },
+    }));
+    if (series[0]) series[0].markLine = { silent: true, symbol: "none", lineStyle: { color: TX, type: "dashed" }, data: [{ yAxis: 0 }] };
+    c.setOption({
+      backgroundColor: "transparent",
+      tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
+        formatter: (ps) => { let s = ps[0].axisValue + "<br/>"; ps.forEach(p => { s += `${p.seriesName} <b>${fmtN(p.value)}</b> 手<br/>`; }); return s; } },
+      legend: { data: tiers, textStyle: { color: TX }, top: 0, itemWidth: 12, itemHeight: 8 },
+      grid: { left: 62, right: 16, top: 34, bottom: 36 },
+      xAxis: { type: "category", data: dates, boundaryGap: false, ...axisCommon(),
+        axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(dates.length / 6)) } },
+      yAxis: { type: "value", ...axisCommon(), name: "净持仓", nameTextStyle: { color: TX },
+        axisLabel: { color: TX, formatter: (v) => (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
+      series: series,
+    });
+    return c;
+  }
+
+  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, t20Divergence, capitalFlowTier, totalPositionCurve, tierNetHistory };
 })(window);
