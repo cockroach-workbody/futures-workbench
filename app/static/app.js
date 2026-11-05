@@ -25,8 +25,8 @@
   let REFRESH_INFO = null;
   async function loadRefreshInfo() {
     try {
-      const r = await fetch('/api/refresh_status');
-      REFRESH_INFO = await r.json().catch(() => null);
+      const r = await api('/api/refresh_status');
+      REFRESH_INFO = (r && r.__error__) ? null : r;
     } catch (e) { REFRESH_INFO = null; }
     paintDataDate();
   }
@@ -52,9 +52,44 @@
     setInterval(loadRefreshInfo, 60000);
   }
 
-  async function api(path) {
-    const r = await fetch(path);
-    return r.json().catch(() => ({}));
+  // 从 URL 读取分享码（与打开页面同源授权），附加到所有 /api/ 请求。
+  // 原因：线上分享代理对 /api/ 也强制鉴权，仅靠 cookie 在移动端/缓存会话下可能未随请求带上，
+  // 导致 403/连接断开 → fetch reject → 页面永久卡在“加载中”。改用 URL 中的 ?sharecode 最稳。
+  const SHARECODE = (function () {
+    try {
+      const p = new URLSearchParams(location.search);
+      return p.get("sharecode") || (window.__SHARECODE__ || "");
+    } catch (e) { return (window.__SHARECODE__ || ""); }
+  })();
+
+  // 带超时 + 分享码鉴权的 fetch 封装：默认 30s；失败返回 {__error__:true,...} 而非永久挂起
+  async function api(path, opts) {
+    opts = opts || {};
+    const sep = path.indexOf("?") >= 0 ? "&" : "?";
+    const url = path + sep + "sharecode=" + encodeURIComponent(SHARECODE);
+    const ctrl = new AbortController();
+    const tid = setTimeout(function () { ctrl.abort(); }, opts.timeout || 30000);
+    try {
+      const r = await fetch(url, { signal: ctrl.signal });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return await r.json().catch(function () { return {}; });
+    } catch (e) {
+      const msg = (e && e.name === "AbortError") ? "请求超时" : ((e && e.message) || "网络错误");
+      return { __error__: true, message: msg };
+    } finally {
+      clearTimeout(tid);
+    }
+  }
+
+  // 加载失败兜底：不再无限“加载中”，给出原因与重试入口
+  function showLoadError(msg) {
+    const d = document.getElementById("dashboard");
+    if (!d) return;
+    d.innerHTML = '<div class="empty"><div style="font-size:16px;margin-bottom:10px">⚠️ ' + (msg || "数据加载失败") +
+      '</div><div class="note">可尝试：① 用无痕窗口打开链接；② 直接硬刷新（Ctrl/Cmd+Shift+R）；③ 确认链接带 ?sharecode= 参数。</div>' +
+      '<button id="btnRetry" class="btn" style="margin-top:12px">重新加载</button></div>';
+    const b = document.getElementById("btnRetry");
+    if (b) b.onclick = function () { loadProduct(); };
   }
 
   async function init() {
@@ -101,7 +136,16 @@
   async function loadProduct() {
     const dash = $("#dashboard");
     dash.innerHTML = '<div class="loading">加载中…</div>';
-    const snap = await api(`/api/snapshot/${encodeURIComponent(curCat)}/${encodeURIComponent(curProd)}`);
+    let snap;
+    try {
+      snap = await api(`/api/snapshot/${encodeURIComponent(curCat)}/${encodeURIComponent(curProd)}`);
+    } catch (e) {
+      snap = { __error__: true, message: (e && e.message) || "网络错误" };
+    }
+    if (snap && snap.__error__) {
+      showLoadError("快照数据加载失败：" + (snap.message || ""));
+      return;
+    }
     if (snap.error === "no_snapshot") {
       showEmpty();
       return;

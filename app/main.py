@@ -14,6 +14,7 @@
 """
 import json
 import os
+import re
 import subprocess
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -248,13 +249,48 @@ class Handler(BaseHTTPRequestHandler):
         with open(path, "rb") as f:
             self._send(200, f.read(), ctype)
 
+    # ---------- 分享鉴权：把 sharecode 注入静态引用与 fetch ----------
+    # WorkBuddy 分享代理对所有请求（主页/静态/API）都要求带 sharecode，
+    # 否则返回 403。浏览器从主页加载 /static/*.js 与运行期 fetch('/api/...')
+    # 时不会自动附带 URL 上的 sharecode，因此这里在服务端动态改写。
+    _STATIC_RE = re.compile(r'(/static/[A-Za-z0-9_./-]+\.(?:js|css))(["\'])')
+    _FETCH_PATCH = (
+        '<script>(function(){var SC=window.__SHARECODE__;'
+        'if(!SC||!window.fetch)return;'
+        'var o=window.fetch.bind(window);'
+        'window.fetch=function(i,c){try{var u=typeof i==="string"?i:(i&&i.url);'
+        'if(typeof u==="string"&&u.charAt(0)==="/"&&u.indexOf("sharecode=")<0){'
+        'u+=(u.indexOf("?")>=0?"&":"?")+"sharecode="+encodeURIComponent(SC);i=u;}}'
+        'catch(e){}return o(i,c);};})();</script>'
+    )
+
+    def _render_index(self, sharecode):
+        idx = os.path.join(STATIC_DIR, "index.html")
+        if not os.path.isfile(idx):
+            self._send(404, {"error": "no_index"})
+            return
+        with open(idx, encoding="utf-8") as f:
+            html = f.read()
+        if sharecode:
+            html = self._STATIC_RE.sub(
+                lambda m: m.group(1) + "?sharecode=" + sharecode + m.group(2), html)
+            patch = ('<script>window.__SHARECODE__=' + json.dumps(sharecode)
+                     + ';</script>\n' + self._FETCH_PATCH + '\n')
+            if "</head>" in html:
+                html = html.replace("</head>", patch + "</head>", 1)
+            else:
+                html = patch + html
+        self._send(200, html, "text/html; charset=utf-8")
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = urllib.parse.unquote(parsed.path)
         parts = [p for p in path.split("/") if p]
 
         if path in ("/", "/index.html"):
-            self._serve_static("index.html")
+            qs = urllib.parse.parse_qs(parsed.query)
+            sharecode = qs.get("sharecode", [None])[0]
+            self._render_index(sharecode)
             return
         if path.startswith("/static/"):
             self._serve_static(path[len("/static/"):])
