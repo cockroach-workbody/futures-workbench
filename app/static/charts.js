@@ -314,13 +314,21 @@
   // onPick(rankingItem) 可选：点击柱条回调，便于跳转到品种详情
   function sentimentNet(dom, ranking, onPick) {
     const c = base(dom);
-    const sorted = ranking.slice().sort((a, b) => a.net - b.net); // 升序：净空在下、净多在顶
+    // 净情绪比例 = (看多 − 看空) / (看多 + 看空 + 中性)，区间 [-1,1]，与曲线/背离序列口径一致。
+    // 注意：后端 ranking 的 net 字段是「看多−看空」的原始计数差，不可直接当比例 ×100，
+    // 否则会出现 700% / -1700% 等超过 100% 的异常（如 RB -1700%、CU 700%）。
+    const withRatio = ranking.map(r => {
+      const tot = (r.bullish || 0) + (r.bearish || 0) + (r.neutral || 0);
+      const ratio = tot ? (r.bullish - r.bearish) / tot : 0;
+      return Object.assign({}, r, { _ratio: ratio });
+    });
+    const sorted = withRatio.slice().sort((a, b) => a._ratio - b._ratio); // 升序：净空在下、净多在顶
     const names = sorted.map(r => r.name + "(" + r.code + ")");
-    const data = sorted.map(r => ({ value: r.net, itemStyle: { color: r.net >= 0 ? RED : GREEN } }));
+    const data = sorted.map(r => ({ value: r._ratio, itemStyle: { color: r._ratio >= 0 ? RED : GREEN } }));
     c.setOption({
       backgroundColor: "transparent",
       tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
-        formatter: (p) => { const r = sorted[p[0].dataIndex]; return `${r.name}(${r.code}) · ${r.category}<br/>看多 ${r.bullish} / 看空 ${r.bearish} / 中性 ${r.neutral}<br/>净情绪比例 <b>${(r.net > 0 ? "+" : "") + (r.net * 100).toFixed(0) + "%"}</b>`; } },
+        formatter: (p) => { const r = sorted[p[0].dataIndex]; return `${r.name}(${r.code}) · ${r.category}<br/>看多 ${r.bullish} / 看空 ${r.bearish} / 中性 ${r.neutral}<br/>净情绪比例 <b>${(r._ratio > 0 ? "+" : "") + (r._ratio * 100).toFixed(0) + "%"}</b>`; } },
       grid: { left: 104, right: 36, top: 14, bottom: 22 },
       xAxis: { type: "value", ...axisCommon(), name: "净情绪比例", min: -1, max: 1, nameTextStyle: { color: TX },
         axisLabel: { color: TX, formatter: (v) => (v > 0 ? "+" : "") + (v * 100).toFixed(0) + "%" } },
