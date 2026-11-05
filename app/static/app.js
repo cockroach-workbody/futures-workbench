@@ -131,14 +131,19 @@
   async function renderDashboard(s) {
     const d = $("#dashboard");
     d.innerHTML = '<div class="loading">加载中…</div>';
-    let sent = {};
+    let sent = {}, div = {};
     try { sent = await api("/api/sentiment_summary"); } catch (e) { sent = {}; }
+    try { div = await api("/api/market_divergence"); } catch (e) { div = {}; }
     SENT = sent;
     d.innerHTML = [
       cardOverview(s), cardSupplyDemand(s), cardInventory(s), cardBasis(s), cardProfit(s),
       cardCapital(s), cardTop20(s), cardChanlun(s),
-      cardSentimentSummary(sent), cardOpinion(s),
+      cardSentimentSummary(sent), cardMarketDivergence(div), cardOpinion(s),
     ].join("");
+    // 全市场背离清单：点击行跳转到对应品种
+    d.querySelectorAll(".divrow").forEach(el => {
+      el.onclick = () => { curProd = el.dataset.code; gotoProduct(el.dataset.code); };
+    });
     initCharts(s, sent);
     if (scrollToOpinion) {
       scrollToOpinion = false;
@@ -187,6 +192,30 @@
       </div>
       <div class="note" style="width:100%">样本：全市场 ${SENT.total_products || 0} 个品种、共 ${t.opinions} 条机构研报观点（多源聚合：奇货可查 qhkch 每日直抓 + WebSearch 全网检索 + 金十期货 + 东方财富期货资讯 + 文华财经 + Mysteel 等产业源；按<b>期货公司机构名跨源去重</b>，剔除无机构名/模糊日期的存量以避免重复与污染，近30天）；数据截至 ${SENT.as_of || "—"}。净情绪比例 = (看多 − 看空) / (看多 + 看空 + 中性)。</div>`;
     return card("⑪ 全市场机构情绪总览", "Sentiment", "span12", body, tone);
+
+  // ⑫ 全市场资金背离清单：扫描所有接入 capital_flow 的品种，列出机构/散户净持仓反向的分歧品种
+  function cardMarketDivergence(div) {
+    if (!div || !div.divergences || !div.divergences.length) {
+      return card("全市场资金背离清单", "Divergence", "span12",
+        `<div class="note">当前无机构与散户净持仓反向（背离）的品种，或资本流数据尚未接入。数据截至 ${div && div.as_of ? div.as_of : "—"}。</div>`, "0 个分歧");
+    }
+    const sgn = (n) => (n > 0 ? "+" : "") + fmt(n);
+    const rows = div.divergences.map(r => {
+      const lvl = r.level === "danger" ? "danger" : "warn";
+      const chip = r.level === "danger" ? "分歧加大" : "背离";
+      return `<div class="divrow ${lvl}" data-code="${r.code}" title="点击查看 ${r.name} 资金动向">
+        <div class="c-prod"><b>${r.name}</b> <span class="c-code">${r.code}</span><span class="c-mc">${r.main_contract || ""}</span></div>
+        <div class="c-dir ${lvl}">${r.direction}<span class="chip ${lvl}">${chip}</span></div>
+        <div class="c-num"><span class="up">机构 ${sgn(r.inst_net)}</span><br><span class="muted">Δ ${sgn(r.inst_chg)}</span></div>
+        <div class="c-num"><span class="down">散户 ${sgn(r.ret_net)}</span><br><span class="muted">Δ ${sgn(r.ret_chg)}</span></div>
+        <div class="c-num muted">总持仓5日 ${sgn(r.chg_5d)}</div>
+      </div>`;
+    }).join("");
+    const body = `<div class="note" style="margin:-2px 0 8px">下列品种机构与散户净持仓方向相反（代理口径：机构=前5大净持仓席位，散户=其余；交易所不披露客户属性，仅作力量推断）。<b class="down">分歧加大</b>表示价差当日继续扩大，确定性更高，点击行可跳转该品种资金动向。</div>
+      <div class="divlist">${rows}</div>`;
+    return card("全市场资金背离清单", "Divergence", "span12", body,
+      `共 ${div.count} 个 · 分歧加大 ${div.danger_count}`, "cardMarketDiv");
+  }
   }
 
   // 跳转到指定品种详情（切换板块 + 选中品种 + 重载）
@@ -512,16 +541,25 @@
     else instAct = "持仓持平";
 
     let alert = null;
-    if (instNet > 0 && retNet < 0) {
-      alert = { type: "机构净多 / 散户净空", level: "warn",
-        desc: "大资金偏多、散户偏空，典型分歧结构。常见于下跌末端或底部蓄势（大资金低位承接），也需警惕大资金被套后的摊平。务必结合价格与总持仓放量确认方向，勿单独据此开仓。" };
-    } else if (instNet < 0 && retNet > 0) {
-      alert = { type: "机构净空 / 散户净多", level: "warn",
-        desc: "大资金偏空、散户偏多，典型分歧结构。常见于上涨末端或顶部派发（散户追高、机构离场），警惕反转。务必结合价格与总持仓放量确认方向。" };
+    const opp = (instNet > 0 && retNet < 0) || (instNet < 0 && retNet > 0);
+    if (opp) {
+      // 分歧加大：机构与散户价差幅度当日继续扩大 → 高确定性分歧（标红）
+      const gapChg = instChg - retChg;
+      const widening = (instNet > 0 && gapChg > 0) || (instNet < 0 && gapChg < 0);
+      const type = instNet > 0 ? "机构净多 / 散户净空" : "机构净空 / 散户净多";
+      let desc, short;
+      if (widening) {
+        short = "分歧加大";
+        desc = `分歧今日继续扩大：机构 ${sgn(instNet)}（当日 Δ ${sgn(instChg)}）、散户 ${sgn(retNet)}（当日 Δ ${sgn(retChg)}）。大资金与散户方向持续背道而驰，属高确定性分歧——常见于底部蓄势 / 顶部派发的关键阶段，务必结合价格与总持仓放量确认拐点，切勿逆势盲动。`;
+      } else {
+        short = "背离";
+        desc = `大资金与散户方向相反，典型分歧结构。机构 ${sgn(instNet)}、散户 ${sgn(retNet)}——常见于下跌末端 / 底部蓄势（机构低位承接）或上涨末端 / 顶部派发（散户追高、机构离场），务必结合价格与总持仓放量确认方向，勿单独据此开仓。`;
+      }
+      alert = { type, level: widening ? "danger" : "warn", short, desc };
     }
 
     let conclusion = `大机构（前${inst.count || 5}大席位）${instAct}（净持仓 ${sgn(instNet)} 手），总持仓 ${fmt(latest)} 手、5日 ${sgn(chg5)} 手，${money}`;
-    conclusion += alert ? `；${alert.type}背离（机构 ${sgn(instNet)} / 散户 ${sgn(retNet)}）` : "；机构与散户方向未明显背离";
+    conclusion += alert ? `；${alert.type}${alert.short === "分歧加大" ? "（分歧加大）" : " 背离"}（机构 ${sgn(instNet)} / 散户 ${sgn(retNet)}）` : "；机构与散户方向未明显背离";
     conclusion += "。";
 
     const topUp = (lo.top_net_increase && lo.top_net_increase[0]) || null;
@@ -569,7 +607,7 @@
     const rd = capFlowRead(cf);
     const glanceHtml = rd.glance.map(g => `<div class="g"><div class="k">${g.k}</div><div class="v ${g.c}">${g.v}</div><div class="s">${g.s}</div></div>`).join("");
     const alertHtml = rd.alert
-      ? `<div class="alert-banner warn"><div class="ic">⚠</div><div><span class="ttl">高亮预警 · ${rd.alert.type} 背离</span><br>${rd.alert.desc}</div></div>`
+      ? `<div class="alert-banner ${rd.alert.level === "danger" ? "danger" : "warn"}"><div class="ic">⚠</div><div><span class="ttl">高亮预警 · ${rd.alert.type}${rd.alert.short === "分歧加大" ? "（分歧加大）" : " 背离"}</span><br>${rd.alert.desc}</div></div>`
       : "";
     const capread = `<div class="capread">
       <div class="capread-h"><span class="lbl">速读卡片</span><span class="prod">${cf.main_contract || cf.contract || ""} · 资金动向一句话结论</span></div>
