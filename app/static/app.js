@@ -553,6 +553,13 @@
           <div id="chCapFlowHist" class="chart" style="height:220px"></div>
         </div>
       </div>
+      <div class="flex" style="margin-top:10px">
+        <div style="flex:1">
+          <div class="t20-hist-head"><span class="t">前20会员近1月净持仓变化（合计净持仓 · 主力追踪）</span></div>
+          <div id="chCapFlowT20Hist" class="chart" style="height:240px"></div>
+          <div id="capFlowT20Verdict" class="verdict" style="margin-top:4px"></div>
+        </div>
+      </div>
       <div class="note" style="margin-top:8px">数据来源：${cf.source}。${cf.note_proxy || ""} 主力合约 ${cf.main_contract || cf.contract}；数据交易日 ${cf.as_of}。总持仓为主连口径，合约换月时或有跳变。</div>`;
 
     const tone = inst.net_chg > 0 ? "机构净多增仓" : (inst.net_chg < 0 ? "机构净空增仓" : "中性");
@@ -804,6 +811,14 @@
         Charts.totalPositionCurve($("#chCapFlowTotal"), s.capital_flow.total_position.series);
       if (s.capital_flow.tier_net_history && s.capital_flow.tier_net_history.length >= 2)
         Charts.tierNetHistory($("#chCapFlowHist"), s.capital_flow.tier_net_history);
+      // 前20会员近1月净持仓变化（复用 top20.history 累计曲线）
+      if (s.top20 && s.top20.history && s.top20.history.length >= 2) {
+        const h = s.top20.history.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
+        Charts.top20NetCurve($("#chCapFlowT20Hist"), h);
+        const chg = h[h.length - 1].net - h[0].net;
+        const v = document.getElementById("capFlowT20Verdict");
+        if (v) v.innerHTML = `期末前20会员合计净持仓 <b>${fmt(h[h.length - 1].net)}</b> 手，近1月变化 <b class="${cls(chg)}">${chg > 0 ? "+" : ""}${fmt(chg)}</b> 手`;
+      }
     } else if (s.top20 && s.top20.members && s.top20.members.length) {
       // 回退：原前20会员图表
       Charts.butterfly($("#chFly"), s.top20.members);
