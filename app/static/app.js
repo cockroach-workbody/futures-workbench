@@ -490,6 +490,50 @@
     return card("⑥ 资金面总览", "Capital", "span8", body, c.bias);
   }
 
+  // ⑦ 速读卡片：一句话结论 + 机构/散户背离高亮预警 + 速读数据（每个品种通用）
+  function capFlowRead(cf) {
+    const tp = cf.total_position || {};
+    const iv = cf.institutional_vs_retail || {};
+    const inst = iv.institutional || {}, ret = iv.retail || {};
+    const lo = cf.large_orders || {};
+    const sgn = (n) => (n > 0 ? "+" : "") + fmt(n);
+    const latest = tp.latest != null ? tp.latest : 0;
+    const chg5 = tp.chg_5d != null ? tp.chg_5d : 0;
+    const instNet = inst.net || 0, instChg = inst.net_chg || 0;
+    const retNet = ret.net || 0, retChg = ret.net_chg || 0;
+
+    const money = chg5 <= -5000 ? "资金整体撤离减仓"
+      : chg5 >= 5000 ? "资金整体进场增仓"
+      : "资金进出基本平衡（存量博弈）";
+
+    let instAct;
+    if (instChg > 0) instAct = instNet > 0 ? "净多加码" : "净空回补";
+    else if (instChg < 0) instAct = instNet > 0 ? "净多减弱" : "净空加码";
+    else instAct = "持仓持平";
+
+    let alert = null;
+    if (instNet > 0 && retNet < 0) {
+      alert = { type: "机构净多 / 散户净空", level: "warn",
+        desc: "大资金偏多、散户偏空，典型分歧结构。常见于下跌末端或底部蓄势（大资金低位承接），也需警惕大资金被套后的摊平。务必结合价格与总持仓放量确认方向，勿单独据此开仓。" };
+    } else if (instNet < 0 && retNet > 0) {
+      alert = { type: "机构净空 / 散户净多", level: "warn",
+        desc: "大资金偏空、散户偏多，典型分歧结构。常见于上涨末端或顶部派发（散户追高、机构离场），警惕反转。务必结合价格与总持仓放量确认方向。" };
+    }
+
+    let conclusion = `大机构（前${inst.count || 5}大席位）${instAct}（净持仓 ${sgn(instNet)} 手），总持仓 ${fmt(latest)} 手、5日 ${sgn(chg5)} 手，${money}`;
+    conclusion += alert ? `；${alert.type}背离（机构 ${sgn(instNet)} / 散户 ${sgn(retNet)}）` : "；机构与散户方向未明显背离";
+    conclusion += "。";
+
+    const topUp = (lo.top_net_increase && lo.top_net_increase[0]) || null;
+    const glance = [
+      { k: "总持仓(主连)", v: fmt(latest) + " 手", c: "", s: "5日 " + sgn(chg5) },
+      { k: "机构净持仓", v: sgn(instNet) + " 手", c: cls(instNet), s: "当日 " + sgn(instChg) },
+      { k: "散户净持仓", v: sgn(retNet) + " 手", c: cls(retNet), s: "当日 " + sgn(retChg) },
+      { k: "大单焦点", v: topUp ? topUp.name : "—", c: topUp ? cls(topUp.net_chg) : "", s: topUp ? ("净多增仓 " + sgn(topUp.net_chg)) : "" },
+    ];
+    return { conclusion, alert, glance };
+  }
+
   // ⑦ 资金动向（AKShare·持仓结构·主力追踪）—— 由 capital_flow 数据驱动；缺失时回退原前20会员
   function renderCapFlow(s, cf) {
     const tp = cf.total_position || {};
@@ -522,7 +566,20 @@
       ? arr.map(m => `<div class="kv"><span class="k">${m.name}</span><span class="v ${valCls(m)}">${(key === "net_chg" ? sign(m.net_chg) : fmt(m[key]))}</span></div>`).join("")
       : '<div class="note">—</div>');
 
-    const body = `${kpis}
+    const rd = capFlowRead(cf);
+    const glanceHtml = rd.glance.map(g => `<div class="g"><div class="k">${g.k}</div><div class="v ${g.c}">${g.v}</div><div class="s">${g.s}</div></div>`).join("");
+    const alertHtml = rd.alert
+      ? `<div class="alert-banner warn"><div class="ic">⚠</div><div><span class="ttl">高亮预警 · ${rd.alert.type} 背离</span><br>${rd.alert.desc}</div></div>`
+      : "";
+    const capread = `<div class="capread">
+      <div class="capread-h"><span class="lbl">速读卡片</span><span class="prod">${cf.main_contract || cf.contract || ""} · 资金动向一句话结论</span></div>
+      <div class="conclusion">${rd.conclusion}</div>
+      ${alertHtml}
+      <div class="glance">${glanceHtml}</div>
+    </div>`;
+
+    const body = `${capread}
+      ${kpis}
       <div class="verdict">${cf.summary || ""}</div>
       <div class="flex">
         <div style="flex:1.2">

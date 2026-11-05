@@ -142,6 +142,25 @@ tbody tr:hover{background:var(--panel2)}
 .verdict-inline{font-size:12px;color:var(--muted)}
 .verdict-inline b{font-size:13px}
 
+/* ⑦ 资金动向：速读卡片 + 高亮预警 */
+.capread{margin-bottom:12px;border:1px solid var(--line);border-radius:12px;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));padding:12px 14px;box-shadow:var(--shadow)}
+.capread-h{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.capread-h .lbl{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);
+  border:1px solid var(--line);padding:2px 8px;border-radius:10px}
+.capread-h .prod{font-size:12px;color:var(--muted)}
+.capread .conclusion{font-size:15px;font-weight:700;line-height:1.65;color:var(--text)}
+.capread .glance{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.capread .g{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;flex:1;min-width:130px}
+.capread .g .k{font-size:11px;color:var(--muted)}
+.capread .g .v{font-size:16px;font-weight:800;margin-top:3px;line-height:1.2}
+.capread .g .s{font-size:11px;color:var(--muted);margin-top:2px}
+.alert-banner{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:11px 13px;border-radius:10px;font-size:13px;line-height:1.7}
+.alert-banner.warn{background:rgba(224,168,58,.12);border:1px solid rgba(224,168,58,.55);color:#f0c268}
+.alert-banner.danger{background:rgba(232,72,63,.12);border:1px solid rgba(232,72,63,.55);color:#ff8b82}
+.alert-banner .ic{font-size:18px;line-height:1.15;font-weight:700}
+.alert-banner .ttl{font-weight:800}
+
 /* ---------- ⑩ 机构观点：时效徽标 + 可展开 ---------- */
 .op-toolbar{display:flex;align-items:center;gap:10px;margin:8px 0 6px;flex-wrap:wrap}
 .op-item{border-left:3px solid var(--line)}
@@ -205,6 +224,10 @@ tbody tr:hover{background:var(--panel2)}
   table{min-width:520px;font-size:12px}
   th,td{padding:6px 6px;white-space:nowrap}
   .foot{padding:14px 12px;font-size:11px}
+  /* ⑦ 速读卡片移动端 */
+  .capread .conclusion{font-size:14px}
+  .capread .glance{flex-direction:column}
+  .capread .g{min-width:0}
 }
 @media (max-width:480px){
   .kpis{grid-template-columns:1fr}
