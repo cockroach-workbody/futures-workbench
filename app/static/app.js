@@ -136,7 +136,7 @@
     SENT = sent;
     d.innerHTML = [
       cardOverview(s), cardSupplyDemand(s), cardInventory(s), cardBasis(s), cardProfit(s),
-      cardCapital(s), cardTop20(s), cardChanlun(s), cardIMA(s), cardKnowledge(s),
+      cardCapital(s), cardTop20(s), cardChanlun(s),
       cardSentimentSummary(sent), cardOpinion(s),
     ].join("");
     initCharts(s, sent);
@@ -579,34 +579,6 @@
     return card("⑧ 缠论结构", "Chanlun", "span12", body);
   }
 
-  // ⑧ IMA 推送
-  function cardIMA(s) {
-    const ima = s.ima_push || {};
-    let body;
-    if (ima.available && ima.items && ima.items.length) {
-      // 按时间戳倒序：最新的推送在最上面；时效文案由 _ts 动态计算，始终准确
-      const items = ima.items.slice().sort((a, b) => (b._ts || 0) - (a._ts || 0));
-      const rel = (ts) => {
-        if (!ts) return "";
-        const n = Math.round((Date.now() - ts) / 86400000);
-        return n <= 0 ? "今天" : n === 1 ? "昨天" : n + "天前";
-      };
-      const li = (i) => {
-        // 仅当存在真实可访问的网页/公众号链接时才渲染"查看原文"，避免占位链接打不开
-        const valid = i.url && /^https?:\/\//.test(i.url) && !/ima\.qq\.com\/?$/.test(i.url);
-        const link = valid ? ` <a class="op-link" href="${i.url}" target="_blank" rel="noopener">查看原文↗</a>` : "";
-        const meta = [i.source, i._ts ? rel(i._ts) : i.date, i.media_type].filter(Boolean).join(" · ");
-        return `<li><div class="t">${i.title || ""}${link}</div><div class="m">${meta}${i.summary ? "<br/>" + i.summary : ""}</div></li>`;
-      };
-      body = `<div class="note" style="margin-bottom:6px">来源：${ima.source || "IMA 知识库 · 期货研报"} · 按更新时间排序（最新在上）</div>`
-        + '<ul class="list">' + items.map(li).join("") + "</ul>";
-    } else {
-      body = `<div class="note">${ima.note || "IMA 资料推送未配置：暂无可展示的最近资料。可在 IMA 知识库收藏期货研报，由 IMA 技能检索后写入 collect/ima_push_&lt;品种代码&gt;.json 并重新计算。"}</div>`;
-    }
-    return card("⑨ IMA 资料推送", "IMA", "span4", body);
-  }
-
-  // ⑨ 观点与情绪中心（机构观点逐条列出：机构 + 具体日期 + 时效 + 可展开）
   function cardOpinion(s) {
     const ms = s.market_sentiment || {};
     const op = s.opinion || {};
@@ -728,15 +700,6 @@
     sel.value = String(w);
     sel.onchange = () => { OP_FILTER = parseInt(sel.value, 10) || 0; OP_EXPANDED = false; renderOpinions(); };
     renderOpinions();
-  }
-
-  // ⑩ 知识参考
-  function cardKnowledge(s) {
-    const k = s.knowledge_ref || {};
-    const items = (k.entries || []).map(e => `<li><div class="t">${e.title}</div><div class="m">${e.desc || ""}</div></li>`).join("");
-    const body = `<div class="note" style="margin-bottom:8px">${k.note || ""}</div>
-      <ul class="list">${items || '<li class="muted">静态参考库（东证期货知识库连接器）</li>'}</ul>`;
-    return card("⑩ 知识参考", "Ref", "span12", body);
   }
 
   // -------------------- 图表初始化 --------------------

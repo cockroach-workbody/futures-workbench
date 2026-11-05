@@ -4,9 +4,9 @@
 期货品种分析工作台 —— 多品种快照构建器（数据驱动）
 
 对每个品种读取 collect/<CODE>_daily.json（新浪财经主连日线，已落盘），
-生成统一快照 data/<板块>/<CODE>/<date>.json，覆盖 11 个模块：
+生成统一快照 data/<板块>/<CODE>/<date>.json，覆盖 9 个模块：
   ① 概览 ② 供需关系 ③ 库存 ④ 期限基差 ⑤ 产业利润
-  ⑥ 资金面 ⑦ 前20多空 ⑧ 缠论 ⑨ IMA ⑩ 观点情绪 ⑪ 知识参考
+  ⑥ 资金面 ⑦ 前20多空 ⑧ 缠论 ⑩ 观点情绪
 
 数据策略：
   - K线(真实) + 缠论(真实) + 概览/资金面派生：来自新浪主连日线（全周期 OHLC）。
@@ -634,34 +634,13 @@ def build_product(cfg):
                "stance_summary": stance_summary,
                "web_opinions_as_of": (web_views[0].get("as_of") if web_views and web_views[0].get("as_of") else None)}
 
-    # ⑨ IMA
-    ima_items = []
-    ima_path = os.path.join(BASE, "collect", f"ima_push_{cfg['code']}.json")
-    if os.path.exists(ima_path):
-        try:
-            ima_items = json.load(open(ima_path, encoding="utf-8"))
-            if not isinstance(ima_items, list):
-                ima_items = []
-        except Exception:
-            ima_items = []
-    ima_push = {"available": bool(ima_items), "items": ima_items,
-                "note": (f"已合并 collect/ima_push_{cfg['code']}.json（%d 条）；可由 IMA 知识库技能检索后写入。" % len(ima_items))
-                if ima_items else
-                f"IMA 未配置：在 collect/ 放置 ima_push_{cfg['code']}.json（模板见 ima_push_RB.example.json），或由 IMA 技能检索后写入并重新计算。"}
-
-    # ⑪ 知识参考
-    knowledge_ref = {"source": "东证期货知识库连接器", "available": True,
-                     "note": "静态参考库（期货及衍生品基础 / 业务知识库 / 技术分析方法 Murphy），作为研究随身参考，非每日观点流。",
-                     "entries": [{"title": "期货及衍生品基础", "desc": "期货概念、交易机制、套期保值与套利"},
-                                 {"title": "东证期货业务知识库", "desc": "开户、银期、规则与费用"},
-                                 {"title": "Technical Analysis of the Financial Markets", "desc": "墨菲技术分析方法论"}]}
 
     snap = {"product": cfg["code"], "name": cfg["name"], "category": cfg["cat"], "variety_code": cfg["var"],
             "exchange": cfg["exch"], "main_contract": cfg.get("main") or kline_contract, "as_of": SNAP_DATE,
             "data_date": latest["date"], "updated_at": SNAP_DATE + "T14:00:00",
             "kline": kline, "overview": overview, "inventory": inventory, "supply_demand": supply_demand,
             "basis": basis, "profit": profit, "capital": capital, "top20": top20, "chanlun": chanlun,
-            "market_sentiment": market_sentiment, "opinion": opinion, "ima_push": ima_push, "knowledge_ref": knowledge_ref}
+            "market_sentiment": market_sentiment, "opinion": opinion}
     return snap
 
 

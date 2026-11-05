@@ -369,39 +369,6 @@ def build():
         "public_opinions": PUBLIC_OPINIONS,
     }
 
-    # ---- ⑧ IMA 推送 / ⑩ 知识参考 ----
-    # IMA 配置方式：在 collect/ 下放置 ima_push_RB.json（列表，每项含
-    # title/source/date/summary/url/tags），或由 IMA 技能运行后写入该文件；
-    # 重新计算时会自动合并进快照。模板见 ima_push_RB.example.json。
-    ima_items = []
-    ima_path = os.path.join(BASE, "collect", "ima_push_RB.json")
-    if os.path.exists(ima_path):
-        try:
-            with open(ima_path, encoding="utf-8") as f:
-                ima_items = json.load(f)
-            if not isinstance(ima_items, list):
-                ima_items = []
-        except Exception:
-            ima_items = []
-    snap["ima_push"] = {
-        "available": bool(ima_items),
-        "items": ima_items,
-        "note": ("已合并 collect/ima_push_RB.json（%d 条）；可由 IMA 知识库技能检索后写入。"
-                 % len(ima_items)) if ima_items else
-                "IMA 未配置：在 collect/ 放置 ima_push_RB.json（模板见 ima_push_RB.example.json），"
-                "或由 IMA 技能检索后写入并重新计算。",
-    }
-    snap["knowledge_ref"] = {
-        "source": "东证期货知识库连接器",
-        "available": True,
-        "note": "静态参考库（期货及衍生品基础 961 节 / 业务知识库 / 技术分析方法 Murphy），"
-                "作为研究随身参考，非每日观点流。",
-        "entries": [
-            {"title": "期货及衍生品基础", "desc": "期货概念、交易机制、套期保值与套利"},
-            {"title": "东证期货业务知识库", "desc": "开户、银期、规则与费用"},
-            {"title": "Technical Analysis of the Financial Markets", "desc": "墨菲技术分析方法论"},
-        ],
-    }
 
     # ---- neodata 原始补给（保留以便复核） ----
     snap["neodata_raw"] = {
