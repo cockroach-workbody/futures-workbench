@@ -12,6 +12,7 @@
   python collect/build_web.py --no-html      # 只构建 web/
 """
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -94,6 +95,32 @@ def write_json_compact(path, obj):
 
 
 # ---------------------------------------------------------------- 1) web/
+def _short_hash(s):
+    return hashlib.md5(s.encode("utf-8")).hexdigest()[:10]
+
+
+def _inject_static_version(web_dir):
+    """给 web/app/static/index.html 中的静态资源引用加 ?v=<内容哈希>，破除浏览器/CDN 缓存。"""
+    static_dir = os.path.join(web_dir, "app", "static")
+    idx = os.path.join(static_dir, "index.html")
+    if not os.path.isfile(idx):
+        return
+    html = read(idx)
+    mapping = {
+        "/static/styles.css": os.path.join(static_dir, "styles.css"),
+        "/static/charts.js": os.path.join(static_dir, "charts.js"),
+        "/static/app.js": os.path.join(static_dir, "app.js"),
+        "/static/vendor/echarts.min.js": os.path.join(static_dir, "vendor", "echarts.min.js"),
+    }
+    for url, path in mapping.items():
+        if os.path.isfile(path):
+            v = _short_hash(read(path))
+            html = html.replace(f'{url}"', f'{url}?v={v}"')
+    with open(idx, "w", encoding="utf-8") as f:
+        f.write(html)
+    log("[OK] 已注入静态资源版本号（缓存破坏）")
+
+
 def build_web_dir(slim_map, cats):
     if os.path.isdir(WEB_DIR):
         shutil.rmtree(WEB_DIR)
@@ -103,6 +130,9 @@ def build_web_dir(slim_map, cats):
     shutil.copy2(os.path.join(BASE, "app", "main.py"), os.path.join(WEB_DIR, "app", "main.py"))
     shutil.copytree(os.path.join(BASE, "app", "static"), os.path.join(WEB_DIR, "app", "static"))
     shutil.copytree(os.path.join(BASE, "app", "config"), os.path.join(WEB_DIR, "app", "config"))
+    # 静态资源缓存破坏：按文件内容哈希注入 ?v= 版本号，避免浏览器/CDN 长期缓存旧 JS/CSS
+    # （每次内容变更哈希即变，自动强制刷新；内容不变则版本不变，可继续命中缓存）
+    _inject_static_version(WEB_DIR)
     # 数据（紧凑）
     for (cat, code), snap in slim_map.items():
         write_json_compact(os.path.join(WEB_DIR, "data", cat, code, SNAP_DATE + ".json"), snap)
