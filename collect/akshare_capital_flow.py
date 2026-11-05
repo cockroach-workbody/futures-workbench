@@ -29,6 +29,7 @@ AKShare 期货资金流采集器（奇货可查式 / 交易所会员持仓排名
 """
 import os
 import sys
+import re
 import json
 import argparse
 from datetime import datetime
@@ -57,10 +58,18 @@ INST_TOPN = 5  # 机构/主力 = 前 N 大净持仓规模席位
 
 
 def _sina_contract(main_contract):
-    """'RB2701.SHF' -> 'rb2701'；失败返回 None。"""
+    """'RB2701.SHF' -> 'rb2701'；CZCE 缩写 'FG701.ZCE' -> 'fg2701'（年份 701->2701 归一化）。
+    郑商所原始合约号常省略世纪位（如 FG701 = 2027-01），AKShare 新浪镜像只认 4 位 YYMM。"""
     if not main_contract or "." not in main_contract:
         return None
-    return main_contract.split(".")[0].lower()
+    code = main_contract.split(".")[0]  # 去掉交易所后缀（如 .ZCE / .CZCE）
+    m = re.match(r"^([A-Za-z]+)(\d+)$", code)
+    if not m:
+        return code.lower()
+    letter, num = m.group(1), m.group(2)
+    if len(num) == 3:  # CZCE 缩写年份（YMM -> 2YMM，20YYMM 补世纪位）
+        num = "2" + num
+    return (letter + num).lower()
 
 
 def _load_main_contract(code):
