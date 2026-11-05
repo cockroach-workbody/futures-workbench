@@ -10,15 +10,15 @@
   * 跑完把运行报告写到项目根目录 run_report.json，便于 cron 与外部观测。
 
 用法：
-  python cloud_cron.py data     # 交易所直抓数据刷新主跑（K线 + 前20净持仓 + 标准仓单 + qhkch观点 + 可选WebSearch合并 + 重建 + 部署）
-  python cloud_cron.py opinion  # 机构观点轻量重建（qhkch直抓 + WebSearch合并 + 重建，不重抓K线，约 1 分钟）
+  python cloud_cron.py data     # 交易所直抓数据刷新主跑（K线 + 前20净持仓 + 标准仓单 + qhkch观点 + 动态门户观点合并 + 重建 + 部署）
+  python cloud_cron.py opinion  # 机构观点轻量重建（qhkch直抓 + 动态门户观点(WebSearch/金十/东方财富)合并 + 重建，不重抓K线，约 1 分钟）
   python cloud_cron.py both     # 数据 + 观点 一次性全做（= data，含全部步骤）
   python cloud_cron.py deploy   # 仅部署（复用 wbapp 应用；若不可用则给出自托管提示）
 
 配合 crontab（示例，见 README_CLOUD.md）：
   # 工作日 19:30 数据主跑（K线/标准仓单/前20净持仓等收盘数据）
   30 19 * * 1-5 cd /opt/futures-workbench && python cloud_cron.py data  >> cron.log 2>&1
-  # 每日 08:30 市场情绪/机构观点（WebSearch 全网 + qhkch 直抓）
+  # 每日 08:30 市场情绪/机构观点（qhkch 直抓 + WebSearch全网/金十期货/东方财富期货资讯 合并）
   30 8 * * *    cd /opt/futures-workbench && python cloud_cron.py opinion >> cron.log 2>&1
   # 每日 12:30 / 18:30 补跑
   30 12 * * *   cd /opt/futures-workbench && python cloud_cron.py both   >> cron.log 2>&1
@@ -128,11 +128,19 @@ def mode_data():
 
 
 def mode_opinion():
-    """机构观点轻量重建（不重抓K线）：qhkch 直抓 + WebSearch 合并 + 重建。"""
+    """机构观点轻量重建（不重抓K线）：qhkch 直抓 + 动态门户观点合并 + 重建。"""
     # 1) qhkch 每日直抓（最佳努力）
     rc1, _, _ = run("refresh_opinions_daily.py")
-    # 2) WebSearch 全网观点合并（若补丁 collect/_websearch_opinions.json 存在）
-    run("apply_websearch_opinions.py")
+    # 2) 动态门户观点合并（WebSearch全网 / 金十期货 / 东方财富期货资讯）：
+    #    各补丁若存在则调用 apply_websearch_opinions.py 按「来源族群」安全合并，
+    #    仅替换同族群观点，保留 qhkch 与多源（见 collect/apply_websearch_opinions.py）。
+    run("apply_websearch_opinions.py")  # 默认补丁 collect/_websearch_opinions.json（沿用自带 source）
+    run("apply_websearch_opinions.py",
+        "--patch", os.path.join(COLLECT_DIR, "_jin10_opinions.json"),
+        "--source", "金十期货")
+    run("apply_websearch_opinions.py",
+        "--patch", os.path.join(COLLECT_DIR, "_eastmoney_opinions.json"),
+        "--source", "东方财富期货资讯")
     # 3) 重建 data / web / 注入前20历史
     sd = os.environ.get("WB_SNAP_DATE")
     env = {"WB_SNAP_DATE": sd} if sd else None

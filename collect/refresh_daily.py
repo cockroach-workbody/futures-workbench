@@ -10,9 +10,13 @@
      重新抓取前20龙虎榜 + 标准仓单（最佳努力，失败跳过，保留上次好数据）
   3.5) 前20曲线 + 标准仓单 每日滚动（AKShare 直连交易所官网，最佳努力）
   3.6) 机构观点（多空情绪）每日直抓奇货可查 qhkch（最佳努力，失败保留旧文件）
-  3.7) WebSearch 全网机构观点合并（最佳努力）：若 collect/_websearch_opinions.json
-       补丁存在则按「来源」安全合并（保留 qhkch 与多源，仅替换 WebSearch 那份）；
-       若不存在补丁则跳过——opinions_*.json 中已烘焙的 websearch 观点由 3.6 步骤保留。
+  3.7) 动态门户机构观点合并（最佳努力）：依次合并下列补丁（若存在）
+        collect/_websearch_opinions.json（WebSearch全网，沿用补丁自带 source）
+        collect/_jin10_opinions.json      （金十期货，强制打标族群）
+        collect/_eastmoney_opinions.json  （东方财富期货资讯，强制打标族群）
+        —— 经 apply_websearch_opinions.py 按「来源族群」安全合并：
+           保留 qhkch 与多源观点，仅替换「与本次补丁同族群」的动态观点，
+           其余动态族群原样保留。各门户流水线独立、反复运行互不丢数据。
        注意：WebSearch 实际检索需 AI 代理能力（见下「注意」），本脚本只负责合并补丁。
   4) 运行 build_all.py 生成 data/<板块>/<CODE>/<SNAP_DATE>.json
   5) 运行 build_web.py 生成 web/（线上部署源）+ dist/ 单文件
@@ -22,7 +26,7 @@
   python collect/refresh_daily.py                # 完整刷新
   python collect/refresh_daily.py --no-neodata   # 跳过 neodata（纯 K 线+重建）
   python collect/refresh_daily.py --no-opinions  # 跳过机构观点(qhkch)每日直抓
-  python collect/refresh_daily.py --no-websearch # 跳过 WebSearch 补丁合并
+  python collect/refresh_daily.py --no-websearch # 跳过动态门户观点合并（WebSearch全网/金十期货/东方财富期货资讯）
   python collect/refresh_daily.py --no-html      # 不重建 dist 单文件
 
 注意（多空情绪两大自动数据源如何协同）：
@@ -136,23 +140,41 @@ def refresh_neodata():
 
 # ------------------------------------------------------------------ 主流程
 def merge_websearch():
-    """最佳努力：若存在 WebSearch 补丁文件 collect/_websearch_opinions.json，
-    则调用 apply_websearch_opinions.py 按「来源」安全合并（保留 qhkch 与多源，
-    仅替换 WebSearch 那份）。WebSearch 实际检索需 AI 代理完成并落盘补丁，本函数只合并。
-    返回 (ok:bool, msg:str)。"""
-    patch = os.path.join(COLLECT_DIR, "_websearch_opinions.json")
-    if not os.path.exists(patch):
-        return True, ("未找到 WebSearch 补丁（collect/_websearch_opinions.json）—— 跳过；"
-                      "opinions_*.json 中已烘焙的 WebSearch 观点由 qhkch 步骤保留")
-    try:
-        r = subprocess.run([sys.executable, os.path.join(COLLECT_DIR, "apply_websearch_opinions.py")],
-                           cwd=BASE, capture_output=True, text=True, timeout=300)
-        tail = (r.stdout or "")[-700:]
-        if r.returncode != 0:
-            return False, f"WebSearch 合并异常(rc={r.returncode})，保留旧数据:\n{tail}"
-        return True, f"WebSearch 合并完成:\n{tail}"
-    except Exception as e:  # noqa
-        return False, f"WebSearch 合并运行异常(已跳过): {e}"
+    """最佳努力：依次合并各动态门户机构观点补丁（WebSearch全网 / 金十期货 / 东方财富期货资讯）。
+    每个补丁若存在则调用 apply_websearch_opinions.py 按「来源族群」安全合并：
+      - 保留 qhkch 与多源观点
+      - 仅替换「与本次补丁同族群」的动态观点，其余动态族群原样保留
+      → 各门户流水线独立、反复运行，互不丢数据。
+    WebSearch 实际检索需 AI 代理完成并落盘补丁；金十/东方财富补丁为采集落盘。
+    本函数只负责合并，返回 (ok:bool, msg:str)。"""
+    PATCH_SOURCES = [
+        ("_websearch_opinions.json", None),           # 沿用补丁自带 source（websearch全网...）
+        ("_jin10_opinions.json", "金十期货"),          # 强制打标族群
+        ("_eastmoney_opinions.json", "东方财富期货资讯"),
+    ]
+    results = []
+    overall_ok = True
+    for fname, source in PATCH_SOURCES:
+        patch = os.path.join(COLLECT_DIR, fname)
+        if not os.path.exists(patch):
+            results.append(f"[跳过] 未找到补丁 {fname}")
+            continue
+        cmd = [sys.executable, os.path.join(COLLECT_DIR, "apply_websearch_opinions.py"),
+               "--patch", patch]
+        if source:
+            cmd += ["--source", source]
+        try:
+            r = subprocess.run(cmd, cwd=BASE, capture_output=True, text=True, timeout=300)
+            tail = (r.stdout or "")[-700:]
+            if r.returncode != 0:
+                overall_ok = False
+                results.append(f"[异常] {fname} 合并失败(rc={r.returncode}):\n{tail}")
+            else:
+                results.append(f"[完成] {fname} 合并:\n{tail}")
+        except Exception as e:  # noqa
+            overall_ok = False
+            results.append(f"[异常] {fname} 合并运行异常(已跳过): {e}")
+    return overall_ok, "\n".join(results)
 
 
 def main():
@@ -241,11 +263,11 @@ def main():
             op_ok = False
             log(f"[警告] {op_msg}")
 
-    # 3.7) WebSearch 全网观点合并（若存在补丁；最佳努力，build_all 前）
+    # 3.7) 动态门户观点合并（WebSearch全网 / 金十期货 / 东方财富期货资讯；若存在补丁；最佳努力，build_all 前）
     ws_msg = "跳过（--no-websearch）"
     if not args.no_websearch:
         ws_ok, ws_msg = merge_websearch()
-        log(f"WebSearch 全网观点合并: {ws_msg}")
+        log(f"动态门户观点合并: {ws_msg}")
 
     # 4) build_all
     log("构建 data/ 快照 ...")

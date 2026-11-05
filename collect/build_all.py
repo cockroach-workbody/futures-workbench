@@ -207,9 +207,24 @@ def is_recent_opinion(view, ref, days=30):
     return (ref - d).days <= days
 
 
+# 动态可刷新来源族群（每次刷新只替换同族群，不影响其他族群）：与 apply_websearch_opinions.py 保持一致。
+FRESH_SOURCE_FAMILIES = ("websearch全网", "金十期货", "东方财富期货资讯", "文华财经")
+
+
+def _source_priority(v):
+    """来源优先级：qhkch 直抓(3) > 动态可刷新门户(2) > 其余历史多源(1)。数值大者优先保留。"""
+    if "qhkch.com" in (v.get("url") or ""):
+        return 3
+    src = v.get("source") or ""
+    if src.startswith("websearch全网") or src in set(FRESH_SOURCE_FAMILIES):
+        return 2
+    return 1
+
+
 def dedupe_views_by_institution(views):
     """按 (机构名, 日期, 多空立场) 跨源去重：同一期货公司同一天同一立场的观点只保留一条，
-    优先保留来源更权威 / 摘要更完整的记录，避免同一观点在 qhkch / Mysteel / WebSearch 多源被重复计入。
+    优先保留来源更权威 / 摘要更完整的记录，避免同一观点在 qhkch / WebSearch / 金十期货 /
+    东方财富期货资讯 / 文华财经 / Mysteel 等多源被重复计入。
     这是『标注期货公司机构名称避免数据重复』的核心实现——机构名即去重键。"""
     best = {}
     for v in views:
@@ -217,9 +232,7 @@ def dedupe_views_by_institution(views):
         if not inst:
             continue
         key = (inst, (v.get("date") or "").strip(), v.get("stance"))
-        src = v.get("source") or ""
-        prio = 2 if "qhkch.com" in (v.get("url") or "") else (1 if src.startswith("websearch") else 0)
-        score = (prio, len(v.get("summary") or ""))
+        score = (_source_priority(v), len(v.get("summary") or ""))
         if key not in best or score > best[key][0]:
             best[key] = (score, v)
     return [b[1] for b in best.values()]
@@ -590,7 +603,8 @@ def build_product(cfg):
     #    （qhkch 直抓 / WebSearch 全网 / Mysteel 等聚合源皆可用）——解决「数据源偏少」；
     # ② 剔除无机构名或日期模糊（「近期/年度」等无法解析）的观点，避免永不刷新的存量垃圾污染最新情绪；
     # ③ 按 (机构, 日期, 多空) 跨源去重（dedupe_views_by_institution），同一期货公司观点在
-    #    qhkch/Mysteel/WebSearch 多源被重复计入时只算一次——即『标注机构名避免数据重复』。
+    #    qhkch / WebSearch 全网 / 金十期货 / 东方财富期货资讯 / 文华财经 / Mysteel 多源被重复
+    #    计入时只算一次——即『标注期货公司机构名避免数据重复』。
     web_views = [v for v in web_views if v.get("institution") and _valid_opinion_date(v) is not None]
     web_views = dedupe_views_by_institution(web_views)
     # 未来占位日期收拢：把晚于今天 2 天以上的观点（多为「11月报」写成 11-15 这类未来占位）收拢到今天，
