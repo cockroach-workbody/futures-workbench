@@ -50,7 +50,7 @@ def build_history(payload, snap):
 
     def _mk(date, rec):
         d = _norm(date) or date
-        return {
+        pt = {
             "date": d,
             "net": int(rec["net"]),
             "long_total": int(rec.get("long_total", 0)),
@@ -58,6 +58,10 @@ def build_history(payload, snap):
             "long_chg": int(rec.get("long_chg", 0)),
             "short_chg": int(rec.get("short_chg", 0)),
         }
+        # 主力合约标签（如 RB2610.SHF），由采集管线按「持买合计最大」写入 agg
+        if rec.get("contract"):
+            pt["contract"] = rec["contract"]
+        return pt
 
     seen = set()
     pts = []

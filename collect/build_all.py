@@ -22,7 +22,8 @@ import json
 import os
 import re
 import sys
-from datetime import date
+import statistics
+from datetime import date, datetime
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_ROOT = os.path.join(BASE, "data")
@@ -204,6 +205,49 @@ def is_recent_opinion(view, ref, days=30):
     if d is None:
         return True  # 无法判断者保守保留
     return (ref - d).days <= days
+
+
+def _parse_date_only(s):
+    """把 'YYYY-MM-DD' / 'YYYYMMDD' 解析为 date，失败返回 None。"""
+    s = (s or "").strip()
+    m = re.match(r"^(\d{4})-?(\d{2})-?(\d{2})$", s)
+    if not m:
+        return None
+    try:
+        return date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    except Exception:
+        return None
+
+
+def opinion_series_for_history(views, hist):
+    """把观点列表按历史曲线日期对齐，生成「累计看多−看空」序列（用于与 COT 净持仓做背离分析）。
+    hist: [{date:'YYYYMMDD', ...}]（升序）；返回 [{date, net, bull, bear, z}] 或 None。
+    net 为每个历史日之前（含）所有观点的 看多数 − 看空数 累计值；z 为该序列的 z-score。"""
+    parsed = []
+    for v in views:
+        d = _parse_date_only(v.get("date", ""))
+        st = v.get("stance")
+        if d and st in ("bullish", "bearish", "neutral"):
+            parsed.append((d, st))
+    if not parsed or not hist:
+        return None
+    out = []
+    for h in hist:
+        hd = _parse_date_only(h["date"])
+        if not hd:
+            continue
+        bull = sum(1 for d, st in parsed if d <= hd and st == "bullish")
+        bear = sum(1 for d, st in parsed if d <= hd and st == "bearish")
+        out.append({"date": h["date"], "net": bull - bear, "bull": bull, "bear": bear})
+    if not out:
+        return None
+    nets = [o["net"] for o in out]
+    if len(nets) >= 2:
+        mu = statistics.mean(nets)
+        sd = statistics.pstdev(nets) or 1
+        for o in out:
+            o["z"] = round((o["net"] - mu) / sd, 3) if sd else 0
+    return out
 
 
 def load_opinions(code):
@@ -450,6 +494,13 @@ def build_product(cfg):
     if agg:
         hist = _t20_build_history(agg, SNAP_DATE)
         if hist:
+            # z-score 归一化轴：以本窗口样本均值/标准差标准化净持仓，便于与观点净情绪叠加做背离分析
+            nets = [h["net"] for h in hist]
+            if len(nets) >= 2:
+                mu = statistics.mean(nets)
+                sd = statistics.pstdev(nets) or 1
+                for h in hist:
+                    h["z"] = round((h["net"] - mu) / sd, 3) if sd else 0
             top20["history"] = hist
     net_info = None
     if top20.get("available"):
@@ -527,6 +578,11 @@ def build_product(cfg):
         _st = _v.get("stance")
         if _st in stance_summary:
             stance_summary[_st] += 1
+    # 观点净情绪序列（按历史曲线日期对齐，累计看多−看空），用于与 COT 净持仓做背离分析
+    if top20.get("history"):
+        _op_series = opinion_series_for_history(web_views, top20["history"])
+        if _op_series:
+            top20["opinion_series"] = _op_series
     opinion = {"wind_alice": {"opinion": None, "daily": None, "quant": None, "available": False,
                 "reason": "wind-finance 连接器未连接；连接后于 WorkBuddy 会话内运行三技能并落盘。"},
                "qualitative_view": cfg.get("qualitative_view") or {},

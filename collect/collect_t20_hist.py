@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-前20会员持仓龙虎榜 —— 近一月历史净持仓采集（本组 6 品种）。
+前20会员持仓龙虎榜 —— 近一月历史净持仓采集（本组 6 品种，主力合约口径）。
 
 落盘：collect/raw_hist/agg_<CODE>.json（按品种汇总，幂等，已存在日期跳过）。
+口径：复用 parse_neodata.parse_rank 选「持买合计最大」主力合约，与快照完全一致。
 
 调用方式：NeoData MCP 工具 futures_rank。
 重要修正：工具对返回行数有 100 行硬上限（limit=1000 也会被截断）。
@@ -28,7 +29,7 @@ import urllib.error
 
 WORK = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, WORK)
-from t20_collect_lib import load_agg, upsert, parse_rank_result, DATES
+from t20_collect_lib import load_agg, upsert, rec_from_neodata, DATES
 
 # ---- NeoData MCP 连接（来自环境变量，避免硬编码）----
 cfg = json.loads(os.environ["CODEBUDDY_MCP_CONFIG"])
@@ -137,12 +138,15 @@ def call_with_retry(vcode, itype, date):
     raise last
 
 def collect_one(code, vcode, date):
-    """采集单日：分别取 long/short 合并后 parse_rank_result -> upsert。成功返回 rec，失败抛异常。"""
+    """采集单日：分别取 long/short 合并后按「持买合计最大」主力合约汇总 -> upsert。
+    复用 parse_neodata.parse_rank，与快照口径完全一致。成功返回 rec，失败抛异常。"""
     long_rows = call_with_retry(vcode, "long", date)
     time.sleep(SLEEP_BETWEEN_CALLS)
     short_rows = call_with_retry(vcode, "short", date)
     rows = long_rows + short_rows
-    rec = parse_rank_result(rows, date)
+    rec = rec_from_neodata(rows, date)
+    if not rec:
+        raise RuntimeError("rec_from_neodata 返回空（可能无数据或无主力合约）")
     upsert(code, vcode, date, rec)
     if rec["long_total"] == 0 and rec["short_total"] == 0:
         log("  [warn] %s %s 汇总为 0（可能无数据）: %s" % (code, date, rec))

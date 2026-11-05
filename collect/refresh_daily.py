@@ -197,12 +197,15 @@ def main():
 
     # 3.5) 前20曲线 + 标准仓单 每日滚动（AKShare 直连交易所官网，覆盖 SHFE/CZCE/GFEX；DCE 走 neodata 最佳努力）
     wh_ok = None
-    for sc, lab in (("refresh_t20_daily.py", "前20曲线滚动"), ("refresh_wh_daily.py", "标准仓单滚动")):
+    for sc, lab, extra in (
+        ("refresh_t20_daily.py", "前20曲线滚动(主力合约·含回填)", ["--backfill", "22"]),
+        ("refresh_wh_daily.py", "标准仓单滚动", []),
+    ):
         log(f"{lab}采集 ...")
         try:
-            r = subprocess.run([sys.executable, os.path.join(COLLECT_DIR, sc)],
+            r = subprocess.run([sys.executable, os.path.join(COLLECT_DIR, sc)] + extra,
                                cwd=BASE, capture_output=True, text=True,
-                               env=dict(os.environ, WB_SNAP_DATE=sd), timeout=600)
+                               env=dict(os.environ, WB_SNAP_DATE=sd), timeout=900)
             tail = (r.stdout or "")[-700:]
             if r.returncode != 0:
                 log(f"[警告] {lab}异常(rc={r.returncode}):\n{tail}")

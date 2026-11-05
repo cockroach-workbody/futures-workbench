@@ -8,7 +8,7 @@ AKShare 的 get_rank_sum_daily 对每个交易日返回 按品种汇总的前20�
 """
 import json, os, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from t20_collect_lib import load_agg, save_agg, DATES
+from t20_collect_lib import load_agg, save_agg, DATES, parse_akshare_dominant
 
 import akshare as ak
 
@@ -17,29 +17,15 @@ SHFE = ["RB","HC","RU","CU","AL","AU","NI","ZN","AG","PB","BU","SN"]
 CZCE = ["FG","SA","SR","CF","RM","OI","AP","CJ","TA","MA","UR"]
 ALL = SHFE + CZCE
 
+# code -> variety（含交易所后缀），用于主力合约标签（如 RB2610.SHF）
+VARIETY_MAP = {c: f"{c}.SHF" for c in SHFE}
+VARIETY_MAP.update({c: f"{c}.ZCE" for c in CZCE})
+
 def collect_date(date):
-    """拉取某交易日全部品种的前20合计净持仓，返回 {code: rec}。"""
+    """拉取某交易日全部品种的前20主力合约（持买合计最大）净持仓，返回 {code: rec}。"""
     df = ak.get_rank_sum_daily(start_day=date, end_day=date, vars_list=ALL)
-    # 取品种汇总行：symbol == variety
-    summ = df[df["symbol"] == df["variety"]]
-    out = {}
-    for _, r in summ.iterrows():
-        code = str(r["variety"]).strip()
-        lo = r.get("long_open_interest_top20")
-        so = r.get("short_open_interest_top20")
-        lc = r.get("long_open_interest_chg_top20")
-        sc = r.get("short_open_interest_chg_top20")
-        if lo is None or so is None:
-            continue
-        out[code] = {
-            "date": date,
-            "net": int(lo - so),
-            "long_total": int(lo),
-            "short_total": int(so),
-            "long_chg": int(lc) if lc is not None else 0,
-            "short_chg": int(sc) if sc is not None else 0,
-        }
-    return out
+    # 主力合约口径：逐品种在真实月份合约中选 持买合计(top20) 最大者
+    return parse_akshare_dominant(df, date, VARIETY_MAP)
 
 def main():
     total_new = 0
@@ -55,12 +41,7 @@ def main():
         for code, rec in recs.items():
             p = load_agg(code)
             if p.get("variety") is None:
-                p["variety"] = {"RB":"RB.SHF","HC":"HC.SHF","RU":"RU.SHF","CU":"CU.SHF","AL":"AL.SHF",
-                    "AU":"AU.SHF","NI":"NI.SHF","ZN":"ZN.SHF","AG":"AG.SHF","PB":"PB.SHF","BU":"BU.SHF",
-                    "SN":"SN.SHF","FG":"FG.ZCE","SA":"SA.ZCE","SR":"SR.ZCE","CF":"CF.ZCE","RM":"RM.ZCE",
-                    "OI":"OI.ZCE","AP":"AP.ZCE","CJ":"CJ.ZCE","TA":"TA.ZCE","MA":"MA.ZCE","UR":"UR.ZCE",
-                    "I":"I.DCE","J":"J.DCE","JM":"JM.DCE","M":"M.DCE","C":"C.DCE","A":"A.DCE","Y":"Y.DCE",
-                    "P":"P.DCE","JD":"JD.DCE","LH":"LH.DCE","L":"L.DCE","V":"V.DCE","PP":"PP.DCE"}.get(code)
+                p["variety"] = VARIETY_MAP.get(code)
             data = p.setdefault("data", {})
             if date not in data:
                 data[date] = rec

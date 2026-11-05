@@ -534,9 +534,14 @@
       <div class="kv"><span class="k">多空比 / 净多占比</span><span class="v">${fmt(t.long_short_ratio, 3)} / ${fmt(t.net_long_pct, 2)}%</span></div>
       <div class="kv"><span class="k">数据交易日</span><span class="v">${t20Date}</span></div>
       <div class="t20-hist">
-        <div class="t20-hist-head"><span class="t">近1月 前20会员全合约合计净持仓</span><span id="t20HistVerdict" class="verdict-inline"></span></div>
+        <div class="t20-hist-head"><span class="t">近1月 前20会员主力合约净持仓</span><span id="t20HistVerdict" class="verdict-inline"></span></div>
         <div id="chT20Hist" class="chart" style="height:200px"></div>
-        <div class="note" style="margin-top:4px">口径：各合约前20会员持买合计 − 持卖合计（全合约汇总），按采样交易日绘制；可观察近一月净持仓走向与多空力量消长。</div>
+        <div class="note" style="margin-top:4px">口径：前20会员主力合约（持买合计最大合约）持买 − 持卖，按采样交易日绘制；与快照前20会员口径一致，可观察近一月净持仓走向与多空力量消长。</div>
+      </div>
+      <div class="t20-hist" style="margin-top:10px">
+        <div class="t20-hist-head"><span class="t">主力合约净持仓 · z-score 归一化 · 机构观点净情绪叠加（背离分析）</span><span id="t20DivVerdict" class="verdict-inline"></span></div>
+        <div id="chT20Div" class="chart" style="height:240px"></div>
+        <div class="note" style="margin-top:4px">左轴：前20会员主力合约净持仓（手）；右轴：z-score 标准化。红线=COT 净持仓 z，橙虚线=机构观点净情绪（累计看多−看空）z。两者反向即<b>背离</b>（阴影区），提示持仓与观点情绪不一致，需结合基本面研判。</div>
       </div>
       <div class="note" style="margin-top:6px">${t.note || ""}净持仓变化 = 多头当日增仓 − 空头当日增仓；为正代表净多增加（偏多），为负代表净空增加（偏空）。</div>`;
     return card("⑦ 前20会员多空对比", "Top20 · 核心 · 交易日 " + t20Date, "span12", body, tone);
@@ -763,7 +768,22 @@
       Charts.top20NetCurve($("#chT20Hist"), h);
       const chg = h[h.length - 1].net - h[0].net;
       const el = document.getElementById("t20HistVerdict");
-      if (el) el.innerHTML = `期末合计净持仓 <b>${fmt(h[h.length - 1].net)}</b> 手，近1月变化 <b class="${cls(chg)}">${chg > 0 ? "+" : ""}${fmt(chg)}</b> 手`;
+      if (el) el.innerHTML = `期末主力净持仓 <b>${fmt(h[h.length - 1].net)}</b> 手，近1月变化 <b class="${cls(chg)}">${chg > 0 ? "+" : ""}${fmt(chg)}</b> 手`;
+    }
+    // 背离分析：COT 净持仓 z-score × 机构观点净情绪 z-score
+    if (s.top20 && s.top20.history && s.top20.history.length >= 2 && s.top20.opinion_series) {
+      const h2 = s.top20.history.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
+      Charts.t20Divergence($("#chT20Div"), h2, s.top20.opinion_series);
+      const last = h2[h2.length - 1];
+      const op = (s.top20.opinion_series.find(o => o.date === last.date) || {});
+      const a = last.z, b = op.z;
+      const v = document.getElementById("t20DivVerdict");
+      if (v && a != null && b != null) {
+        if (a !== 0 && b !== 0 && Math.sign(a) !== Math.sign(b))
+          v.innerHTML = `<b style="color:#e0a83a">背离：持仓 ${a > 0 ? "偏多" : "偏空"} / 观点 ${b > 0 ? "偏多" : "偏空"}</b>`;
+        else
+          v.innerHTML = `持仓与观点方向<b class="${a >= 0 ? "up" : "down"}">${a >= 0 ? "共振偏多" : "共振偏空"}</b>`;
+      }
     }
     if (s.market_sentiment) {
       const ms = s.market_sentiment, sc = ms.score != null ? ms.score : 50;

@@ -365,7 +365,7 @@
     return c;
   }
 
-  // 前20会员近一月「全合约合计净持仓」变化曲线
+  // 前20会员近一月「主力合约净持仓」变化曲线
   function top20NetCurve(dom, history) {
     const c = base(dom);
     const pts = history.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
@@ -381,7 +381,7 @@
       tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
         formatter: (p) => {
           const x = pts[p[0].dataIndex];
-          return `${x.date}<br/>全合约合计净持仓 <b>${fmtN(x.net)}</b> 手` +
+          return `${x.date}<br/>主力合约净持仓 <b>${fmtN(x.net)}</b> 手` +
             `<br/>持买 ${fmtN(x.long_total)} / 持卖 ${fmtN(x.short_total)}` +
             `<br/>当日增减：多 ${fmtN(x.long_chg)} / 空 ${fmtN(x.short_chg)}`;
         } },
@@ -402,5 +402,73 @@
     return c;
   }
 
-  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve };
+  // 前20会员：COT 净持仓 + z-score 归一化轴 + 观点净情绪 叠加背离分析
+  // history: [{date, net, z, contract?}]；opinion: [{date, net, bull, bear, z}]
+  function t20Divergence(dom, history, opinion) {
+    const c = base(dom);
+    const hist = (history || []).slice().sort((a, b) => (a.date < b.date ? -1 : 1));
+    if (!hist.length) return c;
+    const opByDate = {};
+    (opinion || []).forEach(o => { opByDate[o.date] = o; });
+    const labels = hist.map(p => p.date.length === 8 ? p.date.slice(4).replace(/(..)(..)/, "$1-$2") : p.date);
+    const netLine = hist.map(p => p.net);
+    const zCot = hist.map(p => (p.z == null ? null : p.z));
+    const zOp = hist.map(p => { const o = opByDate[p.date]; return (o && o.z != null) ? o.z : null; });
+    const fmtN = (n) => (n == null ? "-" : Number(n).toLocaleString("en-US"));
+
+    // 背离区间：COT z 与 观点 z 异号（均非零）
+    const markAreas = [];
+    let segStart = null;
+    for (let i = 0; i < hist.length; i++) {
+      const a = zCot[i], b = zOp[i];
+      const opp = (a != null && b != null && a !== 0 && b !== 0 && Math.sign(a) !== Math.sign(b));
+      if (opp && segStart === null) segStart = i;
+      if ((!opp || i === hist.length - 1) && segStart !== null) {
+        markAreas.push([{ xAxis: labels[segStart] }, { xAxis: labels[Math.min(i, hist.length - 1)] }]);
+        segStart = null;
+      }
+    }
+
+    c.setOption({
+      backgroundColor: "transparent",
+      tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
+        formatter: (ps) => {
+          const idx = ps[0].dataIndex; const x = hist[idx];
+          let s = `${x.date}<br/>COT主力净持仓 <b>${fmtN(x.net)}</b> 手 (z=${x.z == null ? "-" : x.z})`;
+          if (x.contract) s += `<br/>主力合约 ${x.contract}`;
+          const o = opByDate[x.date];
+          if (o) s += `<br/>观点净情绪 ${o.net > 0 ? "+" : ""}${o.net} (看多${o.bull}/看空${o.bear}, z=${o.z == null ? "-" : o.z})`;
+          const a = zCot[idx], b = zOp[idx];
+          if (a != null && b != null && a !== 0 && b !== 0 && Math.sign(a) !== Math.sign(b))
+            s += `<br/><b style="color:#e0a83a">⚠ 背离：持仓与观点方向不一致</b>`;
+          return s;
+        } },
+      legend: { data: ["COT净持仓", "COT z", "观点净情绪 z"], textStyle: { color: TX }, top: 0, right: 6, itemWidth: 14, itemHeight: 8 },
+      grid: { left: 64, right: 56, top: 34, bottom: 40 },
+      xAxis: { type: "category", data: labels, boundaryGap: false, ...axisCommon(),
+        axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(labels.length / 8)) } },
+      yAxis: [
+        { type: "value", ...axisCommon(), name: "净持仓(手)", nameTextStyle: { color: TX }, scale: true,
+          axisLabel: { color: TX, formatter: (v) => (v >= 0 ? "+" : "") + (Math.abs(v) >= 10000 ? (v / 10000).toFixed(1) + "万" : v) } },
+        { type: "value", ...axisCommon(), name: "z-score", nameTextStyle: { color: TX },
+          axisLabel: { color: TX, formatter: (v) => v.toFixed(1) }, splitLine: { show: false } },
+      ],
+      series: [
+        { name: "COT净持仓", type: "line", yAxisIndex: 0, data: netLine, smooth: true,
+          showSymbol: true, symbolSize: 4, connectNulls: true,
+          itemStyle: { color: BLUE }, lineStyle: { width: 2, color: BLUE },
+          areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1,
+            [{ offset: 0, color: "rgba(61,126,255,.26)" }, { offset: 1, color: "rgba(0,0,0,0)" }]) },
+          markArea: markAreas.length ? { silent: true, itemStyle: { color: "rgba(224,168,58,.10)" }, data: markAreas } : undefined },
+        { name: "COT z", type: "line", yAxisIndex: 1, data: zCot, smooth: true,
+          showSymbol: false, connectNulls: true, itemStyle: { color: RED }, lineStyle: { width: 2, color: RED, type: "solid" } },
+        { name: "观点净情绪 z", type: "line", yAxisIndex: 1, data: zOp, smooth: true,
+          showSymbol: false, connectNulls: true, itemStyle: { color: AMBER },
+          lineStyle: { width: 2, color: AMBER, type: "dashed" } },
+      ],
+    });
+    return c;
+  }
+
+  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, t20Divergence };
 })(window);

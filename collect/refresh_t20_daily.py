@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-前20会员全合约合计净持仓 —— 每日滚动采集（追加最新交易日 -> 曲线滚动）
+前20会员主力合约净持仓 —— 每日滚动采集（追加最新交易日 -> 曲线滚动）
 
-数据口径：前20会员「全合约」合计净持仓 = 该品种所有合约的前20会员持买 - 持卖合计。
+数据口径：前20会员「主力合约（持买合计最大）」净持仓 = 该品种持买合计最大的真实月份
+合约的前20会员持买 - 持卖合计。与快照 parse_neodata 选主力合约口径完全一致。
 来源（纯 HTTP 可跑，不依赖 neodata 连接器、不访问各交易所官网）：
   - SHFE（上期所）12 品种：AKShare 直连 get_rank_sum_daily（上期所官网 shfe.com.cn 可用）。
   - CZCE（郑商所）11 品种：东方财富龙虎榜 RPT_FUTU_DAILYPOSITION（市场代码 069001008），
@@ -25,7 +26,9 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from t20_collect_lib import upsert, parse_rank_result  # noqa: E402
+from t20_collect_lib import (upsert, parse_rank_result, rec_from_neodata,  # noqa: E402
+                             parse_akshare_dominant, em_aggregate_dominant,
+                             source_cached)
 from wb_common import snap_date  # noqa: E402
 import akshare as ak  # noqa: E402
 import requests  # noqa: E402
@@ -54,28 +57,10 @@ RANK_FIELDS = ("contract_code,variety_code,end_date,indicator_code,member_code,"
 
 
 def collect_ak(date):
-    """AKShare 直连：取某交易日全部品种的前20合计净持仓，返回 {code: rec}。"""
+    """AKShare 直连（SHFE）：取某交易日各品种主力合约（持买合计最大）前20净持仓。"""
     df = ak.get_rank_sum_daily(start_day=date, end_day=date, vars_list=AK_VARS)
-    # 品种汇总行：symbol == variety（全合约合计）
-    summ = df[df["symbol"] == df["variety"]]
-    out = {}
-    for _, r in summ.iterrows():
-        code = str(r["variety"]).strip()
-        lo = r.get("long_open_interest_top20")
-        so = r.get("short_open_interest_top20")
-        if lo is None or so is None:
-            continue
-        lc = r.get("long_open_interest_chg_top20")
-        sc = r.get("short_open_interest_chg_top20")
-        out[code] = {
-            "date": date,
-            "net": int(lo - so),
-            "long_total": int(lo),
-            "short_total": int(so),
-            "long_chg": int(lc) if lc is not None else 0,
-            "short_chg": int(sc) if sc is not None else 0,
-        }
-    return out
+    # 主力合约口径：逐品种在真实月份合约中选 持买合计(top20) 最大者
+    return parse_akshare_dominant(df, date, AK_VARIETY)
 
 
 def collect_dce(date):
@@ -108,7 +93,9 @@ def collect_dce(date):
             merged.extend(rows)
             time.sleep(4)
         if ok_all and merged:
-            out[code] = parse_rank_result(merged, date)
+            rec = rec_from_neodata(merged, date)
+            if rec:
+                out[code] = rec
         time.sleep(4)
     return out
 
@@ -144,116 +131,125 @@ def _fetch_em_rows(date, market_code):
     return rows
 
 
-def _aggregate_em_top20(rows, codes):
-    """按品种代码前缀聚合前20会员全合约合计净持仓。codes: 品种代码列表。"""
-    mem = {c: {} for c in codes}  # code -> member -> [long, short, long_chg, short_chg]
-    for x in rows:
-        sc = (x.get("SECURITY_CODE") or "")
-        for code in codes:
-            if (sc.startswith(code) and len(sc) > len(code)
-                    and sc[len(code)].isdigit()):  # 精确区分 L/LH、P/PP、J/JM、C/CS 等
-                m = x.get("MEMBER_NAME_ABBR") or ""
-                if not m:
-                    break
-                bucket = mem[code].setdefault(m, [0, 0, 0, 0])
-                bucket[0] += int(x.get("LONG_POSITION") or 0)
-                bucket[1] += int(x.get("SHORT_POSITION") or 0)
-                bucket[2] += int(x.get("LP_CHANGE") or 0)
-                bucket[3] += int(x.get("SP_CHANGE") or 0)
-                break
-    out = {}
-    for code in codes:
-        mm = mem.get(code)
-        if not mm:
-            continue
-        top = sorted(mm.items(), key=lambda kv: -(kv[1][0] + kv[1][1]))[:20]
-        lt = sum(v[0] for _, v in top)
-        st = sum(v[1] for _, v in top)
-        lc = sum(v[2] for _, v in top)
-        sc_chg = sum(v[3] for _, v in top)
-        out[code] = {
-            "date": (rows[0].get("TRADE_DATE") or "").replace("-", ""),
-            "net": int(lt - st),
-            "long_total": int(lt),
-            "short_total": int(st),
-            "long_chg": int(lc),
-            "short_chg": int(sc_chg),
-        }
-    return out
+def _aggregate_em_top20(rows, codes, exch_map=None):
+    """按品种代码前缀聚合前20会员「主力合约（持买合计最大）」合计净持仓。"""
+    return em_aggregate_dominant(rows, codes, exch_map or {})
 
 
 def collect_dce_em(date):
-    """DCE 13 品种：东方财富龙虎榜（市场代码 069001007）。"""
+    """DCE 13 品种：东方财富龙虎榜（市场代码 069001007）。主力合约口径。"""
     rows = _fetch_em_rows(date, EM_MARKET["DCE"])
     if not rows:
         print("  [DCE-EM] 未获取到 DCE 明细，跳过", flush=True)
         return {}
-    out = _aggregate_em_top20(rows, DCE_LIST)
+    out = _aggregate_em_top20(rows, DCE_LIST, DCE_VARIETY)
     print(f"  [DCE-EM] 全天 DCE 明细 {len(rows)} 行, 聚合 {len(out)} 个品种", flush=True)
     return out
 
 
 def collect_czce_em(date):
     """CZCE（郑商所）11 品种：东方财富龙虎榜（市场代码 069001008）。
-    替代 AKShare（AKShare 抓郑商所需访问 czce.com.cn，本环境网络不可达）。"""
+    替代 AKShare（AKShare 抓郑商所需访问 czce.com.cn，本环境网络不可达）。主力合约口径。"""
     rows = _fetch_em_rows(date, EM_MARKET["CZCE"])
     if not rows:
         print("  [CZCE-EM] 未获取到郑商所明细，跳过", flush=True)
         return {}
-    out = _aggregate_em_top20(rows, CZCE)
+    out = _aggregate_em_top20(rows, CZCE, CZCE_VARIETY)
     print(f"  [CZCE-EM] 全天郑商所明细 {len(rows)} 行, 聚合 {len(out)} 个品种", flush=True)
+    return out
+
+
+def collect_one_date(date):
+    """采集单个交易日（3 路），返回新增点数。已存在日期先做缓存检查，跳过网络请求。"""
+    added = 0
+    # 1) AKShare 直连 SHFE（上期所官网可用）
+    if not source_cached(AK_VARS, date):
+        try:
+            recs = collect_ak(date)
+            for code, rec in recs.items():
+                if upsert(code, AK_VARIETY.get(code), date, rec):
+                    added += 1
+            print(f"  AKShare(SHFE) {date}: {len(recs)} 品种, 新增 {added} 个日期点", flush=True)
+        except Exception as e:  # noqa
+            print(f"  AKShare(SHFE) {date} 抓取失败: {e}", flush=True)
+    else:
+        print(f"  AKShare(SHFE) {date}: 已缓存，跳过", flush=True)
+
+    # 2) 东方财富：CZCE（郑商所，替代 AKShare 因 czce.com.cn 不可达）
+    if not source_cached(CZCE, date):
+        try:
+            crecs = collect_czce_em(date)
+            base = added
+            for code, rec in crecs.items():
+                if upsert(code, CZCE_VARIETY.get(code), date, rec):
+                    added += 1
+            if crecs:
+                print(f"  CZCE(东方财富) {date}: {len(crecs)} 品种, 新增 {added - base} 个日期点", flush=True)
+        except Exception as e:  # noqa
+            print(f"  CZCE(东方财富) {date} 抓取失败: {e}", flush=True)
+    else:
+        print(f"  CZCE(东方财富) {date}: 已缓存，跳过", flush=True)
+
+    # 3) 东方财富 DCE（大商所，优先），失败回退 NeoData
+    if not source_cached(DCE_LIST, date):
+        try:
+            drecs = collect_dce_em(date)
+            src = "东方财富"
+            if not drecs:
+                drecs = collect_dce(target=date)  # 旧 NeoData 兜底（仅当连接器可用）
+                src = "NeoData"
+            base = added
+            for code, rec in drecs.items():
+                if upsert(code, DCE_VARIETY.get(code), date, rec):
+                    added += 1
+            if drecs:
+                print(f"  DCE({src}) {date}: {len(drecs)} 品种, 新增 {added - base} 个日期点", flush=True)
+        except Exception as e:  # noqa
+            print(f"  DCE {date} 抓取失败: {e}", flush=True)
+    else:
+        print(f"  DCE(东方财富) {date}: 已缓存，跳过", flush=True)
+
+    return added
+
+
+def trading_window(target, days=22):
+    """取 target 当日 + 之前约 days 个交易日的 8 位日期列表（跳过周末）。"""
+    from datetime import datetime, timedelta
+    td = datetime.strptime(target, "%Y%m%d")
+    out, d = [], td
+    while len(out) < days:
+        if d.weekday() < 5:  # 跳过周六周日
+            out.append(d.strftime("%Y%m%d"))
+        d = d - timedelta(days=1)
+    if target not in out:
+        out.append(target)
     return out
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", help="指定目标交易日 YYYYMMDD（默认 WB_SNAP_DATE 或最新已收盘交易日）")
+    ap.add_argument("--backfill", type=int, default=0,
+                    help="回填近 N 个交易日（含今日）的滚动曲线；0=仅采集目标日。幂等，已存在自动跳过。")
     args = ap.parse_args()
 
     target = args.date or os.environ.get("WB_SNAP_DATE") or snap_date()
     target = target.replace("-", "") if target else target  # 规整为 8 位 YYYYMMDD，避免与历史键格式混用
-    print(f"== 前20每日滚动 -> 目标日期 {target} ==", flush=True)
 
-    # 1) AKShare 直连 SHFE（上期所官网可用）
-    ak_added = 0
-    try:
-        recs = collect_ak(target)
-        for code, rec in recs.items():
-            if upsert(code, AK_VARIETY.get(code), target, rec):
-                ak_added += 1
-        print(f"  AKShare(SHFE): {len(recs)} 品种, 新增 {ak_added} 个日期点", flush=True)
-    except Exception as e:  # noqa
-        print(f"  AKShare(SHFE) 抓取失败: {e}", flush=True)
+    if args.backfill and args.backfill > 0:
+        dates = trading_window(target, args.backfill)
+        print(f"== 前20回填(主力合约口径) -> {target} 共 {len(dates)} 个交易日 ==", flush=True)
+        total = 0
+        for i, dt in enumerate(sorted(dates)):
+            total += collect_one_date(dt)
+            if i < len(dates) - 1:
+                time.sleep(1.5)  # 礼貌限速，避免连续请求被交易所/东方财富拦截
+        print(f"DONE 前20回填. 累计新增 {total} 个日期点", flush=True)
+        return 0
 
-    # 2) 东方财富：CZCE（郑商所，替代 AKShare 因 czce.com.cn 不可达）
-    c_added = 0
-    try:
-        crecs = collect_czce_em(target)
-        for code, rec in crecs.items():
-            if upsert(code, CZCE_VARIETY.get(code), target, rec):
-                c_added += 1
-        if crecs:
-            print(f"  CZCE(东方财富): {len(crecs)} 品种, 新增 {c_added} 个日期点", flush=True)
-    except Exception as e:  # noqa
-        print(f"  CZCE(东方财富) 抓取失败: {e}", flush=True)
-
-    # 3) 东方财富 DCE（大商所，优先），失败回退 NeoData
-    d_added = 0
-    try:
-        drecs = collect_dce_em(target)
-        src = "东方财富"
-        if not drecs:
-            drecs = collect_dce(target)  # 旧 NeoData 兜底（仅当连接器可用）
-            src = "NeoData"
-        for code, rec in drecs.items():
-            if upsert(code, DCE_VARIETY.get(code), target, rec):
-                d_added += 1
-        if drecs:
-            print(f"  DCE({src}): {len(drecs)} 品种, 新增 {d_added} 个日期点", flush=True)
-    except Exception as e:  # noqa
-        print(f"  DCE 抓取失败: {e}", flush=True)
-
-    print(f"DONE 前20滚动. SHFE={ak_added} CZCE={c_added} DCE={d_added}", flush=True)
+    print(f"== 前20每日滚动(主力合约口径) -> 目标日期 {target} ==", flush=True)
+    added = collect_one_date(target)
+    print(f"DONE 前20滚动. 新增 {added} 个日期点", flush=True)
     return 0
 
 
