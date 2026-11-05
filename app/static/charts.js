@@ -306,7 +306,7 @@
     return c;
   }
 
-  // ⑫ 全市场机构情绪：各品种净情绪（看多-看空）横向条形榜
+  // ⑫ 全市场机构情绪：各品种净情绪比例（(看多−看空)/(看多+看空+中性)）横向条形榜
   // onPick(rankingItem) 可选：点击柱条回调，便于跳转到品种详情
   function sentimentNet(dom, ranking, onPick) {
     const c = base(dom);
@@ -316,12 +316,13 @@
     c.setOption({
       backgroundColor: "transparent",
       tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
-        formatter: (p) => { const r = sorted[p[0].dataIndex]; return `${r.name}(${r.code}) · ${r.category}<br/>看多 ${r.bullish} / 看空 ${r.bearish} / 中性 ${r.neutral}<br/>净情绪 <b>${(r.net > 0 ? "+" : "") + r.net}</b>`; } },
-      grid: { left: 104, right: 28, top: 14, bottom: 22 },
-      xAxis: { type: "value", ...axisCommon(), name: "净情绪(看多-看空)", nameTextStyle: { color: TX } },
+        formatter: (p) => { const r = sorted[p[0].dataIndex]; return `${r.name}(${r.code}) · ${r.category}<br/>看多 ${r.bullish} / 看空 ${r.bearish} / 中性 ${r.neutral}<br/>净情绪比例 <b>${(r.net > 0 ? "+" : "") + (r.net * 100).toFixed(0) + "%"}</b>`; } },
+      grid: { left: 104, right: 36, top: 14, bottom: 22 },
+      xAxis: { type: "value", ...axisCommon(), name: "净情绪比例", min: -1, max: 1, nameTextStyle: { color: TX },
+        axisLabel: { color: TX, formatter: (v) => (v > 0 ? "+" : "") + (v * 100).toFixed(0) + "%" } },
       yAxis: { type: "category", data: names, ...axisCommon(), axisLabel: { color: TX, fontSize: 11 } },
       series: [{ type: "bar", data: data, barMaxWidth: 13, cursor: "pointer",
-        label: { show: true, position: "right", color: TX, formatter: (p) => (p.value > 0 ? "+" : "") + p.value } }],
+        label: { show: true, position: "right", color: TX, formatter: (p) => (p.value > 0 ? "+" : "") + (p.value * 100).toFixed(0) + "%" } }],
     });
     if (onPick) {
       c.on("click", (p) => { const r = sorted[p.dataIndex]; if (r) onPick(r); });
@@ -329,8 +330,8 @@
     return c;
   }
 
-  // ⑬ 单品种近 N 天净多空情绪曲线（7 日滚动：看多-看空）
-  // series: [{label, net, hasOp, bull, bear, neutral}]，net 为当日及前 6 天净情绪之和
+  // ⑬ 单品种近 N 天净情绪比例曲线（7 日滚动：(看多−看空)/(看多+看空+中性)）
+  // series: [{label, net, hasOp, bull, bear, neutral}]，net 为当日及前 6 天净情绪比例之和
   function sentimentCurve(dom, series) {
     const c = base(dom);
     const labels = series.map(s => s.label);
@@ -344,14 +345,14 @@
         formatter: (p) => {
           const s = series[p[0].dataIndex];
           if (!s) return "";
-          return `${s.label}<br/>近7日净情绪 <b>${(s.net > 0 ? "+" : "") + s.net}</b>` +
+          return `${s.label}<br/>近7日净情绪比例 <b>${(s.net > 0 ? "+" : "") + (s.net * 100).toFixed(0) + "%"}</b>` +
             (s.hasOp ? `<br/>当日观点：看多 ${s.bull} / 看空 ${s.bear} / 中性 ${s.neutral}` : "<br/>（近7日窗口内无新观点）");
         } },
       grid: { left: 48, right: 18, top: 22, bottom: 46 },
       xAxis: { type: "category", data: labels, boundaryGap: false, ...axisCommon(),
         axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(labels.length / 10)) } },
-      yAxis: { type: "value", ...axisCommon(), name: "净多空", nameTextStyle: { color: TX },
-        axisLabel: { color: TX, formatter: (v) => (v > 0 ? "+" : "") + v } },
+      yAxis: { type: "value", ...axisCommon(), name: "净情绪比例", min: -1, max: 1, nameTextStyle: { color: TX },
+        axisLabel: { color: TX, formatter: (v) => (v > 0 ? "+" : "") + (v * 100).toFixed(0) + "%" } },
       series: [
         { type: "line", data: line, smooth: true, showSymbol: false, connectNulls: true,
           lineStyle: { width: 2, color: BLUE },
@@ -437,7 +438,7 @@
           let s = `${x.date}<br/>COT主力净持仓 <b>${fmtN(x.net)}</b> 手 (z=${x.z == null ? "-" : x.z})`;
           if (x.contract) s += `<br/>主力合约 ${x.contract}`;
           const o = opByDate[x.date];
-          if (o) s += `<br/>观点净情绪 ${o.net > 0 ? "+" : ""}${o.net} (看多${o.bull}/看空${o.bear}, z=${o.z == null ? "-" : o.z})`;
+          if (o) s += `<br/>观点净情绪比例 ${o.net > 0 ? "+" : ""}${(o.net * 100).toFixed(0)}% (看多${o.bull}/看空${o.bear}, z=${o.z == null ? "-" : o.z})`;
           const a = zCot[idx], b = zOp[idx];
           if (a != null && b != null && a !== 0 && b !== 0 && Math.sign(a) !== Math.sign(b))
             s += `<br/><b style="color:#e0a83a">⚠ 背离：持仓与观点方向不一致</b>`;

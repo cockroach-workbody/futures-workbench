@@ -196,15 +196,39 @@ def _parse_opinion_date(s, ref):
     if "年度" in s or "年报" in s or re.match(r"^\d{4}$", s):
         return date(2000, 1, 1)
     if "近期" in s or "最近" in s:
-        return ref
+        return None  # 模糊标记不再伪造为最新；交由调用方按无效日期剔除
     return None
 
 
 def is_recent_opinion(view, ref, days=30):
     d = _parse_opinion_date(view.get("date", ""), ref)
     if d is None:
-        return True  # 无法判断者保守保留
+        return False  # 无法判断日期的观点（含「近期/最近」模糊标记）不参与按日情绪
     return (ref - d).days <= days
+
+
+def is_dynamic_source(view):
+    """仅保留『按日动态刷新』的观点来源：奇货可查(qhkch)每日直抓、WebSearch 全网检索。
+    多源静态历史（Mysteel/和讯/同花顺等手工源）永不刷新，会从日期维度持续污染最新情绪值，故排除。"""
+    url = view.get("url") or ""
+    src = view.get("source") or ""
+    if "qhkch.com" in url:
+        return True
+    if (src or "").startswith("websearch"):
+        return True
+    return False
+
+
+def _valid_opinion_date(view):
+    """返回可解析的 YYYY-MM-DD 观点日期；模糊/无法解析（近期/年度/空）返回 None。"""
+    s = (view.get("date") or "").strip()
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})$", s)
+    if not m:
+        return None
+    try:
+        return date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    except Exception:
+        return None
 
 
 def _parse_date_only(s):
@@ -220,9 +244,9 @@ def _parse_date_only(s):
 
 
 def opinion_series_for_history(views, hist):
-    """把观点列表按历史曲线日期对齐，生成「累计看多−看空」序列（用于与 COT 净持仓做背离分析）。
-    hist: [{date:'YYYYMMDD', ...}]（升序）；返回 [{date, net, bull, bear, z}] 或 None。
-    net 为每个历史日之前（含）所有观点的 看多数 − 看空数 累计值；z 为该序列的 z-score。"""
+    """把观点列表按历史曲线日期对齐，生成「累计 (看多−看空)/(看多+看空+中性)」比例序列（用于与 COT 净持仓做背离分析）。
+    hist: [{date:'YYYYMMDD', ...}]（升序）；返回 [{date, net, bull, bear, neutral, z}] 或 None。
+    net 为每个历史日之前（含）所有观点的情绪比例 = (看多 − 看空) / (看多 + 看空 + 中性)，区间 [-1,1]；z 为该序列的 z-score。"""
     parsed = []
     for v in views:
         d = _parse_date_only(v.get("date", ""))
@@ -238,7 +262,10 @@ def opinion_series_for_history(views, hist):
             continue
         bull = sum(1 for d, st in parsed if d <= hd and st == "bullish")
         bear = sum(1 for d, st in parsed if d <= hd and st == "bearish")
-        out.append({"date": h["date"], "net": bull - bear, "bull": bull, "bear": bear})
+        neutral = sum(1 for d, st in parsed if d <= hd and st == "neutral")
+        tot = bull + bear + neutral
+        net = round((bull - bear) / tot, 4) if tot else 0.0
+        out.append({"date": h["date"], "net": net, "bull": bull, "bear": bear, "neutral": neutral})
     if not out:
         return None
     nets = [o["net"] for o in out]
@@ -552,25 +579,19 @@ def build_product(cfg):
     market_sentiment = build_market_sentiment(cfg, net_info, basis.get("structure"), basis.get("spread"),
                                               std.get("total"), inv_change)
     web_views = load_opinions(cfg["code"])
-    # 脏日期规整：「近期/最近」等无法解析的中文标记统一改写为快照日期，避免被前端 parseDate 丢弃。
-    for _v in web_views:
-        _d = str(_v.get("date", "")).strip()
-        if "近期" in _d or "最近" in _d:
-            _v["date"] = SNAP_DATE
-    # 过度未来日期收拢：把晚于今天 2 天以上的观点（多为「11月报」写成 11-15 这类未来占位）收拢到今天，
+    # 情绪数据「按日动态刷新」：仅保留真正每日刷新的来源（qhkch 直抓 + WebSearch 全网），
+    # 剔除永不刷新的多源静态历史（Mysteel/和讯/同花顺等手工源，占比近半且多为「近期/2026年度」模糊日期，
+    # 若规整到快照日会长期污染最新情绪值）。
+    web_views = [v for v in web_views if is_dynamic_source(v)]
+    # 模糊/无法解析的日期（「近期/2026年度」等）一律视为无效，不参与按日情绪计算（避免被伪造为最新）。
+    web_views = [v for v in web_views if _valid_opinion_date(v) is not None]
+    # 未来占位日期收拢：把晚于今天 2 天以上的观点（多为「11月报」写成 11-15 这类未来占位）收拢到今天，
     # 使其计入「今天」的 7 日滚动情绪，避免个别品种曲线画不到今天。
-    import re as _re
     _today = date.today()
     for _v in web_views:
-        _d = str(_v.get("date", "")).strip()
-        _m = _re.match(r"^(\d{4})-(\d{2})-(\d{2})$", _d)
-        if _m:
-            try:
-                _od = date(int(_m.group(1)), int(_m.group(2)), int(_m.group(3)))
-            except Exception:
-                _od = None
-            if _od and (_od - _today).days > 2:
-                _v["date"] = _today.strftime("%Y-%m-%d")
+        _od = _valid_opinion_date(_v)
+        if _od and (_od - _today).days > 2:
+            _v["date"] = _today.strftime("%Y-%m-%d")
     _ref = date(*(int(x) for x in SNAP_DATE.split("-")))
     web_views = [v for v in web_views if is_recent_opinion(v, _ref, 30)]
     stance_summary = {"bullish": 0, "bearish": 0, "neutral": 0}
@@ -578,7 +599,7 @@ def build_product(cfg):
         _st = _v.get("stance")
         if _st in stance_summary:
             stance_summary[_st] += 1
-    # 观点净情绪序列（按历史曲线日期对齐，累计看多−看空），用于与 COT 净持仓做背离分析
+    # 观点净情绪序列（按历史曲线日期对齐，累计 (看多−看空)/(看多+看空+中性) 比例），用于与 COT 净持仓做背离分析
     if top20.get("history"):
         _op_series = opinion_series_for_history(web_views, top20["history"])
         if _op_series:

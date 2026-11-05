@@ -180,12 +180,12 @@
           <select id="sentCurveSector" class="sent-select"></select>
           <label class="sent-filter-label">品种</label>
           <select id="sentCurveProduct" class="sent-select"></select>
-          <span class="hint">近30天 · 7日滚动净多空情绪（看多−看空），圆点=当日有观点</span>
+          <span class="hint">近30天 · 7日滚动净情绪比例（(看多−看空)/(看多+看空+中性)），圆点=当日有观点</span>
         </div>
         <div id="sentCurveCap" class="note" style="margin:4px 0 2px"></div>
         <div id="chSentCurve" class="chart" style="height:240px"></div>
       </div>
-      <div class="note" style="width:100%">样本：全市场 ${SENT.total_products || 0} 个品种、共 ${t.opinions} 条机构研报观点（奇货可查 qhkch 每日直抓 + WebSearch 全网检索 + 多源研报，近30天）；数据截至 ${SENT.as_of || "—"}。净情绪 = 看多 − 看空。</div>`;
+      <div class="note" style="width:100%">样本：全市场 ${SENT.total_products || 0} 个品种、共 ${t.opinions} 条机构研报观点（仅纳入<b>按日动态刷新</b>来源：奇货可查 qhkch 每日直抓 + WebSearch 全网检索，近30天；已剔除永不刷新的多源静态历史以避免污染最新情绪）；数据截至 ${SENT.as_of || "—"}。净情绪比例 = (看多 − 看空) / (看多 + 看空 + 中性)。</div>`;
     return card("⑪ 全市场机构情绪总览", "Sentiment", "span12", body, tone);
   }
 
@@ -262,7 +262,7 @@
     }
   }
 
-  // 计算单品种近 N 天净多空情绪曲线（win 日滚动：看多−看空）
+  // 计算单品种近 N 天净情绪比例曲线（win 日滚动：(看多−看空)/(看多+看空+中性)）
   // anchor：窗口锚点（默认取快照 as_of 日期，使「近一个月」始终相对数据日期成立）
   function computeSentCurve(opinions, days, win, anchor) {
     const byDate = {};
@@ -286,7 +286,10 @@
         const b = byDate[dk];
         if (b) { nbull += b.bull; nbear += b.bear; nneutral += b.neutral; hasOp = true; }
       }
-      out.push({ label: `${dt.getMonth() + 1}/${dt.getDate()}`, net: nbull - nbear, hasOp, bull: nbull, bear: nbear, neutral: nneutral });
+      // 中性纳入比例：net = (看多−看空)/(看多+看空+中性)，与情绪榜/背离序列口径一致
+      const tot = nbull + nbear + nneutral;
+      const net = tot ? (nbull - nbear) / tot : 0;
+      out.push({ label: `${dt.getMonth() + 1}/${dt.getDate()}`, net, hasOp, bull: nbull, bear: nbear, neutral: nneutral });
     }
     return out;
   }
@@ -335,7 +338,7 @@
     curveChart = Charts.sentimentCurve(box, series);
     const last = series[series.length - 1] || { net: 0, hasOp: false };
     const tone = last.net > 0 ? "偏多" : last.net < 0 ? "偏空" : "中性";
-    if (cap) cap.innerHTML = `${r ? r.name + "(" + code + ")" : code} · 近30天观点 <b>${ops.length}</b> 条 · 近7日净情绪 <b class="${last.net > 0 ? "up" : last.net < 0 ? "down" : ""}">${(last.net > 0 ? "+" : "") + last.net}</b>（${tone}）`;
+    if (cap) cap.innerHTML = `${r ? r.name + "(" + code + ")" : code} · 近30天观点 <b>${ops.length}</b> 条 · 近7日净情绪比例 <b class="${last.net > 0 ? "up" : last.net < 0 ? "down" : ""}">${(last.net > 0 ? "+" : "") + (last.net * 100).toFixed(0) + "%"}</b>（${tone}）`;
   }
 
   // 绑定情绪总览卡片的交互（下拉筛选 + 点选跳转）
@@ -541,7 +544,7 @@
       <div class="t20-hist" style="margin-top:10px">
         <div class="t20-hist-head"><span class="t">主力合约净持仓 · z-score 归一化 · 机构观点净情绪叠加（背离分析）</span><span id="t20DivVerdict" class="verdict-inline"></span></div>
         <div id="chT20Div" class="chart" style="height:240px"></div>
-        <div class="note" style="margin-top:4px">左轴：前20会员主力合约净持仓（手）；右轴：z-score 标准化。红线=COT 净持仓 z，橙虚线=机构观点净情绪（累计看多−看空）z。两者反向即<b>背离</b>（阴影区），提示持仓与观点情绪不一致，需结合基本面研判。</div>
+        <div class="note" style="margin-top:4px">左轴：前20会员主力合约净持仓（手）；右轴：z-score 标准化。红线=COT 净持仓 z，橙虚线=机构观点净情绪比例 [（累计看多−看空)/(看多+看空+中性)] 的 z。两者反向即<b>背离</b>（阴影区），提示持仓与观点情绪不一致，需结合基本面研判。</div>
       </div>
       <div class="note" style="margin-top:6px">${t.note || ""}净持仓变化 = 多头当日增仓 − 空头当日增仓；为正代表净多增加（偏多），为负代表净空增加（偏空）。</div>`;
     return card("⑦ 前20会员多空对比", "Top20 · 核心 · 交易日 " + t20Date, "span12", body, tone);

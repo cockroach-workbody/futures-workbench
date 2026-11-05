@@ -216,9 +216,10 @@ def compute_sentiment(cats, slim_map):
                 tgt["bullish"] += b; tgt["bearish"] += be
                 tgt["neutral"] += n; tgt["opinions"] += opc
             cb["count"] += 1
+            net_ratio = (b - be) / (b + be + n) if (b + be + n) else 0.0
             ranking.append({"code": p["code"], "name": p["name"], "category": c["name"],
                             "bullish": b, "bearish": be, "neutral": n,
-                            "net": b - be, "opinions": opc})
+                            "net": net_ratio, "opinions": opc})
         by_category[c["name"]] = cb
     ranking.sort(key=lambda x: (x["net"], x["bullish"]), reverse=True)
     return {"as_of": SNAP_DATE, "total_products": len(ranking), "totals": totals,
