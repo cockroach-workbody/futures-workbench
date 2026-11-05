@@ -185,7 +185,7 @@
         <div id="sentCurveCap" class="note" style="margin:4px 0 2px"></div>
         <div id="chSentCurve" class="chart" style="height:240px"></div>
       </div>
-      <div class="note" style="width:100%">样本：全市场 ${SENT.total_products || 0} 个品种、共 ${t.opinions} 条机构研报观点（仅纳入<b>按日动态刷新</b>来源：奇货可查 qhkch 每日直抓 + WebSearch 全网检索，近30天；已剔除永不刷新的多源静态历史以避免污染最新情绪）；数据截至 ${SENT.as_of || "—"}。净情绪比例 = (看多 − 看空) / (看多 + 看空 + 中性)。</div>`;
+      <div class="note" style="width:100%">样本：全市场 ${SENT.total_products || 0} 个品种、共 ${t.opinions} 条机构研报观点（多源聚合：奇货可查 qhkch 每日直抓 + WebSearch 全网检索 + Mysteel 等产业源；按<b>期货公司机构名跨源去重</b>，剔除无机构名/模糊日期的存量以避免重复与污染，近30天）；数据截至 ${SENT.as_of || "—"}。净情绪比例 = (看多 − 看空) / (看多 + 看空 + 中性)。</div>`;
     return card("⑪ 全市场机构情绪总览", "Sentiment", "span12", body, tone);
   }
 
@@ -704,7 +704,7 @@
     const STANCE = { bullish: ["看多", "up"], bearish: ["看空", "down"], neutral: ["中性", "flat"] };
     const item = (p) => {
       const sc = STANCE[p.stance] || ["—", "flat"];
-      const inst = p.source || p.institution || "";
+      const inst = p.institution || p.source || "";
       return `<li class="op-item">
         <div class="op-head"><span class="pill ${sc[1]}">${sc[0]}</span><span class="t">${p.title || "（无标题）"}</span></div>
         <div class="op-date"><b>${inst || "机构"}</b> · ${p.date || "—"} ${freshBadge(p.date)}</div>

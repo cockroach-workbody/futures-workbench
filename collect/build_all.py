@@ -207,16 +207,22 @@ def is_recent_opinion(view, ref, days=30):
     return (ref - d).days <= days
 
 
-def is_dynamic_source(view):
-    """仅保留『按日动态刷新』的观点来源：奇货可查(qhkch)每日直抓、WebSearch 全网检索。
-    多源静态历史（Mysteel/和讯/同花顺等手工源）永不刷新，会从日期维度持续污染最新情绪值，故排除。"""
-    url = view.get("url") or ""
-    src = view.get("source") or ""
-    if "qhkch.com" in url:
-        return True
-    if (src or "").startswith("websearch"):
-        return True
-    return False
+def dedupe_views_by_institution(views):
+    """按 (机构名, 日期, 多空立场) 跨源去重：同一期货公司同一天同一立场的观点只保留一条，
+    优先保留来源更权威 / 摘要更完整的记录，避免同一观点在 qhkch / Mysteel / WebSearch 多源被重复计入。
+    这是『标注期货公司机构名称避免数据重复』的核心实现——机构名即去重键。"""
+    best = {}
+    for v in views:
+        inst = (v.get("institution") or "").strip()
+        if not inst:
+            continue
+        key = (inst, (v.get("date") or "").strip(), v.get("stance"))
+        src = v.get("source") or ""
+        prio = 2 if "qhkch.com" in (v.get("url") or "") else (1 if src.startswith("websearch") else 0)
+        score = (prio, len(v.get("summary") or ""))
+        if key not in best or score > best[key][0]:
+            best[key] = (score, v)
+    return [b[1] for b in best.values()]
 
 
 def _valid_opinion_date(view):
@@ -579,12 +585,14 @@ def build_product(cfg):
     market_sentiment = build_market_sentiment(cfg, net_info, basis.get("structure"), basis.get("spread"),
                                               std.get("total"), inv_change)
     web_views = load_opinions(cfg["code"])
-    # 情绪数据「按日动态刷新」：仅保留真正每日刷新的来源（qhkch 直抓 + WebSearch 全网），
-    # 剔除永不刷新的多源静态历史（Mysteel/和讯/同花顺等手工源，占比近半且多为「近期/2026年度」模糊日期，
-    # 若规整到快照日会长期污染最新情绪值）。
-    web_views = [v for v in web_views if is_dynamic_source(v)]
-    # 模糊/无法解析的日期（「近期/2026年度」等）一律视为无效，不参与按日情绪计算（避免被伪造为最新）。
-    web_views = [v for v in web_views if _valid_opinion_date(v) is not None]
+    # 情绪数据「按机构去重 + 真实日期」：
+    # ① 保留所有带真实期货公司机构名 + 真实日期(YYYY-MM-DD)的观点，不限来源
+    #    （qhkch 直抓 / WebSearch 全网 / Mysteel 等聚合源皆可用）——解决「数据源偏少」；
+    # ② 剔除无机构名或日期模糊（「近期/年度」等无法解析）的观点，避免永不刷新的存量垃圾污染最新情绪；
+    # ③ 按 (机构, 日期, 多空) 跨源去重（dedupe_views_by_institution），同一期货公司观点在
+    #    qhkch/Mysteel/WebSearch 多源被重复计入时只算一次——即『标注机构名避免数据重复』。
+    web_views = [v for v in web_views if v.get("institution") and _valid_opinion_date(v) is not None]
+    web_views = dedupe_views_by_institution(web_views)
     # 未来占位日期收拢：把晚于今天 2 天以上的观点（多为「11月报」写成 11-15 这类未来占位）收拢到今天，
     # 使其计入「今天」的 7 日滚动情绪，避免个别品种曲线画不到今天。
     _today = date.today()
