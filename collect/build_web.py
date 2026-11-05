@@ -15,6 +15,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import sys
 
@@ -100,25 +101,37 @@ def _short_hash(s):
 
 
 def _inject_static_version(web_dir):
-    """给 web/app/static/index.html 中的静态资源引用加 ?v=<内容哈希>，破除浏览器/CDN 缓存。"""
+    """给 web/app/static/index.html 中的静态资源引用加【文件名哈希】版本号（如 app.8e66de15b4.js），
+    不使用 ?v= 查询串，避免部分反向代理/CDN 对带查询的静态 URL 返回 404。
+    内容变更则哈希变、生成新文件名、强制刷新；内容不变则文件名不变、可继续命中缓存。"""
     static_dir = os.path.join(web_dir, "app", "static")
     idx = os.path.join(static_dir, "index.html")
     if not os.path.isfile(idx):
         return
     html = read(idx)
-    mapping = {
-        "/static/styles.css": os.path.join(static_dir, "styles.css"),
-        "/static/charts.js": os.path.join(static_dir, "charts.js"),
-        "/static/app.js": os.path.join(static_dir, "app.js"),
-        "/static/vendor/echarts.min.js": os.path.join(static_dir, "vendor", "echarts.min.js"),
-    }
-    for url, path in mapping.items():
-        if os.path.isfile(path):
-            v = _short_hash(read(path))
-            html = html.replace(f'{url}"', f'{url}?v={v}"')
+    # 去掉可能残留的旧 ?v= 查询串（幂等）
+    html = re.sub(r'(\.css|\.js)\?v=[a-f0-9]+(")', r"\1\2", html)
+    assets = [
+        ("/static/styles.css", "styles.css"),
+        ("/static/charts.js", "charts.js"),
+        ("/static/app.js", "app.js"),
+        ("/static/vendor/echarts.min.js", os.path.join("vendor", "echarts.min.js")),
+    ]
+    for url, rel in assets:
+        src = os.path.join(static_dir, rel)
+        if not os.path.isfile(src):
+            continue
+        h = _short_hash(read(src))
+        base, ext = os.path.splitext(os.path.basename(rel))
+        sub = os.path.dirname(rel)
+        new_name = f"{base}.{h}{ext}"
+        new_rel = os.path.join(sub, new_name) if sub else new_name
+        shutil.copy2(src, os.path.join(static_dir, new_rel))
+        new_url = "/static/" + new_rel.replace("\\", "/")
+        html = html.replace(f'{url}"', f'{new_url}"')
     with open(idx, "w", encoding="utf-8") as f:
         f.write(html)
-    log("[OK] 已注入静态资源版本号（缓存破坏）")
+    log("[OK] 已注入静态资源文件名版本号（代理安全缓存破坏）")
 
 
 def build_web_dir(slim_map, cats):
