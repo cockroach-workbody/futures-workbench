@@ -840,22 +840,27 @@
       <div class="cf-hint">成交量柱按当日涨跌红 / 绿着色，白边为显著放量（≥1.5×）；VMA5 高于 VMA20 表示近期资金关注度升温。三要素读法：<b>放量+增仓 = 增量资金进场</b>（趋势最可靠）、<b>放量+减仓 = 集中平仓/回补</b>（加速或尾声）、<b>缩量+增仓 = 轻仓试探</b>（待确认）、<b>缩量+减仓 = 离场尾声</b>（动能衰竭）。上下两格可同步缩放，悬停查看当日价·量·仓读数。</div>
     </div>`;
 
+    const chgTip = (r) => `多头增减 ${sign(r.long_chg)} 手 / 空头增减 ${sign(r.short_chg)} 手｜当日净变化 = 多头增减 − 空头增减 = ${sign(r.net_chg)} 手（席位相对上一交易日的自身持仓变化）`;
     const matrixRows = A.structure.rows.map(r => `<tr>
       <td><b>${r.tier}</b><span class="cf-sub">${r.count} 席 · 权重 ${r.weight.toFixed(0)}%</span></td>
       <td>${fmt(r.gross)}</td>
-      <td class="${cls(r.net)}">${sign(r.net)}</td>
+      <td class="${cls(r.net)}" title="净持仓 = 上榜多单量 ${fmt(r.long)} − 上榜空单量 ${fmt(r.short)}（当日存量）">${sign(r.net)}</td>
       <td class="${cls(r.netRatio)}">${r.netRatio.toFixed(1)}%</td>
       <td>${r.lsRatio ? r.lsRatio.toFixed(2) : "—"}</td>
-      <td class="${cls(r.net_chg)}">${sign(r.net_chg)}</td>
-      <td class="${cls(r.chgRatio)}">${r.chgRatio.toFixed(1)}%</td>
-      <td><span class="cf-tag ${r.action.kind}">${r.action.tag}</span></td>
+      <td class="${cls(r.net_chg)}" title="${chgTip(r)}">${sign(r.net_chg)}</td>
+      <td class="${cls(r.chgRatio)}" title="变化强度 = 当日净变化 ${sign(r.net_chg)} ÷ 双边持仓 ${fmt(r.gross)}（分母为毛持仓）">${r.chgRatio.toFixed(1)}%</td>
+      <td><span class="cf-tag ${r.action.kind}" title="${chgTip(r)}">${r.action.tag}</span></td>
     </tr>`).join("");
     const matrixHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L2</span>资金结构矩阵<em>归一化后可跨品种比较</em></div>
       <div class="table-wrap"><table><thead><tr>
-        <th>资金层级</th><th>双边持仓</th><th>净持仓</th><th>净占比</th><th>多空比</th><th>当日净变化</th><th>变化强度</th><th>变化性质</th>
+        <th>资金层级</th><th>双边持仓</th>
+        <th class="cf-th" title="当日存量：该层席位「上榜多单量 − 上榜空单量」">净持仓 ⓘ</th>
+        <th>净占比</th><th>多空比</th>
+        <th class="cf-th" title="当日流量：该层席位「多头增减 − 空头增减」之和。不是两日榜单净持仓之差，悬停数值可看多空拆解">当日净变化 ⓘ</th>
+        <th>变化强度</th><th>变化性质</th>
       </tr></thead><tbody>${matrixRows}</tbody></table></div>
-      <div class="cf-hint">净占比 = 净持仓 ÷ 双边持仓；变化强度 = 当日净变化 ÷ 双边持仓。<b>变化性质</b>把净变化拆回多头增减与空头增减：「主动进攻」是新增资金进场，「回补/平仓」是存量资金离场，数值相同但含义相反。头部资金层持仓占比 <b>${A.structure.concentration.toFixed(1)}%</b>（集中度越高，少数席位调仓越易放大波动）。</div>
+      <div class="cf-hint"><b>两个口径别混</b>：「净持仓」是当日榜单的<b>存量</b>（上榜多单量 − 上榜空单量），「当日净变化」是席位相对上一交易日的<b>流量</b>（多头增减 − 空头增减，悬停数值可看拆解）。只有席位集合完全不变时才有「昨日净持仓 + 当日净变化 = 今日净持仓」；榜单每日按净持仓规模重新排序分层、席位有进出，因此<b>不能用它倒推昨日值</b>（多空是两张独立榜单，未上榜的一侧记 0，净持仓本身也是榜单口径近似）。<br>净占比 = 净持仓 ÷ 双边持仓；变化强度 = 当日净变化 ÷ 双边持仓（<b>分母是毛持仓，不是净持仓</b>）。<b>变化性质</b>把净变化拆回多空增减：「主动进攻」是新增资金进场，「回补/平仓」是存量资金离场，数值相同但含义相反。头部资金层持仓占比 <b>${A.structure.concentration.toFixed(1)}%</b>（集中度越高，少数席位调仓越易放大波动）。</div>
     </div>`;
 
     const momRow = (m) => `<div class="cf-mrow">
