@@ -65,6 +65,14 @@
     selectCategory(curCat);
     $("#btnRefresh").onclick = onRefresh;
     $("#btnWind").onclick = () => alert("Wind Alice 三技能（商品日报 / 研报观点 / 量化评分）需在 WorkBuddy 会话内运行并落盘。\n当前 wind-finance 连接器未连接。\n连接后于对话中触发对应技能，结果将填充至「观点与情绪中心」。");
+    // ⑦ L4 四维证据：触屏点击固定口径说明（桌面 hover / 键盘 focus 由 CSS 负责）
+    document.addEventListener("click", (ev) => {
+      const el = ev.target && ev.target.closest ? ev.target.closest(".cf-ev, .cf-ev-h") : null;
+      const wasOpen = el && el.classList.contains("open");
+      document.querySelectorAll(".cf-ev.open, .cf-ev-h.open").forEach(x => x.classList.remove("open"));
+      if (el && !wasOpen) el.classList.add("open");
+      else if (el) el.blur();
+    });
     startRefreshPoller();
   }
 
@@ -669,6 +677,17 @@
       { k: "大单动向", v: norm(upSum + dnSum, Math.max(1, (Math.abs(upSum) + Math.abs(dnSum)) * 0.55)), w: 0.20,
         txt: `头部净多增 ${fmt(upSum)} / 净空增 ${fmt(dnSum)} 手` },
     ];
+    // ---- 四维证据的悬停口径：静态规则 + 本品种实况 ----
+    const [pPv, pInst, pAgree, pLo] = parts;
+    const posCnt = chgList.filter(v => v > 0).length;
+    const negCnt = chgList.filter(v => v < 0).length;
+    const flatCnt = chgList.length - nonzero.length;
+    const contrib = (p) => `${p.v * p.w > 0 ? "+" : ""}${(p.v * p.w).toFixed(2)}`;
+    const scoreRule = "读数 = 50 + 50 × Σ(各维归一化值 × 权重)，裁剪到 0~100；50 为中性，≥58 偏多、≤42 偏空。";
+    pPv.tip = `【价·量·仓配合 · 权重 35%】\n近5日价格 × 总持仓构成四象限：价涨仓增／价跌仓减等按方向给 ±1 或 0，价仓背离时判为平仓驱动、方向偏弱。\n成交量只作确认系数（0.7~1.3）调节强度，不单独产生方向：放量增仓增强，缩量或放量减仓削弱。\n本品种贡献 ${contrib(pPv)}。${scoreRule}`;
+    pInst.tip = `【机构净变化 · 权重 25%】\n取前 ${inst.count || 5} 席位（超大户/机构层）当日净变化，除以该层双边持仓 ×2% 归一化到 ±1。\n净变化 = 多头增减 − 空头增减，空头回补也会显示为正，须回 L2 看「变化性质」区分新多进场与被动回补。\n本品种贡献 ${contrib(pInst)}。`;
+    pAgree.tip = `【分层一致性 · 权重 20%】\n把四档「当日净变化」只取符号（+ 净多增 / − 净空增），数同向层数、取多数方；只数层数、不比金额，防止单层巨额调仓把「共识」伪装出来。方向取四层净变化合计的正负。\n强度按同向占比折算：4/4 → ±0.20 满额，3/4 → ±0.10，2/4 → 0（弃权，20% 权重不贡献方向）。\n本品种：净多增 ${posCnt} 层 / 净空增 ${negCnt} 层${flatCnt ? ` / 持平 ${flatCnt} 层` : ""}，此维贡献 ${contrib(pAgree)}。\n2/4 对半是常态，意味着各层分歧最大；此时勿把机构层单笔大额变化当成全市场看多/看空，回到 L1 用价·量·仓确认。`;
+    pLo.tip = `【大单动向 · 权重 20%】\n取「头部净多增 TOP」与「头部净空增 TOP」两组当日净变化合计，按两组绝对额之和的 55% 归一化到 ±1，衡量头部席位调仓合力。\n与机构净变化可能重叠，用于交叉验证而非独立信号。\n本品种贡献 ${contrib(pLo)}。`;
     const raw = parts.reduce((x, p) => x + p.v * p.w, 0);
     const score = Math.round(Math.max(0, Math.min(100, 50 + 50 * raw)));
     const sameSign = sgn(raw) === 0 ? 0 : parts.filter(p => sgn(p.v) === sgn(raw)).length;
@@ -694,7 +713,7 @@
       structure: { rows: stRows, concentration, totalGross },
       momentum: { all: memRows, leaders, laggards },
       divergence: { position: posDivergence, change: chgDivergence, widening, instChg, retChg },
-      score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts, evidence, risks } };
+      score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts, evidence, risks, rule: scoreRule } };
   }
 
   // ⑦ 速读卡片：一句话结论 + 机构/散户背离高亮预警 + 速读数据（每个品种通用）
@@ -892,10 +911,16 @@
       <div id="chCapFlowMomentum" class="chart" style="height:230px;margin-top:8px"></div>
     </div>`;
 
+    // 悬停/聚焦口径说明：属性内换行写成 &#10;，由 CSS white-space:pre-line 还原
+    const tipAttr = (t) => String(t || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "&#10;");
+    const evidenceLi = (p) => `<li class="cf-ev" tabindex="0" data-tip="${tipAttr(p.tip)}">${p.k}：${p.txt}<span class="cf-i">ⓘ</span></li>`;
+    const scoreTip = `【四维共振读数】\n${A.score.rule}\n权重：价·量·仓配合 35% / 机构净变化 25% / 分层一致性 20% / 大单动向 20%。\n「共振确认度」= 与综合读数同向的维数；≥3 说明信号一致，≤2 说明维度分歧，需谨慎解读。\n悬停下方每条证据可看该维口径与本品种实况。启发式读数，仅供品种间横向比较，不构成交易信号。`;
     const verdictHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L4</span>结论与验证清单<em>先证据，后结论</em></div>
       <div class="cf-evidence">
-        <div><div class="h">四维证据</div><ul>${A.score.evidence.map(x => `<li>${x}</li>`).join("")}</ul></div>
+        <div><div class="h cf-ev-h" tabindex="0" data-tip="${tipAttr(scoreTip)}">四维证据 <span class="cf-i">ⓘ</span></div><ul>${A.score.parts.map(evidenceLi).join("")}</ul>
+          <div class="cf-ev-foot">悬停或点击各条可查看计算口径与本品种实况</div></div>
         <div><div class="h">风险与口径提示</div><ul>${A.score.risks.map(x => `<li>${x}</li>`).join("")}</ul></div>
       </div>
     </div>`;
