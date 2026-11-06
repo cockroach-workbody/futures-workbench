@@ -868,6 +868,18 @@
     const divNote = diverg
       ? `${instNet > 0 ? "机构净多 / 散户净空" : "机构净空 / 散户净多"}，当日价差${widening ? "继续扩大" : "收窄"}`
       : "方向未明显反向，未触发背离";
+    // 背离长段落预警：讲清市场含义与操作提醒（与 ⑥ 独立预警卡并存）
+    let alert = null;
+    if (diverg) {
+      const instBull = instNet > 0;
+      alert = {
+        type: instBull ? "机构净多 / 散户净空" : "机构净空 / 散户净多",
+        level: widening ? "danger" : "warn",
+        desc: instBull
+          ? "大资金偏多、散户偏空，典型分歧结构。常见于下跌末端或底部蓄势（大资金低位承接），也需警惕大资金被套后的摊平。务必结合价格与总持仓放量确认方向，勿单独据此开仓。"
+          : "大资金偏空、散户偏多，典型分歧结构。常见于上涨末端或顶部派发（散户追高、机构离场），警惕反转。务必结合价格与总持仓放量确认方向。"
+      };
+    }
 
     // ④ 大单动向：头部席位前 3 增减合计与领增/领减
     const inc = lo.top_net_increase || [], dec = lo.top_net_decrease || [];
@@ -919,7 +931,7 @@
         metric: `20日 ${cv(d20)} / 5日 ${cv(d5)}｜近20日 ${upDays}/20 天增仓`,
         note: histNote },
     ];
-    return { headline, state, tone: cls(s5), rows };
+    return { headline, state, tone: cls(s5), rows, alert };
   }
 
   // ⑦ 资金动向（AKShare·持仓结构·主力追踪）—— 由 capital_flow 数据驱动；缺失时回退原前20会员
@@ -961,9 +973,13 @@
       <div class="m">${r.metric}</div>
       <div class="t">${r.note}${r.chip ? `<span class="cfread-chip ${r.chip.kind}">${r.chip.text}</span>` : ""}</div>
     </div>`).join("");
+    const alertHtml = rd.alert
+      ? `<div class="alert-banner ${rd.alert.level}"><div class="ic">⚠</div><div><span class="ttl">高亮预警 · ${rd.alert.type} 背离${rd.alert.level === "danger" ? "（分歧加大）" : ""}</span><br>${rd.alert.desc}</div></div>`
+      : "";
     const capread = `<div class="capread">
       <div class="capread-h"><span class="lbl">速读卡片</span><span class="prod">${cf.main_contract || cf.contract || ""} · 资金五维速读</span><span class="cfread-state ${rd.tone}">${rd.state}</span></div>
       <div class="conclusion">${rd.headline}</div>
+      ${alertHtml}
       <div class="cfread-rows">${readRows}</div>
       <div class="cfread-foot">注：机构/散户为按净持仓规模推断的代理口径（交易所不披露客户属性）；净持仓＝当日榜单存量，Δ＝席位当日流量；榜单每日重排，勿倒推昨日值；历史分层采样换月前后不可比，仅作方向参考。</div>
     </div>`;
