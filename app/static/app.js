@@ -916,13 +916,20 @@
       .replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "&#10;");
     const evidenceLi = (p) => `<li class="cf-ev" tabindex="0" data-tip="${tipAttr(p.tip)}">${p.k}：${p.txt}<span class="cf-i">ⓘ</span></li>`;
     const scoreTip = `【四维共振读数】\n${A.score.rule}\n权重：价·量·仓配合 35% / 机构净变化 25% / 分层一致性 20% / 大单动向 20%。\n「共振确认度」= 与综合读数同向的维数；≥3 说明信号一致，≤2 说明维度分歧，需谨慎解读。\n悬停下方每条证据可看该维口径与本品种实况。启发式读数，仅供品种间横向比较，不构成交易信号。`;
+    const agPart = A.score.parts.find(p => p.k === "分层一致性");
+    const upN = A.structure.rows.filter(r => r.net_chg > 0).length;
+    const dnN = A.structure.rows.filter(r => r.net_chg < 0).length;
+    const agAct = agPart.v === 0
+      ? "该维弃权（20% 权重不计方向），分歧时回 L1 确认"
+      : `该维计入读数 ${agPart.v * agPart.w > 0 ? "+" : ""}${(agPart.v * agPart.w).toFixed(2)}`;
+    const footHtml = `<div class="cf-foot">注：分层一致性只数同向层数、不比金额；本品种净多增 ${upN} 层 / 净空增 ${dnN} 层，${agAct}。其余口径悬停或点击各条查看。</div>`;
     const verdictHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L4</span>结论与验证清单<em>先证据，后结论</em></div>
       <div class="cf-evidence">
-        <div><div class="h cf-ev-h" tabindex="0" data-tip="${tipAttr(scoreTip)}">四维证据 <span class="cf-i">ⓘ</span></div><ul>${A.score.parts.map(evidenceLi).join("")}</ul>
-          <div class="cf-ev-foot">悬停或点击各条可查看计算口径与本品种实况</div></div>
+        <div><div class="h cf-ev-h" tabindex="0" data-tip="${tipAttr(scoreTip)}">四维证据 <span class="cf-i">ⓘ</span></div><ul>${A.score.parts.map(evidenceLi).join("")}</ul></div>
         <div><div class="h">风险与口径提示</div><ul>${A.score.risks.map(x => `<li>${x}</li>`).join("")}</ul></div>
       </div>
+      ${footHtml}
     </div>`;
 
     const panelHtml = `<div class="cf-panel">

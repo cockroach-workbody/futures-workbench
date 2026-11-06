@@ -272,7 +272,7 @@ tbody tr:hover{background:var(--panel2)}
 .cf-evidence .cf-ev{border-bottom:1px dotted transparent;transition:border-color .15s}
 .cf-evidence .cf-ev:hover,.cf-evidence .cf-ev:focus{border-bottom-color:var(--muted);outline:none}
 .cf-evidence .cf-i{display:inline-block;margin-left:3px;color:var(--accent);font-size:10px;opacity:.85}
-.cf-ev-foot{margin-top:7px;font-size:10px;color:var(--muted);opacity:.8}
+.cf-foot{margin-top:9px;padding-top:7px;border-top:1px dashed var(--line);font-size:10.5px;line-height:1.6;color:var(--muted)}
 .cf-evidence .cf-ev::after,.cf-evidence .cf-ev-h::after{
   content:attr(data-tip);position:absolute;left:0;top:calc(100% + 7px);z-index:40;
   width:320px;max-width:74vw;padding:9px 11px;border-radius:8px;
