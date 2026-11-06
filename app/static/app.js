@@ -810,48 +810,116 @@
       score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts, evidence, risks, rule: scoreRule } };
   }
 
-  // ⑦ 速读卡片：一句话结论 + 机构/散户背离高亮预警 + 速读数据（每个品种通用）
+  // ⑦ 速读卡片：五维精炼（钱在不在 / 谁在动 / 机构vs散户 / 大单 / 历史回溯）+ 一句话整体判断
+  // 口径：净持仓＝当日榜单存量；Δ＝席位当日流量；机构/散户为按净持仓规模推断的代理口径。
   function capFlowRead(cf) {
     const tp = cf.total_position || {};
+    const tiers = cf.tiers || [];
     const iv = cf.institutional_vs_retail || {};
     const inst = iv.institutional || {}, ret = iv.retail || {};
     const lo = cf.large_orders || {};
+    const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
     const sgn = (n) => (n > 0 ? "+" : "") + fmt(n);
-    const latest = tp.latest != null ? tp.latest : 0;
-    const chg5 = tp.chg_5d != null ? tp.chg_5d : 0;
-    const instNet = inst.net || 0, instChg = inst.net_chg || 0;
-    const retNet = ret.net || 0, retChg = ret.net_chg || 0;
+    const cv = (n) => `<b class="${cls(n)}">${sgn(n)}</b>`;
+    const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g,
+      (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const dir = (v, th) => (v > th ? 1 : v < -th ? -1 : 0);
 
-    const money = chg5 <= -5000 ? "资金整体撤离减仓"
-      : chg5 >= 5000 ? "资金整体进场增仓"
-      : "资金进出基本平衡（存量博弈）";
+    // ① 钱在不在：总持仓变动（用相对变化，跨品种可比）
+    const latest = num(tp.latest), d1 = num(tp.chg_1d), d5 = num(tp.chg_5d), d20 = num(tp.chg_20d);
+    const p5 = latest ? d5 / latest * 100 : 0;
+    const p20 = latest ? d20 / latest * 100 : 0;
+    const s1 = dir(latest ? d1 / latest * 100 : 0, 0.15);
+    const s5 = dir(p5, 0.3), s20 = dir(p20, 0.5);
+    const money = s5 > 0 ? "资金进场" : s5 < 0 ? "资金撤离" : "存量博弈";
+    const moneyNote = s5 === 0 ? "5 日进出基本平衡"
+      : `${money}：${s1 === s5 ? "1 日与 5 日同向" : `当日${s5 > 0 ? "回吐" : "回补"}`}`;
 
-    let instAct;
-    if (instChg > 0) instAct = instNet > 0 ? "净多加码" : "净空回补";
-    else if (instChg < 0) instAct = instNet > 0 ? "净多减弱" : "净空加码";
-    else instAct = "持仓持平";
+    // ② 谁在动：按资金规模分档的净持仓分布
+    const nPos = tiers.filter(t => num(t.net) > 0).length;
+    const nNeg = tiers.filter(t => num(t.net) < 0).length;
+    const nUp = tiers.filter(t => num(t.net_chg) > 0).length;
+    const lead = tiers.slice().sort((a, b) => Math.abs(num(b.net)) - Math.abs(num(a.net)))[0] || null;
+    const mover = tiers.slice().sort((a, b) => Math.abs(num(b.net_chg)) - Math.abs(num(a.net_chg)))[0] || null;
+    const mL = num(mover && mover.long_chg), mS = num(mover && mover.short_chg), mC = num(mover && mover.net_chg);
+    let moverAct = "微调";
+    if (mL > 0 && mS <= 0) moverAct = "新多进场";
+    else if (mS > 0 && mL <= 0) moverAct = "新空进场";
+    else if (mL < 0 && mS < 0) moverAct = mC > 0 ? "空头回补" : "多头平仓";
+    else if (mL > 0 && mS > 0) moverAct = mC > 0 ? "双向增仓·多占优" : "双向增仓·空占优";
+    const sameTier = !!(lead && mover && lead.tier === mover.tier);
+    const tierNote = sameTier
+      ? `${lead.tier} ${lead.net > 0 ? "净多" : "净空"} ${sgn(num(lead.net))} 主导，当日${moverAct}；${nUp}/4 档净多增`
+      : lead && mover
+        ? `${lead.tier} ${lead.net > 0 ? "净多" : "净空"} ${sgn(num(lead.net))} 主导；${mover.tier} ${moverAct}，${nUp}/4 档净多增`
+        : "暂无分层数据";
 
-    let alert = null;
-    if (instNet > 0 && retNet < 0) {
-      alert = { type: "机构净多 / 散户净空", level: "warn",
-        desc: "大资金偏多、散户偏空，典型分歧结构。常见于下跌末端或底部蓄势（大资金低位承接），也需警惕大资金被套后的摊平。务必结合价格与总持仓放量确认方向，勿单独据此开仓。" };
-    } else if (instNet < 0 && retNet > 0) {
-      alert = { type: "机构净空 / 散户净多", level: "warn",
-        desc: "大资金偏空、散户偏多，典型分歧结构。常见于上涨末端或顶部派发（散户追高、机构离场），警惕反转。务必结合价格与总持仓放量确认方向。" };
+    // ③ 机构 vs 散户（代理口径）：重点看背离与价差方向
+    const instNet = num(inst.net), instChg = num(inst.net_chg);
+    const retNet = num(ret.net), retChg = num(ret.net_chg);
+    const diverg = (instNet > 0 && retNet < 0) || (instNet < 0 && retNet > 0);
+    const gapChg = instChg - retChg;
+    const widening = diverg && ((instNet > 0 && gapChg > 0) || (instNet < 0 && gapChg < 0));
+    const instAct = instChg > 0 ? (instNet > 0 ? "机构净多加码" : "机构空头回补")
+      : instChg < 0 ? (instNet > 0 ? "机构净多减" : "机构净空加码") : "机构持平";
+    const retAct = retChg > 0 ? (retNet > 0 ? "散户净多加码" : "散户空头回补")
+      : retChg < 0 ? (retNet > 0 ? "散户净多减" : "散户净空加码") : "散户持平";
+    const divWord = diverg ? (widening ? "机构/散户背离扩大" : "机构/散户背离收窄") : "机构与散户同向";
+    const divNote = diverg
+      ? `${instNet > 0 ? "机构净多 / 散户净空" : "机构净空 / 散户净多"}，当日价差${widening ? "继续扩大" : "收窄"}`
+      : "方向未明显反向，未触发背离";
+
+    // ④ 大单动向：头部席位前 3 增减合计与领增/领减
+    const inc = lo.top_net_increase || [], dec = lo.top_net_decrease || [];
+    const sum3 = (arr) => arr.slice(0, 3).reduce((x, m) => x + num(m.net_chg), 0);
+    const i3 = sum3(inc), d3 = sum3(dec), bigNet = i3 + d3;
+    const balance = Math.abs(bigNet) < Math.max(Math.abs(i3), Math.abs(d3)) * 0.15 ? "增减对峙"
+      : bigNet > 0 ? "净增多" : "净减多";
+    const bigNote = (inc[0] && dec[0])
+      ? `${esc(inc[0].name)} 领增 ${sgn(num(inc[0].net_chg))}、${esc(dec[0].name)} 领减 ${sgn(num(dec[0].net_chg))}`
+      : `头部席位${balance}`;
+
+    // ⑤ 历史回溯：只用连续的主连持仓序列做趋势确认
+    // 分层历史采样是按「当前合约」回溯历史排名，换月前后席位规模不可比，故不展示数值对比。
+    const sr = tp.series || [];
+    const last20 = sr.slice(-20);
+    const upDays = last20.filter(p => num(p.chg) > 0).length;
+    let streak = 0;
+    if (s5 !== 0) {
+      const last5 = sr.slice(-5).map(p => num(p.chg));
+      for (let i = last5.length - 1; i >= 0 && Math.sign(last5[i]) === s5; i--) streak++;
     }
+    const trend = s20 > 0 && s5 < 0 ? "中期增仓趋势回落" : s20 > 0 && s5 > 0 ? "增仓趋势延续"
+      : s20 < 0 && s5 < 0 ? "减仓趋势延续" : s20 < 0 && s5 > 0 ? "中期减仓后回补" : "中期方向不明";
+    const histNote = `${trend}${streak >= 2 ? `，近 5 日连续 ${streak} 天${s5 > 0 ? "增" : "减"}仓` : ""}`;
 
-    let conclusion = `大机构（前${inst.count || 5}大席位）${instAct}（净持仓 ${sgn(instNet)} 手），总持仓 ${fmt(latest)} 手、5日 ${sgn(chg5)} 手，${money}`;
-    conclusion += alert ? `；${alert.type}背离（机构 ${sgn(instNet)} / 散户 ${sgn(retNet)}）` : "；机构与散户方向未明显背离";
-    conclusion += "。";
+    const bigPicture = s5 < 0 && s20 > 0 ? "短期资金流出、中期持仓仍高于 20 日前"
+      : s5 < 0 && s20 < 0 ? "短中期同步减仓，趋势转弱"
+        : s5 > 0 && s20 > 0 ? "短中期同步增仓，趋势延续"
+          : s5 > 0 && s20 < 0 ? "短期资金回流、中期仍偏流出" : "资金面缺乏明确方向";
+    const headline = `${bigPicture}；${instAct}、${retAct}，${divWord}，头部席位${balance}。`;
+    const state = `${s5 > 0 ? "增仓" : s5 < 0 ? "减仓" : "观望"} · ${diverg ? "分歧" : "同向"}${widening ? "加大" : ""}`;
+    const proxyTip = cf.note_proxy || "机构/散户为按净持仓规模推断的代理口径（交易所排名不披露终端客户属性）。";
 
-    const topUp = (lo.top_net_increase && lo.top_net_increase[0]) || null;
-    const glance = [
-      { k: "总持仓(主连)", v: fmt(latest) + " 手", c: "", s: "5日 " + sgn(chg5) },
-      { k: "机构净持仓", v: sgn(instNet) + " 手", c: cls(instNet), s: "当日 " + sgn(instChg) },
-      { k: "散户净持仓", v: sgn(retNet) + " 手", c: cls(retNet), s: "当日 " + sgn(retChg) },
-      { k: "大单焦点", v: topUp ? topUp.name : "—", c: topUp ? cls(topUp.net_chg) : "", s: topUp ? ("净多增仓 " + sgn(topUp.net_chg)) : "" },
+    const rows = [
+      { no: "①", label: "总持仓变动", sub: "钱在不在", tone: cls(s5),
+        metric: `${fmt(latest)} 手｜1日 ${cv(d1)} · 5日 ${cv(d5)}（${pct(p5)}）`,
+        note: moneyNote },
+      { no: "②", label: "净持仓分布", sub: "谁在动 · 分档", tone: cls(mover ? mC : 0),
+        metric: `净多 ${nPos} / 净空 ${nNeg} 档｜最大变化 ${mover ? esc(mover.tier) : "—"} ${cv(mC)}`,
+        note: tierNote },
+      { no: "③", label: "机构 vs 散户", sub: "代理口径 · 看背离", info: esc(proxyTip), tone: diverg ? "warn" : cls(instChg),
+        metric: `机构 ${cv(instNet)} / 散户 ${cv(retNet)}｜Δ ${cv(instChg)} / ${cv(retChg)}`,
+        note: divNote,
+        chip: diverg ? { text: widening ? "分歧加大" : "背离", kind: widening ? "danger" : "warn" } : null },
+      { no: "④", label: "大单动向", sub: "头部席位痕迹", tone: cls(bigNet),
+        metric: `前3增 ${cv(i3)} / 前3减 ${cv(d3)}｜净 ${cv(bigNet)}`,
+        note: bigNote },
+      { no: "⑤", label: "历史回溯", sub: "趋势确认", tone: cls(s20),
+        metric: `20日 ${cv(d20)} / 5日 ${cv(d5)}｜近20日 ${upDays}/20 天增仓`,
+        note: histNote },
     ];
-    return { conclusion, alert, glance };
+    return { headline, state, tone: cls(s5), rows };
   }
 
   // ⑦ 资金动向（AKShare·持仓结构·主力追踪）—— 由 capital_flow 数据驱动；缺失时回退原前20会员
@@ -887,15 +955,17 @@
       : '<div class="note">—</div>');
 
     const rd = capFlowRead(cf);
-    const glanceHtml = rd.glance.map(g => `<div class="g"><div class="k">${g.k}</div><div class="v ${g.c}">${g.v}</div><div class="s">${g.s}</div></div>`).join("");
-    const alertHtml = rd.alert
-      ? `<div class="alert-banner warn"><div class="ic">⚠</div><div><span class="ttl">高亮预警 · ${rd.alert.type} 背离</span><br>${rd.alert.desc}</div></div>`
-      : "";
+    const readRows = rd.rows.map(r => `<div class="cfread-row">
+      <div class="n ${r.tone}">${r.no}</div>
+      <div class="k"><div class="kh"><b>${r.label}</b>${r.info ? `<span class="cf-i" title="${r.info}">ⓘ</span>` : ""}</div><span>${r.sub}</span></div>
+      <div class="m">${r.metric}</div>
+      <div class="t">${r.note}${r.chip ? `<span class="cfread-chip ${r.chip.kind}">${r.chip.text}</span>` : ""}</div>
+    </div>`).join("");
     const capread = `<div class="capread">
-      <div class="capread-h"><span class="lbl">速读卡片</span><span class="prod">${cf.main_contract || cf.contract || ""} · 资金动向一句话结论</span></div>
-      <div class="conclusion">${rd.conclusion}</div>
-      ${alertHtml}
-      <div class="glance">${glanceHtml}</div>
+      <div class="capread-h"><span class="lbl">速读卡片</span><span class="prod">${cf.main_contract || cf.contract || ""} · 资金五维速读</span><span class="cfread-state ${rd.tone}">${rd.state}</span></div>
+      <div class="conclusion">${rd.headline}</div>
+      <div class="cfread-rows">${readRows}</div>
+      <div class="cfread-foot">注：机构/散户为按净持仓规模推断的代理口径（交易所不披露客户属性）；净持仓＝当日榜单存量，Δ＝席位当日流量；榜单每日重排，勿倒推昨日值；历史分层采样换月前后不可比，仅作方向参考。</div>
     </div>`;
 
     // ===== 专业资金分析决策面板（L1→L4）=====

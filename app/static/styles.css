@@ -150,11 +150,31 @@ tbody tr:hover{background:var(--panel2)}
   border:1px solid var(--line);padding:2px 8px;border-radius:10px}
 .capread-h .prod{font-size:12px;color:var(--muted)}
 .capread .conclusion{font-size:15px;font-weight:700;line-height:1.65;color:var(--text)}
-.capread .glance{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.capread .g{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;flex:1;min-width:130px}
-.capread .g .k{font-size:11px;color:var(--muted)}
-.capread .g .v{font-size:16px;font-weight:800;margin-top:3px;line-height:1.2}
-.capread .g .s{font-size:11px;color:var(--muted);margin-top:2px}
+/* 五维速读：一行一个维度，指标与判断并排 */
+.capread-h .cfread-state{margin-left:auto;font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;border:1px solid var(--line)}
+.cfread-state.up{color:var(--red);border-color:rgba(232,72,63,.5);background:rgba(232,72,63,.10)}
+.cfread-state.down{color:var(--green);border-color:rgba(31,171,107,.5);background:rgba(31,171,107,.10)}
+.cfread-state.muted{color:var(--muted)}
+.cfread-rows{margin-top:10px;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.cfread-row{display:grid;grid-template-columns:24px 112px minmax(240px,1.15fr) minmax(220px,1fr);
+  gap:10px;align-items:center;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--line);font-size:12px}
+.cfread-row:last-child{border-bottom:0}
+.cfread-row:nth-child(even){background:rgba(255,255,255,.018)}
+.cfread-row .n{font-size:13px;font-weight:800;text-align:center;line-height:1}
+.cfread-row .n.warn{color:var(--amber)}
+.cfread-row .n.muted{color:var(--muted)}
+.cfread-row .k{display:flex;flex-direction:column;gap:1px;min-width:0}
+.cfread-row .k .kh{display:flex;align-items:center;gap:2px}
+.cfread-row .k b{font-size:12px;color:var(--text);white-space:nowrap}
+.cfread-row .k > span{font-size:10px;color:var(--muted);white-space:nowrap}
+.cfread-row .k .cf-i{display:inline-block;color:var(--accent);font-size:10px;cursor:help}
+.cfread-row .m{font-size:11.5px;color:var(--text);line-height:1.6;font-variant-numeric:tabular-nums}
+.cfread-row .m b{font-weight:700}
+.cfread-row .t{font-size:11.5px;color:var(--muted);line-height:1.6}
+.cfread-chip{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;font-size:10px;font-weight:700;white-space:nowrap}
+.cfread-chip.warn{color:#f0c268;background:rgba(224,168,58,.14);border:1px solid rgba(224,168,58,.5)}
+.cfread-chip.danger{color:#ff8b82;background:rgba(232,72,63,.14);border:1px solid rgba(232,72,63,.5)}
+.cfread-foot{margin-top:8px;font-size:10.5px;line-height:1.6;color:var(--muted);opacity:.9}
 .alert-banner{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:11px 13px;border-radius:10px;font-size:13px;line-height:1.7}
 .alert-banner.warn{background:rgba(224,168,58,.12);border:1px solid rgba(224,168,58,.55);color:#f0c268}
 .alert-banner.danger{background:rgba(232,72,63,.12);border:1px solid rgba(232,72,63,.55);color:#ff8b82}
@@ -386,8 +406,11 @@ tbody tr:hover{background:var(--panel2)}
   .foot{padding:14px 12px;font-size:11px}
   /* ⑦ 速读卡片移动端 */
   .capread .conclusion{font-size:14px}
-  .capread .glance{flex-direction:column}
-  .capread .g{min-width:0}
+  .capread-h .cfread-state{margin-left:0}
+  .cfread-row{grid-template-columns:22px 1fr;gap:3px 8px;padding:9px 10px}
+  .cfread-row .n{grid-row:span 3;align-self:start;padding-top:3px}
+  .cfread-row .k,.cfread-row .m,.cfread-row .t{grid-column:2}
+  .cfread-foot{font-size:10px}
   /* ⑦ 专业资金分析框架移动端 */
   .cf-panel{padding:10px}
   .cf-score{flex-direction:column;align-items:stretch;gap:10px}
