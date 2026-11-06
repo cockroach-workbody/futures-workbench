@@ -490,6 +490,152 @@
     return card("⑥ 资金面总览", "Capital", "span8", body, c.bias);
   }
 
+  // ===== ⑦ 专业资金分析框架 · 计算层 =====
+  // 依据：净持仓分布 / 总持仓变动 / 大单动向 三维度，且「净持仓变化 > 绝对持仓量」。
+  // 升级：L1 价量仓配合、L2 归一化结构矩阵（主动/被动拆解）、L3 席位动能、L4 多维共振读数。
+  // 纯函数、只读，输入为当前快照，不依赖任何后端新增接口。
+  function capFlowAnalytics(s, cf) {
+    const tiers = (cf.tiers || []).slice();
+    const iv = cf.institutional_vs_retail || {};
+    const inst = iv.institutional || {}, ret = iv.retail || {};
+    const members = (cf.top_members || []).slice();
+    const lo = cf.large_orders || {};
+    const rows = (s && s.kline && s.kline.rows) || [];
+    const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
+    const sgn = (v) => (v > 0 ? 1 : v < 0 ? -1 : 0);
+
+    // ---- L1 价 · 量 · 仓：以区间首尾对齐，量能对比区间均量 ----
+    function pvStat(n) {
+      const a = rows.slice(-n);
+      if (a.length < 2) return null;
+      const f = a[0], l = a[a.length - 1];
+      const dPrice = num(f.close) ? (num(l.close) - num(f.close)) / num(f.close) * 100 : 0;
+      let dOi = num(l.oi) - num(f.oi);
+      if (!dOi && a.some(r => r.oi_chg != null))
+        dOi = a.slice(1).reduce((x, r) => x + num(r.oi_chg), 0);
+      const dOiPct = num(f.oi) ? dOi / num(f.oi) * 100 : 0;
+      const vols = a.slice(0, -1).map(r => num(r.volume)).filter(v => v > 0);
+      const avgVol = vols.length ? vols.reduce((x, v) => x + v, 0) / vols.length : 0;
+      const volRatio = avgVol ? num(l.volume) / avgVol : 1;
+      return { days: n - 1, from: f.date, to: l.date, close: num(l.close),
+        dPrice, oi: num(l.oi), dOi, dOiPct, volRatio };
+    }
+    const pv1 = pvStat(2), pv5 = pvStat(6), pv20 = pvStat(21);
+    const base = pv5 || pv1 || pv20;
+    const PT = 0.35, OT = 0.8;  // 价格 / 持仓噪音阈值（%）
+    let quad;
+    if (!base) {
+      quad = { key: "na", name: "数据不足", bias: 0, res: 0,
+        desc: "缺少连续价格与持仓序列，无法判定价仓配合。" };
+    } else {
+      const p = base.dPrice, o = base.dOiPct;
+      const up = p > PT, dn = p < -PT, oiUp = o > OT, oiDn = o < -OT;
+      if (up && oiUp) quad = { key: "up_oiup", name: "价涨仓增 · 多头主动建仓", bias: 1, res: 1,
+        desc: "增量资金入场做多推动价格，是最健康的上涨结构；若成交量同步放大，趋势延续概率较高。后续留意持仓见顶后的减仓拐点。" };
+      else if (up && oiDn) quad = { key: "up_oidn", name: "价涨仓减 · 空头回补推动", bias: 0.45, res: -0.6,
+        desc: "上涨主要来自空头平仓而非新多进场，属资金流出型上涨。空平一旦结束容易失去动能，追多需谨慎。" };
+      else if (dn && oiUp) quad = { key: "dn_oiup", name: "价跌仓增 · 空头主动建仓", bias: -1, res: 1,
+        desc: "增量资金入场做空压制价格，下跌有资金支撑，趋势偏空。关注持仓见顶回落后的空平反弹。" };
+      else if (dn && oiDn) quad = { key: "dn_oidn", name: "价跌仓减 · 多头离场", bias: -0.45, res: -0.6,
+        desc: "下跌来自多头平仓止损，属资金流出型下跌，抛压逐步释放，跌势可能接近尾声，不宜追空。" };
+      else if (!up && !dn && oiUp) quad = { key: "flat_oiup", name: "价平仓增 · 分歧蓄势", bias: 0, res: 0.2,
+        desc: "价格横盘而持仓明显增加，多空分歧加大、资金对峙，常是变盘前夜。宜等方向选择，不宜提前押注。" };
+      else if (!up && !dn && oiDn) quad = { key: "flat_oidn", name: "价平仓减 · 资金离场", bias: 0, res: 0,
+        desc: "价格横盘、持仓下降，资金观望离场，短期波动大概率收敛。" };
+      else if (up) quad = { key: "up_flat", name: "价涨仓平 · 存量博弈", bias: 0.3, res: 0.2,
+        desc: "价格上涨但持仓变化不大，由存量资金博弈推动，信号强度偏弱。" };
+      else if (dn) quad = { key: "dn_flat", name: "价跌仓平 · 存量博弈", bias: -0.3, res: 0.2,
+        desc: "价格下跌但持仓变化不大，缺乏增量空头，信号强度偏弱。" };
+      else quad = { key: "flat", name: "价仓双平 · 观望", bias: 0, res: 0,
+        desc: "价格与持仓均无明显变化，资金面中性。" };
+    }
+
+    // ---- 主动 / 被动拆解：同样的净变化，多增与空平含义完全不同 ----
+    function actionOf(L, S) {
+      const l = num(L), s = num(S);
+      if (Math.abs(l) < 1 && Math.abs(s) < 1) return { tag: "基本持平", kind: "flat" };
+      if (l > 0 && s <= 0) return { tag: "多头主动进攻", kind: "active", dir: 1 };
+      if (s > 0 && l <= 0) return { tag: "空头主动进攻", kind: "active", dir: -1 };
+      if (l > 0 && s > 0) return l >= s
+        ? { tag: "双向增仓·多占优", kind: "dual", dir: 1 }
+        : { tag: "双向增仓·空占优", kind: "dual", dir: -1 };
+      if (l < 0 && s < 0) return Math.abs(s) >= Math.abs(l)
+        ? { tag: "空头回补主导", kind: "passive", dir: 1 }
+        : { tag: "多头平仓主导", kind: "passive", dir: -1 };
+      return { tag: (l - s) > 0 ? "净多微增" : "净空微增", kind: "dual", dir: sgn(l - s) };
+    }
+
+    // ---- L2 资金结构矩阵：净占比 / 多空比 / 变化强度 / 结构权重（归一化后可跨品种比较）----
+    const totalGross = tiers.reduce((x, t) => x + num(t.long) + num(t.short), 0) || 1;
+    const stRows = tiers.map(t => {
+      const gross = num(t.long) + num(t.short);
+      return { tier: t.tier, count: t.count, long: t.long, short: t.short,
+        net: t.net, net_chg: t.net_chg, long_chg: t.long_chg, short_chg: t.short_chg, gross,
+        netRatio: gross ? num(t.net) / gross * 100 : 0,
+        chgRatio: gross ? num(t.net_chg) / gross * 100 : 0,
+        lsRatio: num(t.short) ? num(t.long) / num(t.short) : null,
+        weight: gross / totalGross * 100,
+        action: actionOf(t.long_chg, t.short_chg) };
+    });
+    const topGross = stRows.length ? stRows[0].gross : 0;
+    const concentration = topGross / totalGross * 100;  // 头部层持仓占比（CR5 代理）
+
+    // ---- L3 主力席位动能：按净变化排序，标注主动/被动 ----
+    const memRows = members.map(m => ({ name: m.name, net: m.net, net_chg: m.net_chg,
+      long: m.long, short: m.short, long_chg: m.long_chg, short_chg: m.short_chg,
+      action: actionOf(m.long_chg, m.short_chg) }))
+      .sort((a, b) => num(b.net_chg) - num(a.net_chg));
+    const leaders = memRows.filter(m => num(m.net_chg) > 0).slice(0, 6);
+    const laggards = memRows.filter(m => num(m.net_chg) < 0).slice(-6).reverse();
+
+    // ---- 机构 / 散户：存量方向背离 + 当日变化方向背离 + 分歧是否扩大 ----
+    const instChg = num(inst.net_chg), retChg = num(ret.net_chg);
+    const chgDivergence = sgn(instChg) !== 0 && sgn(retChg) !== 0 && sgn(instChg) !== sgn(retChg);
+    const posDivergence = sgn(num(inst.net)) !== 0 && sgn(num(ret.net)) !== 0 &&
+      sgn(num(inst.net)) !== sgn(num(ret.net));
+    const widening = chgDivergence && posDivergence && sgn(instChg) === sgn(num(inst.net));
+
+    // ---- L4 四维共振读数（启发式，非预测）----
+    const norm = (v, scale) => Math.max(-1, Math.min(1, v / (scale || 1)));
+    const instScale = Math.max(1, (num(inst.long) + num(inst.short)) * 0.02);
+    const chgList = stRows.map(r => num(r.net_chg));
+    const nonzero = chgList.filter(v => v !== 0);
+    const agree = nonzero.length
+      ? Math.max(chgList.filter(v => v > 0).length, chgList.filter(v => v < 0).length) / nonzero.length : 0;
+    const upSum = (lo.top_net_increase || []).reduce((x, m) => x + num(m.net_chg), 0);
+    const dnSum = (lo.top_net_decrease || []).reduce((x, m) => x + num(m.net_chg), 0);
+    const parts = [
+      { k: "价仓配合", v: quad.bias, w: 0.35, txt: quad.name },
+      { k: "机构净变化", v: norm(instChg, instScale), w: 0.25,
+        txt: `前${inst.count || 5}席位当日净变化 ${instChg > 0 ? "+" : ""}${fmt(instChg)} 手` },
+      { k: "分层一致性", v: sgn(chgList.reduce((x, v) => x + v, 0)) * (agree - 0.5) * 2, w: 0.20,
+        txt: `${nonzero.length} 个资金层级中同向 ${Math.round(agree * nonzero.length)} 个` },
+      { k: "大单动向", v: norm(upSum + dnSum, Math.max(1, (Math.abs(upSum) + Math.abs(dnSum)) * 0.55)), w: 0.20,
+        txt: `头部净多增 ${fmt(upSum)} / 净空增 ${fmt(dnSum)} 手` },
+    ];
+    const raw = parts.reduce((x, p) => x + p.v * p.w, 0);
+    const score = Math.round(Math.max(0, Math.min(100, 50 + 50 * raw)));
+    const sameSign = sgn(raw) === 0 ? 0 : parts.filter(p => sgn(p.v) === sgn(raw)).length;
+    const label = score >= 70 ? "强偏多" : score >= 58 ? "偏多" : score > 42 ? "中性" : score > 30 ? "偏空" : "强偏空";
+    const tone = score >= 58 ? "up" : score <= 42 ? "down" : "muted";
+    const evidence = parts.map(p => `${p.k}：${p.txt}`);
+    const risks = [];
+    if (quad.res < -0.3) risks.push("价仓背离：价格方向与资金进出不一致，属回补/平仓驱动，趋势动能偏弱，不宜顺势追单。");
+    if (posDivergence) risks.push(widening
+      ? "机构与散户持仓方向相反，且机构继续朝原方向加码，分歧正在扩大，波动风险上升。"
+      : "机构与散户持仓方向相反，属典型分歧结构；需价格与总持仓放量共同确认，勿单独据此开仓。");
+    if (chgDivergence) risks.push("当日机构与散户净持仓变化方向相反，短线博弈加剧。");
+    if (concentration > 45) risks.push(`头部资金层持仓占比 ${concentration.toFixed(1)}%，集中度高，少数席位调仓即可放大波动。`);
+    if (pv5 && pv5.volRatio > 1.8) risks.push(`最新成交量约为近 ${pv5.days} 日均量的 ${pv5.volRatio.toFixed(1)} 倍，放量日需防换月或突发事件扰动。`);
+    if (!risks.length) risks.push("各维度未出现显著背离，但仍需结合基本面与价格结构确认；机构/散户为按净持仓规模推断的代理口径，交易所不披露终端客户属性。");
+
+    return { pv: { pv1, pv5, pv20, base, quad, rows: rows.slice(-60) },
+      structure: { rows: stRows, concentration, totalGross },
+      momentum: { all: memRows, leaders, laggards },
+      divergence: { position: posDivergence, change: chgDivergence, widening, instChg, retChg },
+      score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts, evidence, risks } };
+  }
+
   // ⑦ 速读卡片：一句话结论 + 机构/散户背离高亮预警 + 速读数据（每个品种通用）
   function capFlowRead(cf) {
     const tp = cf.total_position || {};
@@ -578,7 +724,89 @@
       <div class="glance">${glanceHtml}</div>
     </div>`;
 
+    // ===== 专业资金分析决策面板（L1→L4）=====
+    const A = capFlowAnalytics(s, cf);
+    const q = A.pv.quad;
+    const barColor = A.score.tone === "up" ? "var(--red)" : A.score.tone === "down" ? "var(--green)" : "var(--amber)";
+    const scoreHtml = `<div class="cf-score">
+      <div class="cf-score-main">
+        <div class="lbl">资金动向综合读数 · 四维共振</div>
+        <div class="num ${A.score.tone}">${A.score.value}<small>/100</small></div>
+        <div class="cf-tag ${A.score.tone === "up" ? "active" : A.score.tone === "down" ? "passive" : "flat"}">${A.score.label}</div>
+      </div>
+      <div class="cf-score-side">
+        <div class="cf-bar"><i style="width:${A.score.value}%;background:${barColor}"></i><span class="mid"></span></div>
+        <div class="cf-bar-lbl"><span>强偏空</span><span>中性</span><span>强偏多</span></div>
+        <div class="cf-confirm">共振确认度 <b>${A.score.confirm}/${A.score.total}</b> 维同向${A.score.confirm >= 3 ? " · 信号一致" : " · 维度分歧，谨慎解读"}</div>
+        <div class="cf-note">启发式读数，非行情预测。由「价仓配合 35% / 机构净变化 25% / 分层一致性 20% / 大单动向 20%」加权合成，仅供品种间横向比较，不构成交易信号。</div>
+      </div>
+    </div>`;
+
+    const pvRow = (st, label) => !st ? "" : `<tr>
+      <td>${label}</td><td>${fmt(st.close, 2)}</td>
+      <td class="${cls(st.dPrice)}">${pct(st.dPrice)}</td>
+      <td>${fmt(st.oi)}</td>
+      <td class="${cls(st.dOi)}">${sign(st.dOi)}</td>
+      <td class="${cls(st.dOiPct)}">${pct(st.dOiPct)}</td>
+      <td>${st.volRatio.toFixed(2)}×</td></tr>`;
+    const quadHtml = `<div class="cf-block">
+      <div class="cf-sec"><span class="no">L1</span>价 · 量 · 仓配合<em>资金是否真正在推动价格</em></div>
+      <div class="cf-quad ${q.bias > 0 ? "pos" : q.bias < 0 ? "neg" : "neu"}">
+        <div class="q-name">${q.name}</div><div class="q-desc">${q.desc}</div>
+      </div>
+      <div class="table-wrap"><table><thead><tr>
+        <th>周期</th><th>收盘</th><th>价格变化</th><th>总持仓</th><th>持仓变化</th><th>持仓变化%</th><th>量比</th>
+      </tr></thead><tbody>${pvRow(A.pv.pv1, "近1日")}${pvRow(A.pv.pv5, "近5日")}${pvRow(A.pv.pv20, "近20日")}</tbody></table></div>
+      <div class="cf-hint">量比 = 最新成交量 / 区间内前几日均量；价仓四象限以近 5 日为主判据（噪音阈值：价格 ±0.35%、持仓 ±0.8%）。</div>
+      <div id="chCapFlowPriceOi" class="chart" style="height:220px;margin-top:6px"></div>
+    </div>`;
+
+    const matrixRows = A.structure.rows.map(r => `<tr>
+      <td><b>${r.tier}</b><span class="cf-sub">${r.count} 席 · 权重 ${r.weight.toFixed(0)}%</span></td>
+      <td>${fmt(r.gross)}</td>
+      <td class="${cls(r.net)}">${sign(r.net)}</td>
+      <td class="${cls(r.netRatio)}">${r.netRatio.toFixed(1)}%</td>
+      <td>${r.lsRatio ? r.lsRatio.toFixed(2) : "—"}</td>
+      <td class="${cls(r.net_chg)}">${sign(r.net_chg)}</td>
+      <td class="${cls(r.chgRatio)}">${r.chgRatio.toFixed(1)}%</td>
+      <td><span class="cf-tag ${r.action.kind}">${r.action.tag}</span></td>
+    </tr>`).join("");
+    const matrixHtml = `<div class="cf-block">
+      <div class="cf-sec"><span class="no">L2</span>资金结构矩阵<em>归一化后可跨品种比较</em></div>
+      <div class="table-wrap"><table><thead><tr>
+        <th>资金层级</th><th>双边持仓</th><th>净持仓</th><th>净占比</th><th>多空比</th><th>当日净变化</th><th>变化强度</th><th>变化性质</th>
+      </tr></thead><tbody>${matrixRows}</tbody></table></div>
+      <div class="cf-hint">净占比 = 净持仓 ÷ 双边持仓；变化强度 = 当日净变化 ÷ 双边持仓。<b>变化性质</b>把净变化拆回多头增减与空头增减：「主动进攻」是新增资金进场，「回补/平仓」是存量资金离场，数值相同但含义相反。头部资金层持仓占比 <b>${A.structure.concentration.toFixed(1)}%</b>（集中度越高，少数席位调仓越易放大波动）。</div>
+    </div>`;
+
+    const momRow = (m) => `<div class="cf-mrow">
+      <span class="nm">${m.name}</span>
+      <span class="cf-tag ${m.action.kind}">${m.action.tag}</span>
+      <span class="v ${cls(m.net_chg)}">${sign(m.net_chg)}</span></div>`;
+    const momentumHtml = `<div class="cf-block">
+      <div class="cf-sec"><span class="no">L3</span>主力席位动能<em>谁在主动进攻，谁在回补离场</em></div>
+      <div class="flex">
+        <div style="flex:1"><div class="cf-mini-h up">净多增加 TOP</div>${A.momentum.leaders.map(momRow).join("") || '<div class="note">—</div>'}</div>
+        <div style="flex:1"><div class="cf-mini-h down">净空增加 TOP</div>${A.momentum.laggards.map(momRow).join("") || '<div class="note">—</div>'}</div>
+      </div>
+      <div id="chCapFlowMomentum" class="chart" style="height:230px;margin-top:8px"></div>
+    </div>`;
+
+    const verdictHtml = `<div class="cf-block">
+      <div class="cf-sec"><span class="no">L4</span>结论与验证清单<em>先证据，后结论</em></div>
+      <div class="cf-evidence">
+        <div><div class="h">四维证据</div><ul>${A.score.evidence.map(x => `<li>${x}</li>`).join("")}</ul></div>
+        <div><div class="h">风险与口径提示</div><ul>${A.score.risks.map(x => `<li>${x}</li>`).join("")}</ul></div>
+      </div>
+    </div>`;
+
+    const panelHtml = `<div class="cf-panel">
+      <div class="cf-panel-h"><span class="ttl">专业资金分析框架</span><span class="sub">四维交叉验证 · 变化优先于绝对量 · 历史回溯</span></div>
+      ${scoreHtml}${quadHtml}${matrixHtml}${momentumHtml}${verdictHtml}
+    </div>`;
+
     const body = `${capread}
+      ${panelHtml}
       ${kpis}
       <div class="verdict">${cf.summary || ""}</div>
       <div class="flex">
@@ -861,6 +1089,12 @@
     if (s.inventory && s.inventory.standard && s.inventory.standard.total != null) Charts.inventory($("#chInv"), s.inventory);
     if (s.basis && s.basis.main_close != null && s.basis.sub_close != null) Charts.basisSpread($("#chBasis"), s.basis);
     if (s.capital_flow && s.capital_flow.available) {
+      // 专业框架 L1：价格 × 持仓量双轴（识别价仓共振/背离）
+      if (s.kline && s.kline.rows && s.kline.rows.length > 5)
+        Charts.priceOiDual($("#chCapFlowPriceOi"), s.kline.rows);
+      // 专业框架 L3：主力席位净变化横条（主动进攻 / 回补离场分色）
+      if (s.capital_flow.top_members && s.capital_flow.top_members.length)
+        Charts.memberMomentum($("#chCapFlowMomentum"), s.capital_flow.top_members);
       // ⑦ 资金动向（AKShare）：分层净持仓组合图 / 总持仓历史 / 各层级净持仓历史
       if (s.capital_flow.tiers && s.capital_flow.tiers.length)
         Charts.capitalFlowTier($("#chCapFlowTier"), s.capital_flow.tiers);

@@ -161,6 +161,67 @@ tbody tr:hover{background:var(--panel2)}
 .alert-banner .ic{font-size:18px;line-height:1.15;font-weight:700}
 .alert-banner .ttl{font-weight:800}
 
+/* ---------- ⑦ 专业资金分析框架（L1→L4） ---------- */
+.cf-panel{margin:0 0 14px;border:1px solid var(--line);border-radius:12px;
+  background:linear-gradient(180deg,rgba(61,126,255,.05),var(--panel));padding:12px 14px}
+.cf-panel-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px;
+  padding-bottom:9px;border-bottom:1px solid var(--line)}
+.cf-panel-h .ttl{font-size:14px;font-weight:800;color:var(--text);letter-spacing:.3px}
+.cf-panel-h .sub{font-size:11px;color:var(--muted)}
+.cf-score{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:var(--panel2);
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.cf-score-main{min-width:150px}
+.cf-score-main .lbl{font-size:11px;color:var(--muted);letter-spacing:.5px}
+.cf-score-main .num{font-size:38px;font-weight:800;line-height:1.1;margin:2px 0 6px}
+.cf-score-main .num small{font-size:13px;font-weight:600;color:var(--muted);margin-left:3px}
+.cf-score-side{flex:1;min-width:240px}
+.cf-bar{position:relative;height:10px;border-radius:6px;overflow:hidden;
+  background:linear-gradient(90deg,rgba(31,171,107,.35),rgba(139,155,176,.28) 50%,rgba(232,72,63,.35))}
+.cf-bar i{display:block;height:100%;border-radius:6px;opacity:.85;transition:width .4s}
+.cf-bar .mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--text);opacity:.55}
+.cf-bar-lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:3px}
+.cf-confirm{font-size:12px;color:var(--text);margin-top:8px}
+.cf-confirm b{color:var(--amber);font-size:14px}
+.cf-note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:5px}
+.cf-block{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.cf-sec{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:800;
+  color:var(--text);margin-bottom:9px}
+.cf-sec .no{font-size:10px;font-weight:800;color:var(--accent);border:1px solid rgba(61,126,255,.5);
+  background:rgba(61,126,255,.10);padding:2px 6px;border-radius:5px;letter-spacing:.5px}
+.cf-sec em{font-size:11px;font-weight:500;color:var(--muted);font-style:normal}
+.cf-quad{border-radius:9px;padding:10px 12px;margin-bottom:9px;border:1px solid var(--line);background:var(--panel2)}
+.cf-quad.pos{border-color:rgba(232,72,63,.5);background:rgba(232,72,63,.08)}
+.cf-quad.neg{border-color:rgba(31,171,107,.5);background:rgba(31,171,107,.08)}
+.cf-quad.neu{border-color:rgba(224,168,58,.45);background:rgba(224,168,58,.07)}
+.cf-quad .q-name{font-size:14px;font-weight:800;margin-bottom:4px}
+.cf-quad.pos .q-name{color:#ff8b82}
+.cf-quad.neg .q-name{color:#5dd39b}
+.cf-quad.neu .q-name{color:#f0c268}
+.cf-quad .q-desc{font-size:12px;line-height:1.7;color:var(--text)}
+.cf-hint{font-size:11px;line-height:1.7;color:var(--muted);margin-top:7px}
+.cf-hint b{color:var(--text)}
+.cf-sub{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:1px}
+.cf-tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:5px;white-space:nowrap;
+  border:1px solid var(--line);color:var(--muted);background:var(--panel)}
+.cf-tag.active{border-color:rgba(232,72,63,.45);color:#ff8b82;background:rgba(232,72,63,.10)}
+.cf-tag.passive{border-color:rgba(31,171,107,.45);color:#5dd39b;background:rgba(31,171,107,.10)}
+.cf-tag.dual{border-color:rgba(224,168,58,.45);color:#f0c268;background:rgba(224,168,58,.10)}
+.cf-mini-h{font-size:11px;font-weight:800;letter-spacing:.5px;padding:4px 0 6px;
+  border-bottom:1px solid var(--line);margin-bottom:5px}
+.cf-mini-h.up{color:#ff8b82}
+.cf-mini-h.down{color:#5dd39b}
+.cf-mrow{display:flex;align-items:center;gap:7px;padding:5px 2px;font-size:12px;
+  border-bottom:1px solid rgba(42,53,67,.5)}
+.cf-mrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.cf-mrow .v{font-weight:800;min-width:66px;text-align:right}
+.cf-evidence{display:flex;gap:14px;flex-wrap:wrap}
+.cf-evidence > div{flex:1;min-width:240px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:9px;padding:10px 12px}
+.cf-evidence .h{font-size:12px;font-weight:800;color:var(--text);margin-bottom:6px}
+.cf-evidence ul{margin:0;padding-left:16px}
+.cf-evidence li{font-size:11.5px;line-height:1.75;color:var(--muted);margin-bottom:4px}
+.cf-evidence li::marker{color:var(--accent)}
+
 /* ---------- ⑩ 机构观点：时效徽标 + 可展开 ---------- */
 .op-toolbar{display:flex;align-items:center;gap:10px;margin:8px 0 6px;flex-wrap:wrap}
 .op-item{border-left:3px solid var(--line)}
@@ -228,6 +289,18 @@ tbody tr:hover{background:var(--panel2)}
   .capread .conclusion{font-size:14px}
   .capread .glance{flex-direction:column}
   .capread .g{min-width:0}
+  /* ⑦ 专业资金分析框架移动端 */
+  .cf-panel{padding:10px}
+  .cf-score{flex-direction:column;align-items:stretch;gap:10px}
+  .cf-score-main{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .cf-score-main .lbl{flex:1 1 100%}
+  .cf-score-main .num{font-size:32px;margin:0}
+  .cf-score-side{min-width:0}
+  .cf-evidence{flex-direction:column;gap:10px}
+  .cf-evidence > div{min-width:0}
+  .cf-mrow{font-size:11px}
+  .cf-mrow .v{min-width:58px}
+  #chCapFlowPriceOi,#chCapFlowMomentum{height:210px !important}
 }
 @media (max-width:480px){
   .kpis{grid-template-columns:1fr}

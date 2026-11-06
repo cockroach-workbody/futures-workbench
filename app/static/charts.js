@@ -577,5 +577,98 @@
     return c;
   }
 
-  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, t20Divergence, capitalFlowTier, totalPositionCurve, tierNetHistory };
+  // ⑦ 专业框架 L1：价格 × 持仓量双轴 —— 识别价仓共振 / 背离
+  // 琥珀点为「价涨仓减」或「价跌仓增」的背离日：价格由平仓/回补推动，而非增量资金。
+  function priceOiDual(dom, rows) {
+    if (!dom) return null;
+    const c = base(dom);
+    const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
+    const dstr = (d) => { const s = String(d).replace(/-/g, ""); return s.length === 8 ? `${s.slice(4, 6)}-${s.slice(6, 8)}` : String(d); };
+    const a = rows.slice(-60);
+    const dates = a.map(r => dstr(r.date));
+    const closes = a.map(r => num(r.close));
+    const ois = a.map(r => num(r.oi));
+    const divPoints = a.map((r, i) => {
+      const p = num(r.chg_pct), o = num(r.oi_chg);
+      const diverge = (p > 0.3 && o < 0) || (p < -0.3 && o > 0);
+      return diverge ? num(r.close) : null;
+    });
+    c.setOption({
+      backgroundColor: "transparent",
+      tooltip: { trigger: "axis", axisPointer: { type: "cross" }, backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
+        formatter: (ps) => {
+          const i = ps[0].dataIndex, r = a[i];
+          let s = `${r.date}<br/>收盘 <b>${fmtN(r.close)}</b>　涨跌 <b style="color:${num(r.chg_pct) >= 0 ? RED : GREEN}">${num(r.chg_pct) > 0 ? "+" : ""}${num(r.chg_pct).toFixed(2)}%</b>`;
+          s += `<br/>总持仓 <b>${fmtN(r.oi)}</b> 手　较前 <b style="color:${num(r.oi_chg) >= 0 ? RED : GREEN}">${num(r.oi_chg) > 0 ? "+" : ""}${fmtN(r.oi_chg)}</b>`;
+          s += `<br/>成交量 ${fmtN(r.volume)} 手`;
+          if (divPoints[i] != null) s += `<br/><span style="color:${AMBER}">◆ 价仓背离日：价格由平仓/回补推动</span>`;
+          return s;
+        } },
+      legend: { data: ["收盘价", "总持仓", "价仓背离"], textStyle: { color: TX }, top: 0, itemWidth: 14, itemHeight: 8 },
+      grid: { left: 62, right: 66, top: 30, bottom: 42 },
+      xAxis: { type: "category", data: dates, boundaryGap: false, ...axisCommon(),
+        axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(dates.length / 8)) } },
+      yAxis: [
+        { type: "value", scale: true, ...axisCommon(), name: "价格", nameTextStyle: { color: TX },
+          axisLabel: { color: TX } },
+        { type: "value", scale: true, ...axisCommon(), name: "持仓", position: "right", splitLine: { show: false }, nameTextStyle: { color: TX },
+          axisLabel: { color: TX, formatter: (v) => (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
+      ],
+      dataZoom: [{ type: "inside", start: 50, end: 100 }],
+      series: [
+        { name: "总持仓", type: "line", yAxisIndex: 1, data: ois, smooth: true, showSymbol: false, connectNulls: true,
+          itemStyle: { color: BLUE }, lineStyle: { width: 2, color: BLUE, opacity: 0.85 },
+          areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1,
+            [{ offset: 0, color: "rgba(61,126,255,.20)" }, { offset: 1, color: "rgba(61,126,255,0)" }]) } },
+        { name: "收盘价", type: "line", yAxisIndex: 0, data: closes, smooth: true, showSymbol: false, connectNulls: true,
+          itemStyle: { color: AMBER }, lineStyle: { width: 2.2, color: AMBER } },
+        { name: "价仓背离", type: "scatter", yAxisIndex: 0, data: divPoints, symbolSize: 11,
+          itemStyle: { color: "rgba(224,168,58,.85)", borderColor: "#fff", borderWidth: 1 },
+          tooltip: { show: false } },
+      ],
+    });
+    return c;
+  }
+
+  // ⑦ 专业框架 L3：主力席位净变化横条 —— 主动进攻(实色) vs 回补/平仓(半透明)
+  function memberMomentum(dom, members) {
+    if (!dom) return null;
+    const c = base(dom);
+    const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
+    const a = members.slice().sort((x, y) => num(y.net_chg) - num(x.net_chg)).slice(0, 12);
+    const names = a.map(m => m.name);
+    const vals = a.map(m => num(m.net_chg));
+    const colors = a.map(m => {
+      const v = num(m.net_chg), L = num(m.long_chg), S = num(m.short_chg);
+      if (v >= 0) return L > 0 ? RED : "rgba(232,72,63,.45)";      // 主动多增 / 空头回补
+      return S > 0 ? GREEN : "rgba(31,171,107,.45)";                 // 主动空增 / 多头平仓
+    });
+    c.setOption({
+      backgroundColor: "transparent",
+      tooltip: { trigger: "item", backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
+        formatter: (p) => {
+          const m = a[p.dataIndex], L = num(m.long_chg), S = num(m.short_chg);
+          const kind = num(m.net_chg) >= 0 ? (L > 0 ? "多头主动增仓" : "空头回补（被动偏多）")
+            : (S > 0 ? "空头主动增仓" : "多头平仓（被动偏空）");
+          return `<b>${m.name}</b><br/>当日净持仓变化 <b style="color:${num(m.net_chg) >= 0 ? RED : GREEN}">${num(m.net_chg) > 0 ? "+" : ""}${fmtN(m.net_chg)}</b> 手` +
+            `<br/>多头增减 ${L > 0 ? "+" : ""}${fmtN(L)}　空头增减 ${S > 0 ? "+" : ""}${fmtN(S)}` +
+            `<br/>净持仓 ${fmtN(m.net)} 手<br/><span style="color:${AMBER}">${kind}</span>`;
+        } },
+      grid: { left: 92, right: 70, top: 12, bottom: 26 },
+      xAxis: { type: "value", ...axisCommon(), name: "净变化(手)", nameTextStyle: { color: TX },
+        axisLabel: { color: TX, formatter: (v) => (v > 0 ? "+" : "") + (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
+      yAxis: { type: "category", data: names, inverse: true, ...axisCommon(),
+        axisLabel: { color: TX, fontSize: 11 } },
+      series: [{
+        type: "bar", data: vals.map((v, i) => ({ value: v, itemStyle: { color: colors[i], borderRadius: 3 } })),
+        barMaxWidth: 16,
+        label: { show: true, position: "right", color: TX, fontSize: 10,
+          formatter: (p) => (p.value > 0 ? "+" : "") + fmtN(p.value) },
+        markLine: { silent: true, symbol: "none", lineStyle: { color: TX, type: "dashed" }, data: [{ xAxis: 0 }] },
+      }],
+    });
+    return c;
+  }
+
+  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, t20Divergence, capitalFlowTier, totalPositionCurve, tierNetHistory, priceOiDual, memberMomentum };
 })(window);
