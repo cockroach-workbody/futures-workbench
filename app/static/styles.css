@@ -231,6 +231,19 @@ tbody tr:hover{background:var(--panel2)}
 /* L2 口径提示：表头 / 单元格可悬停查看拆解 */
 .cf-panel th.cf-th{cursor:help;border-bottom:1px dotted var(--muted)}
 .cf-panel td[title],.cf-panel .cf-tag[title]{cursor:help}
+/* L2 变化性质图例 */
+.cf-legend{margin-top:9px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);padding:9px 11px}
+.cf-legend-h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;font-size:12px;font-weight:800;color:var(--text);margin-bottom:8px}
+.cf-legend-h em{font-size:10px;font-weight:500;font-style:normal;color:var(--muted)}
+.cf-legend-h b.r{color:#ff8b82}
+.cf-legend-h b.g{color:#5dd39b}
+.cf-legend-h b.a{color:#f0c268}
+.cf-legend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 12px}
+.cf-lrow{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);min-width:0}
+.cf-lrow .cf-tag{flex:0 0 auto;min-width:126px;text-align:center}
+.cf-lrow > span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cf-legend-note{margin-top:8px;padding-top:7px;border-top:1px dashed var(--line);font-size:11px;line-height:1.6;color:var(--text)}
+.cf-legend-note b{color:#f0c268}
 .cf-sub{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:1px}
 .cf-tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:5px;white-space:nowrap;
   border:1px solid var(--line);color:var(--muted);background:var(--panel)}
@@ -333,6 +346,8 @@ tbody tr:hover{background:var(--panel2)}
   .cf-mrow .v{min-width:58px}
   .cf-vol .v-grid{grid-template-columns:repeat(2,1fr)}
   .cf-vol .v-grid .v{font-size:14px}
+  .cf-legend-grid{grid-template-columns:1fr}
+  .cf-lrow > span:last-child{white-space:normal}
   #chCapFlowPriceOi{height:270px !important}
   #chCapFlowMomentum{height:210px !important}
 }

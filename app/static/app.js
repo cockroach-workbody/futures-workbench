@@ -851,6 +851,21 @@
       <td class="${cls(r.chgRatio)}" title="变化强度 = 当日净变化 ${sign(r.net_chg)} ÷ 双边持仓 ${fmt(r.gross)}（分母为毛持仓）">${r.chgRatio.toFixed(1)}%</td>
       <td><span class="cf-tag ${r.action.kind}" title="${chgTip(r)}">${r.action.tag}</span></td>
     </tr>`).join("");
+    const legendRows = [
+      { k: "active", t: "多头主动进攻", d: "多单增、空单不增 → 新多进场" },
+      { k: "active", t: "空头主动进攻", d: "空单增、多单不增 → 新空进场" },
+      { k: "passive", t: "空头回补主导", d: "多空双减、空减更多 → 净多增（被动）" },
+      { k: "passive", t: "多头平仓主导", d: "多空双减、多减更多 → 净空增（被动）" },
+      { k: "dual", t: "双向增仓·多/空占优", d: "多空同增，谁增得多谁占优 → 分歧对峙" },
+      { k: "dual", t: "净多/净空微增", d: "一增一减但幅度很小 → 信号弱" },
+      { k: "", t: "基本持平", d: "多空增减都近 0 → 无明显动作" },
+    ];
+    const legendHtml = `<div class="cf-legend">
+      <div class="cf-legend-h">变化性质速读<em>净变化 = 多头增减 − 空头增减；<b class="r">红</b> 新资金进场 · <b class="g">绿</b> 存量离场 · <b class="a">琥珀</b> 双向/微弱</em></div>
+      <div class="cf-legend-grid">${legendRows.map(x =>
+        `<div class="cf-lrow"><span class="cf-tag ${x.k}">${x.t}</span><span>${x.d}</span></div>`).join("")}</div>
+      <div class="cf-legend-note"><b>关键</b>：同为净多增加，「多头主动进攻」是新多进场，「空头回补主导」只是空头撤退——数值相同，趋势可靠性完全不同。</div>
+    </div>`;
     const matrixHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L2</span>资金结构矩阵<em>归一化后可跨品种比较</em></div>
       <div class="table-wrap"><table><thead><tr>
@@ -860,7 +875,8 @@
         <th class="cf-th" title="当日流量：该层席位「多头增减 − 空头增减」之和。不是两日榜单净持仓之差，悬停数值可看多空拆解">当日净变化 ⓘ</th>
         <th>变化强度</th><th>变化性质</th>
       </tr></thead><tbody>${matrixRows}</tbody></table></div>
-      <div class="cf-hint"><b>存量 ≠ 流量</b>：「净持仓」是当日榜单存量，「当日净变化」是席位自身增减。榜单每日重排分层、席位有进出，两者一般不满足「昨日 + 变化 = 今日」，<b>勿据此倒推昨日值</b>；悬停数值可看多空拆解。<br>净占比 = 净持仓 ÷ 双边持仓；变化强度 = 当日净变化 ÷ 双边持仓（<b>分母是毛持仓，不是净持仓</b>）。<b>变化性质</b>把净变化拆回多空增减：「主动进攻」是新增资金进场，「回补/平仓」是存量资金离场，数值相同但含义相反。头部资金层持仓占比 <b>${A.structure.concentration.toFixed(1)}%</b>（集中度越高，少数席位调仓越易放大波动）。</div>
+      ${legendHtml}
+      <div class="cf-hint"><b>存量 ≠ 流量</b>：「净持仓」是当日榜单存量，「当日净变化」是席位自身增减。榜单每日重排分层、席位有进出，两者一般不满足「昨日 + 变化 = 今日」，<b>勿据此倒推昨日值</b>；悬停数值可看多空拆解。<br>净占比 = 净持仓 ÷ 双边持仓；变化强度 = 当日净变化 ÷ 双边持仓（<b>分母是毛持仓，不是净持仓</b>）。头部资金层持仓占比 <b>${A.structure.concentration.toFixed(1)}%</b>（集中度越高，少数席位调仓越易放大波动）。</div>
     </div>`;
 
     const momRow = (m) => `<div class="cf-mrow">
