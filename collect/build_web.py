@@ -12,10 +12,8 @@
   python collect/build_web.py --no-html      # 只构建 web/
 """
 import argparse
-import hashlib
 import json
 import os
-import re
 import shutil
 import sys
 
@@ -96,44 +94,6 @@ def write_json_compact(path, obj):
 
 
 # ---------------------------------------------------------------- 1) web/
-def _short_hash(s):
-    return hashlib.md5(s.encode("utf-8")).hexdigest()[:10]
-
-
-def _inject_static_version(web_dir):
-    """给 web/app/static/index.html 中的静态资源引用加【文件名哈希】版本号（如 app.8e66de15b4.js），
-    不使用 ?v= 查询串，避免部分反向代理/CDN 对带查询的静态 URL 返回 404。
-    内容变更则哈希变、生成新文件名、强制刷新；内容不变则文件名不变、可继续命中缓存。"""
-    static_dir = os.path.join(web_dir, "app", "static")
-    idx = os.path.join(static_dir, "index.html")
-    if not os.path.isfile(idx):
-        return
-    html = read(idx)
-    # 去掉可能残留的旧 ?v= 查询串（幂等）
-    html = re.sub(r'(\.css|\.js)\?v=[a-f0-9]+(")', r"\1\2", html)
-    assets = [
-        ("/static/styles.css", "styles.css"),
-        ("/static/charts.js", "charts.js"),
-        ("/static/app.js", "app.js"),
-        ("/static/vendor/echarts.min.js", os.path.join("vendor", "echarts.min.js")),
-    ]
-    for url, rel in assets:
-        src = os.path.join(static_dir, rel)
-        if not os.path.isfile(src):
-            continue
-        h = _short_hash(read(src))
-        base, ext = os.path.splitext(os.path.basename(rel))
-        sub = os.path.dirname(rel)
-        new_name = f"{base}.{h}{ext}"
-        new_rel = os.path.join(sub, new_name) if sub else new_name
-        shutil.copy2(src, os.path.join(static_dir, new_rel))
-        new_url = "/static/" + new_rel.replace("\\", "/")
-        html = html.replace(f'{url}"', f'{new_url}"')
-    with open(idx, "w", encoding="utf-8") as f:
-        f.write(html)
-    log("[OK] 已注入静态资源文件名版本号（代理安全缓存破坏）")
-
-
 def build_web_dir(slim_map, cats):
     if os.path.isdir(WEB_DIR):
         shutil.rmtree(WEB_DIR)
@@ -143,9 +103,6 @@ def build_web_dir(slim_map, cats):
     shutil.copy2(os.path.join(BASE, "app", "main.py"), os.path.join(WEB_DIR, "app", "main.py"))
     shutil.copytree(os.path.join(BASE, "app", "static"), os.path.join(WEB_DIR, "app", "static"))
     shutil.copytree(os.path.join(BASE, "app", "config"), os.path.join(WEB_DIR, "app", "config"))
-    # 静态资源缓存破坏：按文件内容哈希注入 ?v= 版本号，避免浏览器/CDN 长期缓存旧 JS/CSS
-    # （每次内容变更哈希即变，自动强制刷新；内容不变则版本不变，可继续命中缓存）
-    _inject_static_version(WEB_DIR)
     # 数据（紧凑）
     for (cat, code), snap in slim_map.items():
         write_json_compact(os.path.join(WEB_DIR, "data", cat, code, SNAP_DATE + ".json"), snap)

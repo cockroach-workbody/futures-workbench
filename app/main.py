@@ -9,12 +9,10 @@
   GET /static/<file>           静态资源
   GET /api/categories          板块与品种清单
   GET /api/snapshot/<cat>/<prod>?date=YYYY-MM-DD   读取最新/指定日期快照
-  GET /api/market_divergence                      全市场机构/散户背离品种清单
   GET /api/recompute/<cat>/<prod>                  重新计算（RB 重跑构建器）
 """
 import json
 import os
-import re
 import subprocess
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -144,81 +142,6 @@ def _compute_sentiment_summary():
             "top_bullish": top_bullish, "top_bearish": top_bearish}
 
 
-# ---------------------------------------------------------------------------
-# 全市场资金背离清单：扫描所有接入 capital_flow 的品种，找出「机构与散户反向」的分歧品种。
-# 代理口径：机构 = 前 N 大净持仓席位，散户 = 其余（交易所不披露客户属性，仅作力量推断）。
-# ---------------------------------------------------------------------------
-_DIV_CACHE = {"sig": None, "data": None}
-
-
-def build_market_divergence():
-    """扫描全市场机构/散户净持仓反向（背离）品种，生成清单（带缓存）。"""
-    sig = _data_signature()
-    if _DIV_CACHE["sig"] == sig and _DIV_CACHE["data"] is not None:
-        return _DIV_CACHE["data"]
-    data = _compute_market_divergence()
-    _DIV_CACHE["sig"] = sig
-    _DIV_CACHE["data"] = data
-    return data
-
-
-def _compute_market_divergence():
-    cats = load_categories()
-    as_of_set = set()
-    rows = []
-    for c in cats.get("categories", []):
-        cname = c["name"]
-        for p in c.get("products", []):
-            code = p["code"]
-            name = p.get("name", "")
-            snap, _fn = find_snapshot(cname, code)
-            if not snap:
-                continue
-            if snap.get("as_of"):
-                as_of_set.add(snap["as_of"])
-            cf = snap.get("capital_flow") or {}
-            if not cf.get("available"):
-                continue
-            iv = cf.get("institutional_vs_retail") or {}
-            inst = iv.get("institutional") or {}
-            ret = iv.get("retail") or {}
-            inst_net = int(inst.get("net") or 0)
-            inst_chg = int(inst.get("net_chg") or 0)
-            ret_net = int(ret.get("net") or 0)
-            ret_chg = int(ret.get("net_chg") or 0)
-            # 反向（分歧）判定：机构与散户净持仓方向相反
-            if not ((inst_net > 0 and ret_net < 0) or (inst_net < 0 and ret_net > 0)):
-                continue
-            # 分歧强度 = 两方反向绝对力量的合计
-            magnitude = abs(inst_net) + abs(ret_net)
-            # 分歧加大：机构与散户价差幅度当日继续扩大
-            gap_chg = inst_chg - ret_chg
-            widening = (inst_net > 0 and gap_chg > 0) or (inst_net < 0 and gap_chg < 0)
-            direction = "机构净多/散户净空" if inst_net > 0 else "机构净空/散户净多"
-            tp = cf.get("total_position") or {}
-            rows.append({
-                "code": code, "name": name, "category": cname,
-                "main_contract": cf.get("main_contract") or cf.get("contract") or "",
-                "direction": direction,
-                "level": "danger" if widening else "warn",
-                "widening": widening,
-                "inst_net": inst_net, "inst_chg": inst_chg,
-                "ret_net": ret_net, "ret_chg": ret_chg,
-                "total_position": int(tp.get("latest") or 0),
-                "chg_5d": int(tp.get("chg_5d") or 0),
-                "magnitude": magnitude,
-            })
-    # 排序：分歧加大优先，再按强度降序
-    rows.sort(key=lambda x: (0 if x["widening"] else 1, -x["magnitude"]))
-    as_of = sorted(as_of_set)[-1] if as_of_set else ""
-    return {
-        "as_of": as_of,
-        "count": len(rows),
-        "danger_count": sum(1 for r in rows if r["level"] == "danger"),
-        "divergences": rows,
-    }
-
-
 class Handler(BaseHTTPRequestHandler):
     def _send(self, code, body, ctype="application/json; charset=utf-8"):
         if isinstance(body, (dict, list)):
@@ -249,48 +172,13 @@ class Handler(BaseHTTPRequestHandler):
         with open(path, "rb") as f:
             self._send(200, f.read(), ctype)
 
-    # ---------- 分享鉴权：把 sharecode 注入静态引用与 fetch ----------
-    # WorkBuddy 分享代理对所有请求（主页/静态/API）都要求带 sharecode，
-    # 否则返回 403。浏览器从主页加载 /static/*.js 与运行期 fetch('/api/...')
-    # 时不会自动附带 URL 上的 sharecode，因此这里在服务端动态改写。
-    _STATIC_RE = re.compile(r'(/static/[A-Za-z0-9_./-]+\.(?:js|css))(["\'])')
-    _FETCH_PATCH = (
-        '<script>(function(){var SC=window.__SHARECODE__;'
-        'if(!SC||!window.fetch)return;'
-        'var o=window.fetch.bind(window);'
-        'window.fetch=function(i,c){try{var u=typeof i==="string"?i:(i&&i.url);'
-        'if(typeof u==="string"&&u.charAt(0)==="/"&&u.indexOf("sharecode=")<0){'
-        'u+=(u.indexOf("?")>=0?"&":"?")+"sharecode="+encodeURIComponent(SC);i=u;}}'
-        'catch(e){}return o(i,c);};})();</script>'
-    )
-
-    def _render_index(self, sharecode):
-        idx = os.path.join(STATIC_DIR, "index.html")
-        if not os.path.isfile(idx):
-            self._send(404, {"error": "no_index"})
-            return
-        with open(idx, encoding="utf-8") as f:
-            html = f.read()
-        if sharecode:
-            html = self._STATIC_RE.sub(
-                lambda m: m.group(1) + "?sharecode=" + sharecode + m.group(2), html)
-            patch = ('<script>window.__SHARECODE__=' + json.dumps(sharecode)
-                     + ';</script>\n' + self._FETCH_PATCH + '\n')
-            if "</head>" in html:
-                html = html.replace("</head>", patch + "</head>", 1)
-            else:
-                html = patch + html
-        self._send(200, html, "text/html; charset=utf-8")
-
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = urllib.parse.unquote(parsed.path)
         parts = [p for p in path.split("/") if p]
 
         if path in ("/", "/index.html"):
-            qs = urllib.parse.parse_qs(parsed.query)
-            sharecode = qs.get("sharecode", [None])[0]
-            self._render_index(sharecode)
+            self._serve_static("index.html")
             return
         if path.startswith("/static/"):
             self._serve_static(path[len("/static/"):])
@@ -300,9 +188,6 @@ class Handler(BaseHTTPRequestHandler):
             return
         if path == "/api/sentiment_summary":
             self._send(200, build_sentiment_summary())
-            return
-        if path == "/api/market_divergence":
-            self._send(200, build_market_divergence())
             return
         if path == "/api/refresh_status":
             self._send(200, read_refresh_status())
