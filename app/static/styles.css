@@ -198,6 +198,34 @@ tbody tr:hover{background:var(--panel2)}
 .cf-quad.neg .q-name{color:#5dd39b}
 .cf-quad.neu .q-name{color:#f0c268}
 .cf-quad .q-desc{font-size:12px;line-height:1.7;color:var(--text)}
+/* L1 量能卡片 · 价量仓三联图 */
+.cf-vol{border-radius:9px;padding:10px 12px;margin-bottom:10px;border:1px solid var(--line);background:var(--panel2)}
+.cf-vol.pos{border-color:rgba(232,72,63,.45);background:rgba(232,72,63,.07)}
+.cf-vol.neg{border-color:rgba(31,171,107,.45);background:rgba(31,171,107,.07)}
+.cf-vol.neu{border-color:rgba(224,168,58,.40);background:rgba(224,168,58,.06)}
+.cf-vol.warn{border-color:rgba(224,168,58,.45);background:rgba(224,168,58,.07)}
+.cf-vol .v-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:5px}
+.cf-vol .v-name{font-size:13px;font-weight:800;color:var(--text)}
+.cf-vol.pos .v-name{color:#ff8b82}
+.cf-vol.neg .v-name{color:#5dd39b}
+.cf-vol.neu .v-name,.cf-vol.warn .v-name{color:#f0c268}
+.cf-vol .v-desc{font-size:12px;line-height:1.7;color:var(--text)}
+.cf-vol .v-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:9px}
+.cf-vol .v-grid > div{background:rgba(0,0,0,.14);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+.cf-vol .v-grid .k{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf-vol .v-grid .v{font-size:16px;font-weight:800;color:var(--text);margin:2px 0 1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf-vol .v-grid .v.up{color:var(--red)}
+.cf-vol .v-grid .v.down{color:var(--green)}
+.cf-vol .v-grid .v small{font-size:10px;font-weight:500;color:var(--muted)}
+.cf-vol .v-grid .s{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf-vol .v-warn{margin-top:8px;font-size:11px;line-height:1.6;color:#f0c268;
+  background:rgba(224,168,58,.10);border:1px solid rgba(224,168,58,.35);border-radius:7px;padding:6px 9px}
+.cf-chart-h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-top:12px;
+  padding-top:8px;border-top:1px dashed var(--line)}
+.cf-chart-h span{font-size:12px;font-weight:800;color:var(--text)}
+.cf-chart-h em{font-size:10px;font-style:normal;color:var(--muted)}
+.cf-pv-table{min-width:780px}
 .cf-hint{font-size:11px;line-height:1.7;color:var(--muted);margin-top:7px}
 .cf-hint b{color:var(--text)}
 .cf-sub{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:1px}
@@ -300,7 +328,10 @@ tbody tr:hover{background:var(--panel2)}
   .cf-evidence > div{min-width:0}
   .cf-mrow{font-size:11px}
   .cf-mrow .v{min-width:58px}
-  #chCapFlowPriceOi,#chCapFlowMomentum{height:210px !important}
+  .cf-vol .v-grid{grid-template-columns:repeat(2,1fr)}
+  .cf-vol .v-grid .v{font-size:14px}
+  #chCapFlowPriceOi{height:270px !important}
+  #chCapFlowMomentum{height:210px !important}
 }
 @media (max-width:480px){
   .kpis{grid-template-columns:1fr}

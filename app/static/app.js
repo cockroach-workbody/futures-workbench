@@ -503,6 +503,27 @@
     const rows = (s && s.kline && s.kline.rows) || [];
     const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
     const sgn = (v) => (v > 0 ? 1 : v < 0 ? -1 : 0);
+    const avg = (arr) => { const v = arr.filter(x => typeof x === "number" && isFinite(x) && x > 0);
+      return v.length ? v.reduce((x, y) => x + y, 0) / v.length : 0; };
+    const volStateOf = (r) => r >= 1.5 ? "显著放量" : r >= 1.2 ? "温和放量"
+      : r <= 0.6 ? "明显缩量" : r <= 0.8 ? "温和缩量" : "量能平稳";
+
+    // ---- L1 量能画像：以「前 20 日均量」为基准，避免单日跳量误判 ----
+    // 量比 = 当日成交量 / 前20日均量；量能趋势 = 近5日均量 / 前5日均量（资金关注度升降）。
+    const volSeries = rows.slice(-41).map(r => num(r.volume));
+    const volLast = volSeries.length ? volSeries[volSeries.length - 1] : 0;
+    const volBase20 = avg(volSeries.slice(-21, -1));
+    const volMa5 = avg(volSeries.slice(-5)), volMa20 = avg(volSeries.slice(-20));
+    const volPrevMa5 = avg(volSeries.slice(-10, -5));
+    const volRatio20 = volBase20 ? volLast / volBase20 : 1;
+    const volTrend = volPrevMa5 ? volMa5 / volPrevMa5 : 1;
+    const VP = {
+      last: volLast, base20: volBase20, ma5: volMa5, ma20: volMa20, prevMa5: volPrevMa5,
+      ratio: volRatio20, trend: volTrend, state: volStateOf(volRatio20),
+      trendTag: volTrend >= 1.2 ? "近5日持续放量（关注度升温）"
+        : volTrend <= 0.8 ? "近5日持续缩量（关注度降温）" : "近5日量能平稳",
+      maTag: volPrevMa5 ? (volMa5 >= volPrevMa5 ? "VMA5 走高" : "VMA5 走低") : "—",
+    };
 
     // ---- L1 价 · 量 · 仓：以区间首尾对齐，量能对比区间均量 ----
     function pvStat(n) {
@@ -514,11 +535,11 @@
       if (!dOi && a.some(r => r.oi_chg != null))
         dOi = a.slice(1).reduce((x, r) => x + num(r.oi_chg), 0);
       const dOiPct = num(f.oi) ? dOi / num(f.oi) * 100 : 0;
-      const vols = a.slice(0, -1).map(r => num(r.volume)).filter(v => v > 0);
-      const avgVol = vols.length ? vols.reduce((x, v) => x + v, 0) / vols.length : 0;
+      const avgVol = avg(a.slice(0, -1).map(r => num(r.volume)));
       const volRatio = avgVol ? num(l.volume) / avgVol : 1;
       return { days: n - 1, from: f.date, to: l.date, close: num(l.close),
-        dPrice, oi: num(l.oi), dOi, dOiPct, volRatio };
+        dPrice, oi: num(l.oi), dOi, dOiPct,
+        volume: num(l.volume), avgVol, volRatio, volState: volStateOf(volRatio) };
     }
     const pv1 = pvStat(2), pv5 = pvStat(6), pv20 = pvStat(21);
     const base = pv5 || pv1 || pv20;
@@ -549,6 +570,38 @@
       else quad = { key: "flat", name: "价仓双平 · 观望", bias: 0, res: 0,
         desc: "价格与持仓均无明显变化，资金面中性。" };
     }
+
+    // ---- L1 量 × 价 × 仓：三要素配合结论 ----
+    // 量能只做「确认 / 削弱」价仓信号，不单独定方向：同样的价涨仓增，放量与缩量含义完全不同。
+    const inc = ["up_oiup", "dn_oiup", "flat_oiup"].indexOf(quad.key) >= 0;
+    const dec = ["up_oidn", "dn_oidn", "flat_oidn"].indexOf(quad.key) >= 0;
+    const heavy = VP.ratio >= 1.2, light = VP.ratio <= 0.8;
+    let VV;
+    if (heavy && inc) VV = { tag: "放量增仓 · 增量资金确认", confirm: 1, tone: "strong",
+      desc: "成交放大且持仓同步增加，说明新资金真金白银进场建仓，价格方向有量能支撑，是三要素最健康的共振结构；后续盯持仓能否持续增加，持仓见顶往往就是动能拐点。" };
+    else if (heavy && dec) VV = { tag: "放量减仓 · 集中平仓/回补", confirm: -0.4, tone: "warn",
+      desc: "成交放大但持仓下降，换手来自集中平仓与回补。方向虽凌厉，却是存量资金离场驱动，常出现在行情加速段或尾声；不宜按趋势延续追单，留意量能衰竭后的反转。" };
+    else if (heavy) VV = { tag: "放量但价仓未共振 · 高换手分歧", confirm: 0, tone: "warn",
+      desc: "成交明显放大，价格与持仓却未同步给出方向，多为多空激烈换手、移仓换月或突发消息扰动。此时量能不等于方向，应等价格与持仓先选边。" };
+    else if (light && inc) VV = { tag: "缩量增仓 · 轻仓试探", confirm: -0.45, tone: "warn",
+      desc: "持仓增加但成交萎缩，增仓集中在少数席位、缺乏广泛参与，趋势尚待量能确认，谨防假突破与流动性不足下的滑点。" };
+    else if (light && dec) VV = { tag: "缩量减仓 · 离场尾声", confirm: -0.3, tone: "warn",
+      desc: "成交与持仓同步萎缩，资金温和撤离、观望情绪浓，原有动能在衰竭，波动大概率收敛，方向性判断应降权。" };
+    else if (light) VV = { tag: "缩量整理 · 参与度低", confirm: -0.2, tone: "warn",
+      desc: "量能低迷，价格与持仓信号强度打折；在放量确认前，不宜把小幅价仓变化当作趋势信号。" };
+    else VV = { tag: "量能平稳 · 常规确认", confirm: 0.15, tone: "flat",
+      desc: "成交量处于前20日均量附近，价仓信号按常规强度解读；若价格方向与持仓变化一致，可信度更高，反之仍属回补/平仓型行情。" };
+    if (VV.tone === "strong") VV.tone = quad.bias > 0 ? "pos" : quad.bias < 0 ? "neg" : "neu";
+
+    // 量价背离：价格创近 20 日新高/新低，但成交明显萎缩（排除当日极值）
+    const win20 = rows.slice(-20), lastClose = rows.length ? num(rows[rows.length - 1].close) : 0;
+    const priorCloses = win20.slice(0, -1).map(r => num(r.close)).filter(v => v > 0);
+    let volPriceDiv = null;
+    if (priorCloses.length >= 10 && VP.ratio <= 0.8) {
+      if (lastClose > Math.max(...priorCloses)) volPriceDiv = "价格创近20日新高但成交量明显萎缩，上攻缺乏量能配合，警惕冲高回落。";
+      else if (lastClose < Math.min(...priorCloses)) volPriceDiv = "价格创近20日新低但成交量明显萎缩，杀跌动能衰减，不宜追空。";
+    }
+    VP.divergence = volPriceDiv;
 
     // ---- 主动 / 被动拆解：同样的净变化，多增与空平含义完全不同 ----
     function actionOf(L, S) {
@@ -604,8 +657,11 @@
       ? Math.max(chgList.filter(v => v > 0).length, chgList.filter(v => v < 0).length) / nonzero.length : 0;
     const upSum = (lo.top_net_increase || []).reduce((x, m) => x + num(m.net_chg), 0);
     const dnSum = (lo.top_net_decrease || []).reduce((x, m) => x + num(m.net_chg), 0);
+    const pvConfirm = 1 + 0.3 * VV.confirm;   // 量能对价仓信号的确认系数 0.7 ~ 1.3
+    const pvBias = Math.max(-1, Math.min(1, quad.bias * pvConfirm));
     const parts = [
-      { k: "价仓配合", v: quad.bias, w: 0.35, txt: quad.name },
+      { k: "价·量·仓配合", v: pvBias, w: 0.35,
+        txt: `${quad.name}；${VV.tag}（量比 ${VP.ratio.toFixed(2)}×）` },
       { k: "机构净变化", v: norm(instChg, instScale), w: 0.25,
         txt: `前${inst.count || 5}席位当日净变化 ${instChg > 0 ? "+" : ""}${fmt(instChg)} 手` },
       { k: "分层一致性", v: sgn(chgList.reduce((x, v) => x + v, 0)) * (agree - 0.5) * 2, w: 0.20,
@@ -621,15 +677,20 @@
     const evidence = parts.map(p => `${p.k}：${p.txt}`);
     const risks = [];
     if (quad.res < -0.3) risks.push("价仓背离：价格方向与资金进出不一致，属回补/平仓驱动，趋势动能偏弱，不宜顺势追单。");
+    if (VV.confirm <= -0.2) risks.push(`量能未确认价仓方向：${VV.tag}，L1 信号强度已按 ${pvConfirm.toFixed(2)} 系数下调，勿单独据此定方向。`);
+    if (VP.divergence) risks.push(VP.divergence);
+    if (VP.trend <= 0.8) risks.push("近5日均量较前5日回落超20%，资金关注度降温，突破信号需更严格确认。");
+    if (VP.ratio > 1.8) risks.push(`当日成交量为前20日均量的 ${VP.ratio.toFixed(1)} 倍，极端放量需排除移仓换月与突发事件扰动。`);
     if (posDivergence) risks.push(widening
       ? "机构与散户持仓方向相反，且机构继续朝原方向加码，分歧正在扩大，波动风险上升。"
       : "机构与散户持仓方向相反，属典型分歧结构；需价格与总持仓放量共同确认，勿单独据此开仓。");
     if (chgDivergence) risks.push("当日机构与散户净持仓变化方向相反，短线博弈加剧。");
     if (concentration > 45) risks.push(`头部资金层持仓占比 ${concentration.toFixed(1)}%，集中度高，少数席位调仓即可放大波动。`);
-    if (pv5 && pv5.volRatio > 1.8) risks.push(`最新成交量约为近 ${pv5.days} 日均量的 ${pv5.volRatio.toFixed(1)} 倍，放量日需防换月或突发事件扰动。`);
+    if (pv5 && pv5.volRatio > 1.8 && VP.ratio <= 1.8) risks.push(`最新成交量约为近 ${pv5.days} 日均量的 ${pv5.volRatio.toFixed(1)} 倍，放量日需防换月或突发事件扰动。`);
     if (!risks.length) risks.push("各维度未出现显著背离，但仍需结合基本面与价格结构确认；机构/散户为按净持仓规模推断的代理口径，交易所不披露终端客户属性。");
 
     return { pv: { pv1, pv5, pv20, base, quad, rows: rows.slice(-60) },
+      volume: { profile: VP, verdict: VV },
       structure: { rows: stRows, concentration, totalGross },
       momentum: { all: memRows, leaders, laggards },
       divergence: { position: posDivergence, change: chgDivergence, widening, instChg, retChg },
@@ -738,27 +799,45 @@
         <div class="cf-bar"><i style="width:${A.score.value}%;background:${barColor}"></i><span class="mid"></span></div>
         <div class="cf-bar-lbl"><span>强偏空</span><span>中性</span><span>强偏多</span></div>
         <div class="cf-confirm">共振确认度 <b>${A.score.confirm}/${A.score.total}</b> 维同向${A.score.confirm >= 3 ? " · 信号一致" : " · 维度分歧，谨慎解读"}</div>
-        <div class="cf-note">启发式读数，非行情预测。由「价仓配合 35% / 机构净变化 25% / 分层一致性 20% / 大单动向 20%」加权合成，仅供品种间横向比较，不构成交易信号。</div>
+        <div class="cf-note">启发式读数，非行情预测。由「价·量·仓配合 35% / 机构净变化 25% / 分层一致性 20% / 大单动向 20%」加权合成；成交量作为价仓信号的确认系数（放量增仓增强、缩量或放量减仓削弱），不单独产生方向。仅供品种间横向比较，不构成交易信号。</div>
       </div>
     </div>`;
 
+    const VP = A.volume.profile, VV = A.volume.verdict;
     const pvRow = (st, label) => !st ? "" : `<tr>
       <td>${label}</td><td>${fmt(st.close, 2)}</td>
       <td class="${cls(st.dPrice)}">${pct(st.dPrice)}</td>
       <td>${fmt(st.oi)}</td>
       <td class="${cls(st.dOi)}">${sign(st.dOi)}</td>
       <td class="${cls(st.dOiPct)}">${pct(st.dOiPct)}</td>
-      <td>${st.volRatio.toFixed(2)}×</td></tr>`;
+      <td>${fmt(st.volume)}</td>
+      <td class="${st.volRatio >= 1.2 ? "up" : st.volRatio <= 0.8 ? "down" : "muted"}">${st.volRatio.toFixed(2)}×</td>
+      <td><span class="cf-tag ${st.volRatio >= 1.2 ? "active" : st.volRatio <= 0.8 ? "passive" : "dual"}">${st.volState}</span></td></tr>`;
+    const volCard = `<div class="cf-vol ${VV.tone}">
+      <div class="v-head"><span class="v-name">量 · ${VV.tag}</span>
+        <span class="cf-tag ${VV.confirm > 0 ? "active" : VV.confirm < 0 ? "passive" : "dual"}">${VV.confirm > 0 ? "量能确认价仓信号" : VV.confirm < 0 ? "量能削弱价仓信号" : "量能中性"}</span></div>
+      <div class="v-desc">${VV.desc}</div>
+      <div class="v-grid">
+        <div><div class="k">当日成交量</div><div class="v">${fmt(VP.last)} <small>手</small></div><div class="s">前20日均量 ${fmt(VP.base20)}</div></div>
+        <div><div class="k">量比 (20日)</div><div class="v ${VP.ratio >= 1.2 ? "up" : VP.ratio <= 0.8 ? "down" : ""}">${VP.ratio.toFixed(2)}×</div><div class="s">${VP.state}</div></div>
+        <div><div class="k">量能趋势</div><div class="v">${VP.trend.toFixed(2)}×</div><div class="s">${VP.trendTag}</div></div>
+        <div><div class="k">均量结构 VMA5/20</div><div class="v">${VP.ma20 ? (VP.ma5 / VP.ma20).toFixed(2) : "—"}×</div><div class="s">${VP.maTag} · VMA5 ${fmt(VP.ma5)}</div></div>
+      </div>
+      ${VP.divergence ? `<div class="v-warn">⚠ ${VP.divergence}</div>` : ""}
+    </div>`;
     const quadHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L1</span>价 · 量 · 仓配合<em>资金是否真正在推动价格</em></div>
       <div class="cf-quad ${q.bias > 0 ? "pos" : q.bias < 0 ? "neg" : "neu"}">
         <div class="q-name">${q.name}</div><div class="q-desc">${q.desc}</div>
       </div>
-      <div class="table-wrap"><table><thead><tr>
-        <th>周期</th><th>收盘</th><th>价格变化</th><th>总持仓</th><th>持仓变化</th><th>持仓变化%</th><th>量比</th>
+      ${volCard}
+      <div class="table-wrap"><table class="cf-pv-table"><thead><tr>
+        <th>周期</th><th>收盘</th><th>价格变化</th><th>总持仓</th><th>持仓变化</th><th>持仓变化%</th><th>成交量(手)</th><th>量比</th><th>量能状态</th>
       </tr></thead><tbody>${pvRow(A.pv.pv1, "近1日")}${pvRow(A.pv.pv5, "近5日")}${pvRow(A.pv.pv20, "近20日")}</tbody></table></div>
-      <div class="cf-hint">量比 = 最新成交量 / 区间内前几日均量；价仓四象限以近 5 日为主判据（噪音阈值：价格 ±0.35%、持仓 ±0.8%）。</div>
-      <div id="chCapFlowPriceOi" class="chart" style="height:220px;margin-top:6px"></div>
+      <div class="cf-hint">表格量比 = 区间末日成交量 ÷ 该区间内前几日均量（1 / 5 / 20 日各自口径）；量能卡片的量比统一为「当日量 ÷ 前20日均量」。价仓四象限以近 5 日为主判据（噪音阈值：价格 ±0.35%、持仓 ±0.8%）。</div>
+      <div class="cf-chart-h"><span>价 · 量 · 仓 三联图（近 60 交易日）</span><em>上格 收盘价×总持仓双轴 · 下格 成交量与 VMA5/VMA20</em></div>
+      <div id="chCapFlowPriceOi" class="chart" style="height:300px;margin-top:4px"></div>
+      <div class="cf-hint">成交量柱按当日涨跌红 / 绿着色，白边为显著放量（≥1.5×）；VMA5 高于 VMA20 表示近期资金关注度升温。三要素读法：<b>放量+增仓 = 增量资金进场</b>（趋势最可靠）、<b>放量+减仓 = 集中平仓/回补</b>（加速或尾声）、<b>缩量+增仓 = 轻仓试探</b>（待确认）、<b>缩量+减仓 = 离场尾声</b>（动能衰竭）。上下两格可同步缩放，悬停查看当日价·量·仓读数。</div>
     </div>`;
 
     const matrixRows = A.structure.rows.map(r => `<tr>
@@ -1089,9 +1168,9 @@
     if (s.inventory && s.inventory.standard && s.inventory.standard.total != null) Charts.inventory($("#chInv"), s.inventory);
     if (s.basis && s.basis.main_close != null && s.basis.sub_close != null) Charts.basisSpread($("#chBasis"), s.basis);
     if (s.capital_flow && s.capital_flow.available) {
-      // 专业框架 L1：价格 × 持仓量双轴（识别价仓共振/背离）
+      // 专业框架 L1：价 · 量 · 仓 三联图（上格价×仓，下格成交量与均量线）
       if (s.kline && s.kline.rows && s.kline.rows.length > 5)
-        Charts.priceOiDual($("#chCapFlowPriceOi"), s.kline.rows);
+        Charts.priceVolumeOi($("#chCapFlowPriceOi"), s.kline.rows);
       // 专业框架 L3：主力席位净变化横条（主动进攻 / 回补离场分色）
       if (s.capital_flow.top_members && s.capital_flow.top_members.length)
         Charts.memberMomentum($("#chCapFlowMomentum"), s.capital_flow.top_members);

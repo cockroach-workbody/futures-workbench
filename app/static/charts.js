@@ -577,58 +577,108 @@
     return c;
   }
 
-  // ⑦ 专业框架 L1：价格 × 持仓量双轴 —— 识别价仓共振 / 背离
-  // 琥珀点为「价涨仓减」或「价跌仓增」的背离日：价格由平仓/回补推动，而非增量资金。
-  function priceOiDual(dom, rows) {
+  // ⑦ 专业框架 L1：价 · 量 · 仓 三联图
+  // 上格：收盘价(左轴) × 总持仓(右轴)，琥珀点为「价涨仓减 / 价跌仓增」的价仓背离日；
+  // 下格：成交量柱(涨红跌绿，显著放量描白边) + VMA5 / VMA20 均量线；
+  // 两格共享十字准星与 dataZoom：价格方向是否由真实增量资金推动，须同时看「量」与「仓」。
+  function priceVolumeOi(dom, rows) {
     if (!dom) return null;
     const c = base(dom);
     const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
     const dstr = (d) => { const s = String(d).replace(/-/g, ""); return s.length === 8 ? `${s.slice(4, 6)}-${s.slice(6, 8)}` : String(d); };
-    const a = rows.slice(-60);
+    const full = rows.slice(-80);          // 多取 20 根，保证 VMA20 / 量比在首屏即有值
+    const off = Math.max(0, full.length - 60);
+    const a = full.slice(off);
+    if (!a.length) return c;
+    const avg = (arr) => { const v = arr.filter(x => x > 0); return v.length ? v.reduce((x, y) => x + y, 0) / v.length : 0; };
+    const rollMa = (n) => full.map((_, i) => i < n - 1 ? null
+      : Math.round(avg(full.slice(i - n + 1, i + 1).map(r => num(r.volume))))).slice(off);
+    const ratioAll = full.map((r, i) => {
+      if (i < 5) return 1;
+      const base = avg(full.slice(i - 5, i).map(x => num(x.volume)));  // 前 5 日均量（不含当日）
+      return base ? num(r.volume) / base : 1;
+    });
+    const vma5 = rollMa(5), vma20 = rollMa(20), ratios = ratioAll.slice(off);
     const dates = a.map(r => dstr(r.date));
     const closes = a.map(r => num(r.close));
     const ois = a.map(r => num(r.oi));
-    const divPoints = a.map((r, i) => {
+    const divPoints = a.map((r) => {
       const p = num(r.chg_pct), o = num(r.oi_chg);
       const diverge = (p > 0.3 && o < 0) || (p < -0.3 && o > 0);
       return diverge ? num(r.close) : null;
     });
+    const volBars = a.map((r, i) => {
+      const up = num(r.chg_pct) >= 0, heavy = ratios[i] >= 1.5;
+      return { value: num(r.volume), itemStyle: {
+        color: up ? (heavy ? "rgba(232,72,63,.95)" : "rgba(232,72,63,.55)")
+                  : (heavy ? "rgba(31,171,107,.95)" : "rgba(31,171,107,.55)"),
+        borderColor: heavy ? TXT : "transparent", borderWidth: heavy ? 1 : 0 } };
+    });
     c.setOption({
       backgroundColor: "transparent",
-      tooltip: { trigger: "axis", axisPointer: { type: "cross" }, backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
+      tooltip: { trigger: "axis", axisPointer: { type: "cross" }, backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT, fontSize: 11 },
         formatter: (ps) => {
+          if (!ps || !ps.length) return "";
           const i = ps[0].dataIndex, r = a[i];
-          let s = `${r.date}<br/>收盘 <b>${fmtN(r.close)}</b>　涨跌 <b style="color:${num(r.chg_pct) >= 0 ? RED : GREEN}">${num(r.chg_pct) > 0 ? "+" : ""}${num(r.chg_pct).toFixed(2)}%</b>`;
-          s += `<br/>总持仓 <b>${fmtN(r.oi)}</b> 手　较前 <b style="color:${num(r.oi_chg) >= 0 ? RED : GREEN}">${num(r.oi_chg) > 0 ? "+" : ""}${fmtN(r.oi_chg)}</b>`;
-          s += `<br/>成交量 ${fmtN(r.volume)} 手`;
+          if (!r) return "";
+          const p = num(r.chg_pct), o = num(r.oi_chg), rt = ratios[i];
+          let s = `${r.date}<br/>收盘 <b>${fmtN(r.close)}</b>　涨跌 <b style="color:${p >= 0 ? RED : GREEN}">${p > 0 ? "+" : ""}${p.toFixed(2)}%</b>`;
+          s += `<br/>总持仓 <b>${fmtN(r.oi)}</b> 手　较前 <b style="color:${o >= 0 ? RED : GREEN}">${o > 0 ? "+" : ""}${fmtN(o)}</b>`;
+          s += `<br/>成交量 <b>${fmtN(r.volume)}</b> 手　量比(前5日) <b style="color:${AMBER}">${rt.toFixed(2)}×</b>`;
+          s += `<br/>VMA5 ${fmtN(vma5[i])}　VMA20 ${fmtN(vma20[i])}`;
+          s += `<br/><span style="color:${TX}">价${p >= 0 ? "涨" : "跌"} · ${rt >= 1.5 ? "放量" : rt <= 0.65 ? "缩量" : "常量"} · ${o >= 0 ? "增仓" : "减仓"}</span>`;
+          if (rt >= 1.5) s += `<br/><span style="color:${AMBER}">◆ 显著放量：换手放大，须看仓是增是减</span>`;
+          else if (rt <= 0.65) s += `<br/><span style="color:${TX}">◇ 明显缩量：参与度下降，信号强度打折</span>`;
           if (divPoints[i] != null) s += `<br/><span style="color:${AMBER}">◆ 价仓背离日：价格由平仓/回补推动</span>`;
           return s;
         } },
-      legend: { data: ["收盘价", "总持仓", "价仓背离"], textStyle: { color: TX }, top: 0, itemWidth: 14, itemHeight: 8 },
-      grid: { left: 62, right: 66, top: 30, bottom: 42 },
-      xAxis: { type: "category", data: dates, boundaryGap: false, ...axisCommon(),
-        axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(dates.length / 8)) } },
-      yAxis: [
-        { type: "value", scale: true, ...axisCommon(), name: "价格", nameTextStyle: { color: TX },
-          axisLabel: { color: TX } },
-        { type: "value", scale: true, ...axisCommon(), name: "持仓", position: "right", splitLine: { show: false }, nameTextStyle: { color: TX },
-          axisLabel: { color: TX, formatter: (v) => (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
+      axisPointer: { link: [{ xAxisIndex: "all" }], label: { backgroundColor: "#2a3543" } },
+      legend: { type: "scroll", data: ["收盘价", "总持仓", "价仓背离", "成交量", "VMA5", "VMA20"],
+        textStyle: { color: TX, fontSize: 10 }, pageTextStyle: { color: TX }, top: 0, itemWidth: 12, itemHeight: 8, itemGap: 10 },
+      grid: [
+        { left: 62, right: 66, top: 30, height: "52%" },
+        { left: 62, right: 66, top: "70%", height: "20%" },
       ],
-      dataZoom: [{ type: "inside", start: 50, end: 100 }],
+      xAxis: [
+        { type: "category", gridIndex: 0, data: dates, boundaryGap: false, ...axisCommon(),
+          axisLabel: { show: false }, axisTick: { show: false } },
+        { type: "category", gridIndex: 1, data: dates, boundaryGap: true, ...axisCommon(),
+          axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(dates.length / 8)) } },
+      ],
+      yAxis: [
+        { type: "value", gridIndex: 0, scale: true, ...axisCommon(), name: "价格", nameTextStyle: { color: TX },
+          axisLabel: { color: TX } },
+        { type: "value", gridIndex: 0, scale: true, ...axisCommon(), name: "持仓", position: "right", splitLine: { show: false }, nameTextStyle: { color: TX },
+          axisLabel: { color: TX, formatter: (v) => (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
+        { type: "value", gridIndex: 1, min: 0, ...axisCommon(), name: "量", position: "right", nameTextStyle: { color: TX, fontSize: 10 },
+          splitLine: { show: false }, axisLabel: { color: TX, fontSize: 10,
+            formatter: (v) => (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
+      ],
+      dataZoom: [{ type: "inside", xAxisIndex: [0, 1], start: 50, end: 100 }],
       series: [
-        { name: "总持仓", type: "line", yAxisIndex: 1, data: ois, smooth: true, showSymbol: false, connectNulls: true,
+        { name: "总持仓", type: "line", xAxisIndex: 0, yAxisIndex: 1, data: ois, smooth: true, showSymbol: false, connectNulls: true,
           itemStyle: { color: BLUE }, lineStyle: { width: 2, color: BLUE, opacity: 0.85 },
           areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1,
             [{ offset: 0, color: "rgba(61,126,255,.20)" }, { offset: 1, color: "rgba(61,126,255,0)" }]) } },
-        { name: "收盘价", type: "line", yAxisIndex: 0, data: closes, smooth: true, showSymbol: false, connectNulls: true,
+        { name: "收盘价", type: "line", xAxisIndex: 0, yAxisIndex: 0, data: closes, smooth: true, showSymbol: false, connectNulls: true,
           itemStyle: { color: AMBER }, lineStyle: { width: 2.2, color: AMBER } },
-        { name: "价仓背离", type: "scatter", yAxisIndex: 0, data: divPoints, symbolSize: 11,
+        { name: "价仓背离", type: "scatter", xAxisIndex: 0, yAxisIndex: 0, data: divPoints, symbolSize: 11,
           itemStyle: { color: "rgba(224,168,58,.85)", borderColor: "#fff", borderWidth: 1 },
+          tooltip: { show: false } },
+        { name: "成交量", type: "bar", xAxisIndex: 1, yAxisIndex: 2, data: volBars, barMaxWidth: 9,
+          tooltip: { show: false } },
+        { name: "VMA5", type: "line", xAxisIndex: 1, yAxisIndex: 2, data: vma5, smooth: true, showSymbol: false,
+          connectNulls: true, itemStyle: { color: "#e6edf3" }, lineStyle: { width: 1.4, color: "#e6edf3", opacity: 0.9 },
+          tooltip: { show: false } },
+        { name: "VMA20", type: "line", xAxisIndex: 1, yAxisIndex: 2, data: vma20, smooth: true, showSymbol: false,
+          connectNulls: true, itemStyle: { color: BLUE }, lineStyle: { width: 1.2, color: BLUE, type: "dashed", opacity: 0.8 },
           tooltip: { show: false } },
       ],
     });
     return c;
   }
+  // 兼容旧调用名（语义已升级为价·量·仓三联）
+  const priceOiDual = priceVolumeOi;
 
   // ⑦ 专业框架 L3：主力席位净变化横条 —— 主动进攻(实色) vs 回补/平仓(半透明)
   function memberMomentum(dom, members) {
@@ -670,5 +720,5 @@
     return c;
   }
 
-  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, t20Divergence, capitalFlowTier, totalPositionCurve, tierNetHistory, priceOiDual, memberMomentum };
+  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, t20Divergence, capitalFlowTier, totalPositionCurve, tierNetHistory, priceVolumeOi, priceOiDual, memberMomentum };
 })(window);
