@@ -10,7 +10,14 @@
 
 关键口径：净持仓是当日榜单存量，不是当日资金流向；无分歧 ≠ 预期一致 ≠ 趋势行情。
 一致偏多也可能是多头拥挤（增量买盘枯竭），必须用价格与持仓确认。
+
+噪音阈值按品种波动率自适应：农产品日内波动小、有色 / 化工大，统一的 ±0.35% / ±0.8%
+会让低波品种把噪音当信号、高波品种把真信号磨平。用近 60 日主连「日收益 / 日持仓变化」
+的稳健标准差（MAD×1.4826）相对全市场基准的倍数放缩基准噪音带，再按 √(周期/5) 调周期。
 """
+
+import math
+import statistics
 
 
 def _i(v):
@@ -29,9 +36,71 @@ def _f(v):
 
 # 净持仓占该组双边（毛）持仓比例低于此值，视为「方向不明显」，不能算进共识
 MIN_NET_RATIO = 0.03
-# 近 5 日价格 / 持仓变化的噪音阈值（%）
+# 全市场清单的「基准」噪音阈值（%）：对应波动率处于全市场中位数的典型品种、近 5 日口径
 PX_EPS = 0.8
 OI_EPS = 1.0
+# ⑦ L1 四象限与速读卡片用的是同一套波动率倍数，只是基准更敏感（前端 constants 与此保持一致）
+
+# ---- 波动率自适应噪音带 ----
+VOL_WINDOW = 60          # 估计日波动率所用交易日数
+REF_PX_SIGMA = 1.30      # 全市场主连「日收益率」稳健波动率中位数（%/日）
+REF_OI_SIGMA = 3.60      # 全市场主连「日持仓变化率」稳健波动率中位数（%/日）
+RATIO_MIN, RATIO_MAX = 0.55, 2.20   # 倍数裁剪：防止极端波动 / 数据异常把阈值推到失真
+MIN_PX_SIGMA, MIN_OI_SIGMA = 0.05, 0.30
+
+
+def _daily_returns(rows, key):
+    """连续两日同口径的百分比变化；遇到 0 / 缺失则断开，避免换月跳空污染。"""
+    out, prev = [], None
+    for r in rows:
+        v = _f(r.get(key))
+        if v > 0:
+            if prev:
+                out.append((v / prev - 1) * 100)
+            prev = v
+        else:
+            prev = None
+    return out
+
+
+def _robust_sigma(vals, floor):
+    """MAD 稳健波动率（对涨跌停、移仓跳空不敏感）；序列过于平坦时用标准差兜底。"""
+    if len(vals) < 8:
+        return None
+    med = statistics.median(vals)
+    sigma = 1.4826 * statistics.median([abs(v - med) for v in vals])
+    if sigma < floor * 0.25:
+        sigma = statistics.pstdev(vals)
+    return max(floor, sigma)
+
+
+def _clamp(v, lo, hi):
+    return max(lo, min(hi, v))
+
+
+def volatility_profile(snap):
+    """本品种波动率画像：稳健日波动率、相对全市场基准倍数、波动档位。"""
+    rows = ((snap or {}).get("kline") or {}).get("rows") or []
+    rows = rows[-(VOL_WINDOW + 1):]
+    sp = _robust_sigma(_daily_returns(rows, "close"), MIN_PX_SIGMA)
+    so = _robust_sigma(_daily_returns(rows, "oi"), MIN_OI_SIGMA)
+    if sp is None or so is None:
+        return None
+    rp = _clamp(sp / REF_PX_SIGMA, RATIO_MIN, RATIO_MAX)
+    ro = _clamp(so / REF_OI_SIGMA, RATIO_MIN, RATIO_MAX)
+    regime = "低波" if rp < 0.8 else "高波" if rp > 1.35 else "中波"
+    return {"sigma_px": round(sp, 3), "sigma_oi": round(so, 3),
+            "ratio_px": round(rp, 3), "ratio_oi": round(ro, 3), "regime": regime}
+
+
+def noise_band(profile, horizon=5, base_px=PX_EPS, base_oi=OI_EPS):
+    """基准噪音带 × 波动率倍数 × √(周期/5)；profile 缺失时退回固定基准。"""
+    rp = profile["ratio_px"] if profile else 1.0
+    ro = profile["ratio_oi"] if profile else 1.0
+    scale = math.sqrt(max(1, horizon) / 5.0)
+    return {"px_eps": round(base_px * rp * scale, 3),
+            "oi_eps": round(base_oi * ro * scale, 3),
+            "horizon": horizon, "ratio_px": rp, "ratio_oi": ro}
 
 
 def price_oi(snap):
@@ -94,11 +163,14 @@ def structure(inst, ret, available=True):
     return "neutral", direction, inst_ratio, ret_ratio
 
 
-def price_oi_signal(po, stance):
-    """价仓层：四象限 + 结合结构层给出风险提示与一句话解读。"""
+def price_oi_signal(po, stance, band=None):
+    """价仓层：四象限 + 结合结构层给出风险提示与一句话解读。
+    band 为 noise_band() 给出的本品种自适应噪音带；缺省时退回固定基准。"""
     px, doi = po.get("px_5d", 0.0), po.get("oi_5d_pct", 0.0)
-    up_px, dn_px = px >= PX_EPS, px <= -PX_EPS
-    up_oi, dn_oi = doi >= OI_EPS, doi <= -OI_EPS
+    px_eps = band["px_eps"] if band else PX_EPS
+    oi_eps = band["oi_eps"] if band else OI_EPS
+    up_px, dn_px = px >= px_eps, px <= -px_eps
+    up_oi, dn_oi = doi >= oi_eps, doi <= -oi_eps
     if up_px and up_oi:
         pq = "价涨仓增"
     elif up_px and dn_oi:
@@ -201,7 +273,16 @@ def compute_market_view(items, default_as_of=""):
             (inst_net > 0 and gap_chg > 0) or (inst_net < 0 and gap_chg < 0))
         magnitude = abs(inst_net) + abs(ret_net)
         po = price_oi(snap)
-        pq, flag, risk, note = price_oi_signal(po, stance)
+        prof = volatility_profile(snap)
+        band = noise_band(prof, 5, PX_EPS, OI_EPS)
+        pq, flag, risk, note = price_oi_signal(po, stance, band)
+        # 以「本品种 5 日波动 σ」为单位看当前变化强度，便于跨品种比较
+        sig5 = math.sqrt(5)
+        z_px = round(po.get("px_5d", 0.0) / (prof["sigma_px"] * sig5), 2) if prof else 0.0
+        z_oi = round(po.get("oi_5d_pct", 0.0) / (prof["sigma_oi"] * sig5), 2) if prof else 0.0
+        band_txt = (f"自适应噪音带：价 ±{band['px_eps']:.2f}% / 仓 ±{band['oi_eps']:.2f}%"
+                    f"（{prof['regime']}品种，日波动 价 {prof['sigma_px']:.2f}% / 仓 {prof['sigma_oi']:.2f}%）"
+                    if prof else "波动率样本不足，已退回固定噪音阈值")
         tp = cf.get("total_position") or {}
         row = {
             "code": it["code"], "name": it.get("name", ""), "category": it.get("category", ""),
@@ -214,7 +295,12 @@ def compute_market_view(items, default_as_of=""):
             "magnitude": magnitude,
             "total_position": _i(tp.get("latest")) or po.get("oi", 0),
             "chg_5d": _i(tp.get("chg_5d")) or po.get("oi_5d", 0),
-            "pq": pq, "flag": flag, "note": note,
+            "pq": pq, "flag": flag, "note": note, "band": band_txt,
+            "px_eps": band["px_eps"], "oi_eps": band["oi_eps"],
+            "sigma_px": round(prof["sigma_px"], 2) if prof else 0.0,
+            "sigma_oi": round(prof["sigma_oi"], 2) if prof else 0.0,
+            "vol_regime": prof["regime"] if prof else "样本不足",
+            "z_px": z_px, "z_oi": z_oi,
             **{k: po.get(k, 0) for k in ("close", "chg_pct", "px_5d", "oi_5d", "oi_5d_pct", "vol_ratio")},
         }
         if not available:
@@ -233,10 +319,26 @@ def compute_market_view(items, default_as_of=""):
     out.sort(key=key)
 
     divergences = [r for r in out if r["stance"] == "divergence"]
+    px_eps_all = [r["px_eps"] for r in out]
+    oi_eps_all = [r["oi_eps"] for r in out]
+    noise_meta = {
+        "window": VOL_WINDOW,
+        "ref_px": REF_PX_SIGMA, "ref_oi": REF_OI_SIGMA,
+        "base_px": PX_EPS, "base_oi": OI_EPS,
+        "ratio_min": RATIO_MIN, "ratio_max": RATIO_MAX,
+        "px_min": min(px_eps_all) if px_eps_all else PX_EPS,
+        "px_max": max(px_eps_all) if px_eps_all else PX_EPS,
+        "oi_min": min(oi_eps_all) if oi_eps_all else OI_EPS,
+        "oi_max": max(oi_eps_all) if oi_eps_all else OI_EPS,
+        "regimes": {g: sum(1 for r in out if r["vol_regime"] == g)
+                    for g in ("低波", "中波", "高波", "样本不足")},
+        "method": "噪音带 = 基准 × (本品种近60日稳健日波动率 ÷ 全市场基准波动率) × √(周期/5)，倍数裁剪 0.55~2.20",
+    }
     as_of = (sorted(cf_as_of_set)[-1] if cf_as_of_set else
              (sorted(as_of_set)[-1] if as_of_set else default_as_of))
     return {
         "as_of": as_of,
+        "noise": noise_meta,
         "total": len(out),
         "covered": sum(1 for r in out if r["available"]),
         "count": len(divergences),                                   # 兼容旧字段

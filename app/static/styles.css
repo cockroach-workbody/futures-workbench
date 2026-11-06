@@ -241,6 +241,11 @@ tbody tr:hover{background:var(--panel2)}
 .divrow .c-num .muted{color:var(--muted);font-size:11px}
 .divrow .c-pq{font-size:11px;line-height:1.55}
 .divrow .c-pq b{font-size:12px;color:var(--text)}
+.divrow .c-nb{display:block;font-size:10px;color:var(--muted);margin-top:2px;cursor:help}
+.div-noise{font-size:11px;line-height:1.65;color:var(--text);background:var(--panel2);
+  border:1px solid var(--line);border-radius:8px;padding:6px 9px;margin:8px 0;cursor:help}
+.div-noise b{color:var(--accent)}
+.div-noise .muted{margin-left:6px}
 .divrow .c-flag{display:flex;align-items:center}
 
 /* ---------- ⑦ 专业资金分析框架（L1→L4） ---------- */
@@ -280,6 +285,20 @@ tbody tr:hover{background:var(--panel2)}
 .cf-quad.neg .q-name{color:#5dd39b}
 .cf-quad.neu .q-name{color:#f0c268}
 .cf-quad .q-desc{font-size:12px;line-height:1.7;color:var(--text)}
+/* L1 波动率自适应噪音带：低波品种收紧、高波品种放宽 */
+.cf-noise{border-radius:9px;padding:9px 11px;margin-bottom:10px;border:1px solid var(--line);background:var(--panel2)}
+.cf-noise-h{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11.5px;font-weight:800;color:var(--text);margin-bottom:7px}
+.cf-noise-h .cf-i{cursor:help;color:var(--accent);font-size:11px}
+.cf-noise-h em{font-size:10.5px;font-weight:500;font-style:normal;color:var(--muted)}
+.cf-nchip{font-size:10px;padding:1px 7px;border-radius:8px;border:1px solid var(--line)}
+.cf-nchip.low{color:#8fb6ff;border-color:rgba(61,126,255,.5);background:rgba(61,126,255,.10)}
+.cf-nchip.mid{color:#f0c268;border-color:rgba(224,168,58,.5);background:rgba(224,168,58,.10)}
+.cf-nchip.high{color:#ff9a91;border-color:rgba(232,72,63,.5);background:rgba(232,72,63,.10)}
+.cf-noise-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.cf-noise-grid > div{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:6px 8px;min-width:0}
+.cf-noise-grid .k{display:block;font-size:10px;color:var(--muted);margin-bottom:3px}
+.cf-noise-grid b{display:block;font-size:11.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf-noise-note{font-size:10.5px;line-height:1.6;color:var(--muted);margin-top:7px}
 /* L1 量能卡片 · 价量仓三联图 */
 .cf-vol{border-radius:9px;padding:10px 12px;margin-bottom:10px;border:1px solid var(--line);background:var(--panel2)}
 .cf-vol.pos{border-color:rgba(232,72,63,.45);background:rgba(232,72,63,.07)}
@@ -452,6 +471,7 @@ tbody tr:hover{background:var(--panel2)}
   .cf-mrow .v{min-width:58px}
   .cf-vol .v-grid{grid-template-columns:repeat(2,1fr)}
   .cf-vol .v-grid .v{font-size:14px}
+  .cf-noise-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .cf-legend-grid{grid-template-columns:1fr}
   .cf-lrow > span:last-child{white-space:normal}
   /* ⑥· 全市场资金结构清单移动端 */

@@ -581,8 +581,12 @@
   // 上格：收盘价(左轴) × 总持仓(右轴)，琥珀点为「价涨仓减 / 价跌仓增」的价仓背离日；
   // 下格：成交量柱(涨红跌绿，显著放量描白边) + VMA5 / VMA20 均量线；
   // 两格共享十字准星与 dataZoom：价格方向是否由真实增量资金推动，须同时看「量」与「仓」。
-  function priceVolumeOi(dom, rows) {
+  // opts: { pxEps, oiEps } —— 由 app.js 按品种波动率算出的噪音带（%）。
+  // 日涨跌 / 日持仓变化率双双超过噪音带才标注「价仓背离日」，低波品种更敏感、高波品种更钝。
+  function priceVolumeOi(dom, rows, opts) {
     if (!dom) return null;
+    const pxEps = opts && typeof opts.pxEps === "number" ? opts.pxEps : 0.3;
+    const oiEps = opts && typeof opts.oiEps === "number" ? opts.oiEps : 0;
     const c = base(dom);
     const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
     const dstr = (d) => { const s = String(d).replace(/-/g, ""); return s.length === 8 ? `${s.slice(4, 6)}-${s.slice(6, 8)}` : String(d); };
@@ -604,7 +608,9 @@
     const ois = a.map(r => num(r.oi));
     const divPoints = a.map((r) => {
       const p = num(r.chg_pct), o = num(r.oi_chg);
-      const diverge = (p > 0.3 && o < 0) || (p < -0.3 && o > 0);
+      const prevOi = num(r.oi) - o;                    // 由「当日较前增减」还原前一日持仓
+      const oPct = prevOi > 0 ? o / prevOi * 100 : 0; // 换成百分比才能与噪音带比较
+      const diverge = (p > pxEps && oPct < -oiEps) || (p < -pxEps && oPct > oiEps);
       return diverge ? num(r.close) : null;
     });
     const volBars = a.map((r, i) => {
@@ -626,6 +632,7 @@
           s += `<br/>总持仓 <b>${fmtN(r.oi)}</b> 手　较前 <b style="color:${o >= 0 ? RED : GREEN}">${o > 0 ? "+" : ""}${fmtN(o)}</b>`;
           s += `<br/>成交量 <b>${fmtN(r.volume)}</b> 手　量比(前5日) <b style="color:${AMBER}">${rt.toFixed(2)}×</b>`;
           s += `<br/>VMA5 ${fmtN(vma5[i])}　VMA20 ${fmtN(vma20[i])}`;
+          s += `<br/><span style="color:${TX}">噪音带 价 ±${pxEps.toFixed(2)}% / 仓 ±${oiEps.toFixed(2)}%（本品种波动率自适应）</span>`;
           s += `<br/><span style="color:${TX}">价${p >= 0 ? "涨" : "跌"} · ${rt >= 1.5 ? "放量" : rt <= 0.65 ? "缩量" : "常量"} · ${o >= 0 ? "增仓" : "减仓"}</span>`;
           if (rt >= 1.5) s += `<br/><span style="color:${AMBER}">◆ 显著放量：换手放大，须看仓是增是减</span>`;
           else if (rt <= 0.65) s += `<br/><span style="color:${TX}">◇ 明显缩量：参与度下降，信号强度打折</span>`;

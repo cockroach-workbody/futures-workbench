@@ -233,10 +233,11 @@ def compute_sentiment(cats, slim_map):
                 tgt["bullish"] += b; tgt["bearish"] += be
                 tgt["neutral"] += n; tgt["opinions"] += opc
             cb["count"] += 1
-            net_ratio = (b - be) / (b + be + n) if (b + be + n) else 0.0
+            # net 与后端 /api/sentiment_summary 同口径：看多 − 看空的计数差（不是比例）。
+            # 榜单展示统一由前端按 bullish/bearish/neutral 现算比例，避免线上线下口径不一致。
             ranking.append({"code": p["code"], "name": p["name"], "category": c["name"],
                             "bullish": b, "bearish": be, "neutral": n,
-                            "net": net_ratio, "opinions": opc})
+                            "net": b - be, "opinions": opc})
         by_category[c["name"]] = cb
     ranking.sort(key=lambda x: (x["net"], x["bullish"]), reverse=True)
     return {"as_of": SNAP_DATE, "total_products": len(ranking), "totals": totals,

@@ -244,16 +244,27 @@
   }
 
   // 偏多 / 偏空榜单（随下拉过滤 + 可点选）
+  // 后端 ranking.net 是「看多−看空」计数差，离线 payload 又是 0~1 比例，两者口径不同；
+  // 榜单统一由 bullish/bearish/neutral 现算净情绪比例，固定两位小数 + 百分号。
+  function sentRatio(r) {
+    const b = Number(r.bullish) || 0, be = Number(r.bearish) || 0, nt = Number(r.neutral) || 0;
+    const tot = b + be + nt;
+    return tot ? (b - be) / tot : 0;
+  }
+  function sentPct2(v) {
+    return (v > 0 ? "+" : "") + (v * 100).toFixed(2) + "%";
+  }
   function renderSentLists(catFilter) {
     const box = document.getElementById("sentLists");
     if (!box) return;
-    const rl = filterRanking(catFilter);
-    const bull = rl.filter(r => r.net > 0).sort((a, b) => b.net - a.net).slice(0, 12);
-    const bear = rl.filter(r => r.net < 0).sort((a, b) => a.net - b.net).slice(0, 12);
-    const li = (r) => `<li class="pick" data-code="${r.code}"><span class="pill ${r.net >= 0 ? "up" : "down"}">${(r.net > 0 ? "+" : "") + r.net}</span><div class="t">${r.name}(${r.code})</div><div class="m">看多${r.bullish}/看空${r.bearish}/中性${r.neutral} · ${r.category}</div></li>`;
+    const rl = filterRanking(catFilter).map(r => Object.assign({}, r, { _r: sentRatio(r) }));
+    const bull = rl.filter(r => r._r > 0).sort((a, b) => b._r - a._r).slice(0, 12);
+    const bear = rl.filter(r => r._r < 0).sort((a, b) => a._r - b._r).slice(0, 12);
+    const li = (r) => `<li class="pick" data-code="${r.code}"><span class="pill ${r._r >= 0 ? "up" : "down"}">${sentPct2(r._r)}</span><div class="t">${r.name}(${r.code})</div><div class="m">看多${r.bullish}/看空${r.bearish}/中性${r.neutral} · ${r.category}</div></li>`;
     box.innerHTML =
-      `<b class="muted" style="font-size:12px">偏多品种榜</b><ul class="list" style="margin-bottom:10px">${bull.map(li).join("") || '<li class="muted">无</li>'}</ul>` +
-      `<b class="muted" style="font-size:12px">偏空品种榜</b><ul class="list">${bear.map(li).join("") || '<li class="muted">无</li>'}</ul>`;
+      `<b class="muted" style="font-size:12px">偏多品种榜 <span style="font-weight:400">· 净情绪比例</span></b><ul class="list" style="margin-bottom:10px">${bull.map(li).join("") || '<li class="muted">无</li>'}</ul>` +
+      `<b class="muted" style="font-size:12px">偏空品种榜 <span style="font-weight:400">· 净情绪比例</span></b><ul class="list">${bear.map(li).join("") || '<li class="muted">无</li>'}</ul>` +
+      `<div class="note" style="margin-top:6px">净情绪比例 = (看多 − 看空) / (看多 + 看空 + 中性)，保留两位小数。</div>`;
     box.querySelectorAll(".pick").forEach(li => { li.onclick = () => gotoProduct(li.dataset.code); });
   }
 
@@ -538,7 +549,7 @@
       <div class="div-h"><span class="no">全市场资金结构清单</span><em>全部品种 · 点击任意行跳转该品种资金动向</em></div>
       <div class="div-guide"><b>无分歧 ≠ 预期一致 ≠ 趋势行情</b>：净持仓是当日榜单存量，不是当日资金流向；同向也可能是「结构不明」或「多头拥挤」。须用<b>价 × 仓</b>确认 —— 价涨仓增＝增量资金推动（趋势确认）；<span class="risky">价涨仓减＝空头回补 / 存量离场驱动（需警惕回落）</span>；价跌仓增＝新空进场（跌势延续）；价跌仓减＝多头离场（跌势尾声）。</div>
       <div id="divListBox"><div class="note">清单加载中…</div></div>
-      <div class="cf-foot">口径：机构 = 前 ${n(inst.count) || 5} 大净持仓席位、散户 = 其余席位（交易所不披露客户属性，仅作力量推断）；净占比低于 3% 判「方向不明」，不计入共识。价 / 仓为近 5 日主连序列，噪音阈值 ±0.8% / ±1.0%；5 日持仓变动超 15% 须先排除移仓换月。清单按「分歧加大 → 背离 → 需警惕回落 → 其它」排序，悬停任一行可看完整解读。</div>`;
+      <div class="cf-foot">口径：机构 = 前 ${n(inst.count) || 5} 大净持仓席位、散户 = 其余席位（交易所不披露客户属性，仅作力量推断）；净占比低于 3% 判「方向不明」，不计入共识。价 / 仓为近 5 日主连序列，<b>噪音阈值按品种波动率自适应</b>（基准 ±0.8% / ±1.0%，按近 60 日稳健日波动率放缩 0.55~2.20 倍；农产品更严、有色/化工更宽，具体数值见清单上方噪音带与每行悬停；⑦ 单品种 L1 用更敏感的 ±0.35% / ±0.8%，但倍数相同）；5 日持仓变动超 15% 须先排除移仓换月。清单按「分歧加大 → 背离 → 需警惕回落 → 其它」排序，悬停任一行可看完整解读。</div>`;
     return card("全市场资金背离预警", "Divergence · 全市场", "span12", body, null, "cardCapitalAlert");
   }
 
@@ -569,6 +580,8 @@
     const sgn = (v) => (v > 0 ? "+" : "") + fmt(v);
     const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g,
       c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const nb = div.noise;
+    const noiseLine = nb ? `<div class="div-noise" title="${esc(nb.method)}｜基准（近5日）价 ±${nb.base_px}% / 仓 ±${nb.base_oi}%，按品种近 ${nb.window} 日稳健日波动率相对全市场基准（价 ${nb.ref_px}%/日、仓 ${nb.ref_oi}%/日）放缩。农产品等低波品种阈值收紧、有色/化工高波品种放宽，避免统一阈值把噪音当信号或把真信号磨平。"><b>⚙ 波动率自适应噪音带</b>：全市场 价 ±${n(nb.px_min).toFixed(2)}%~±${n(nb.px_max).toFixed(2)}% · 仓 ±${n(nb.oi_min).toFixed(2)}%~±${n(nb.oi_max).toFixed(2)}%<span class="muted">（低波 ${n(nb.regimes && nb.regimes["低波"])} / 中波 ${n(nb.regimes && nb.regimes["中波"])} / 高波 ${n(nb.regimes && nb.regimes["高波"])} 个；悬停每行看该品种阈值）</span></div>` : "";
     const noDiv = n(div.aligned_count) + n(div.neutral_count);
     const head = `<div class="div-summary">
       <span>全市场 <b>${n(div.total) || all.length}</b> 品种</span>
@@ -578,6 +591,7 @@
       <span class="risky">需警惕回落 <b>${n(div.caution_count)}</b></span>
       <span>无分层 <b>${n(div.nodata_count)}</b></span>
       <span class="muted">数据截至 ${fmtDate(div.as_of)}</span></div>
+      ${noiseLine}
       <div class="div-filters">
         <button type="button" class="div-fbtn on" data-f="all">全部</button>
         <button type="button" class="div-fbtn" data-f="div">仅分歧</button>
@@ -598,12 +612,15 @@
       else if (stance === "aligned_short") dirChip = `<span class="chip neg">一致净空</span>`;
       else dirChip = `<span class="chip none">结构不明</span>`;
       const dirTone = (lvl === "danger" || lvl === "warn") ? lvl : "";
-      return `<div class="divrow ${lvl}${cur}" data-code="${esc(r.code)}" data-group="${grp}" data-risk="${esc(risk)}" title="${esc(r.note)}">
+      const bandTip = r.band ? "\n" + r.band : "";
+      const nbCell = r.px_eps != null
+        ? `<span class="c-nb" title="${esc(r.band || "")}">噪 价±${n(r.px_eps).toFixed(2)}% / 仓±${n(r.oi_eps).toFixed(2)}% · ${esc(r.vol_regime || "")}</span>` : "";
+      return `<div class="divrow ${lvl}${cur}" data-code="${esc(r.code)}" data-group="${grp}" data-risk="${esc(risk)}" title="${esc((r.note || "") + bandTip)}">
         <div class="c-prod"><b>${esc(r.name)}</b><span class="c-code">${esc(r.code)}</span><span class="c-mc">${esc(r.main_contract)}</span></div>
         <div class="c-dir ${dirTone}">${esc(r.direction)}${dirChip}</div>
         <div class="c-num"><span class="${cls(n(r.inst_net))}">机构 ${sgn(n(r.inst_net))}</span><span class="muted"> ${n(r.inst_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.inst_chg))}</span></div>
         <div class="c-num"><span class="${cls(n(r.ret_net))}">散户 ${sgn(n(r.ret_net))}</span><span class="muted"> ${n(r.ret_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.ret_chg))}</span></div>
-        <div class="c-pq"><b>${esc(r.pq || "—")}</b><br><span class="muted">5日价 <span class="${cls(n(r.px_5d))}">${pct(n(r.px_5d))}</span> · 仓 <span class="${cls(n(r.oi_5d_pct))}">${pct(n(r.oi_5d_pct))}</span></span></div>
+        <div class="c-pq"><b>${esc(r.pq || "—")}</b><br><span class="muted">5日价 <span class="${cls(n(r.px_5d))}">${pct(n(r.px_5d))}</span> · 仓 <span class="${cls(n(r.oi_5d_pct))}">${pct(n(r.oi_5d_pct))}</span></span>${nbCell}</div>
         <div class="c-flag"><span class="chip f-${esc(risk)}">${esc(r.flag || "—")}</span></div>
       </div>`;
     };
@@ -646,11 +663,61 @@
     });
   }
 
+  // ===== 波动率自适应噪音带（⑥ 全市场清单 / ⑦ L1 与后端 market_view.py 同一口径）=====
+  // 农产品日内波动小、有色 / 化工大：统一的 ±0.35% / ±0.8% 会让低波品种把噪音当信号、
+  // 高波品种把真信号磨平。取近 60 日主连「日收益 / 日持仓变化率」的稳健波动率
+  // (MAD × 1.4826，对涨跌停与移仓跳空不敏感)，以相对全市场基准波动率的倍数放缩
+  // 基准噪音带，倍数裁剪 0.55~2.20；不同观察周期再乘 √(周期/5)。
+  const NOISE_REF = { px: 1.30, oi: 3.60, min: 0.55, max: 2.20, window: 60 };
+  function capFlowNoise(rows) {
+    const src = (rows || []).slice(-(NOISE_REF.window + 1));
+    const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
+    const median = (arr) => {
+      const a = arr.slice().sort((x, y) => x - y), m = a.length >> 1;
+      return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+    };
+    const changes = (key) => {
+      const out = []; let prev = 0;
+      src.forEach(r => {
+        const v = num(r[key]);
+        if (v > 0) { if (prev) out.push((v / prev - 1) * 100); prev = v; }
+        else prev = 0;
+      });
+      return out;
+    };
+    const sigma = (arr, floor) => {
+      if (arr.length < 8) return null;
+      const med = median(arr);
+      let s = 1.4826 * median(arr.map(v => Math.abs(v - med)));
+      if (s < floor * 0.25) {                    // 序列过于平坦 → 用总体标准差兜底
+        const mean = arr.reduce((x, y) => x + y, 0) / arr.length;
+        s = Math.sqrt(arr.reduce((x, y) => x + (y - mean) * (y - mean), 0) / arr.length);
+      }
+      return Math.max(floor, s);
+    };
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const sp = sigma(changes("close"), 0.05), so = sigma(changes("oi"), 0.30);
+    const ok = sp != null && so != null;
+    const rp = ok ? clamp(sp / NOISE_REF.px, NOISE_REF.min, NOISE_REF.max) : 1;
+    const ro = ok ? clamp(so / NOISE_REF.oi, NOISE_REF.min, NOISE_REF.max) : 1;
+    const eps = (h, basePx, baseOi) => {
+      const k = Math.sqrt(Math.max(1, h) / 5);
+      return { px: basePx * rp * k, oi: baseOi * ro * k };
+    };
+    return {
+      ok, sigmaPx: sp || 0, sigmaOi: so || 0, ratioPx: rp, ratioOi: ro,
+      regime: ok ? (rp < 0.8 ? "低波" : rp > 1.35 ? "高波" : "中波") : "样本不足",
+      eps,
+      z: (px5, oi5) => ({ px: ok ? px5 / (sp * Math.sqrt(5)) : 0,
+                          oi: ok ? oi5 / (so * Math.sqrt(5)) : 0 }),
+    };
+  }
+
   // ===== ⑦ 专业资金分析框架 · 计算层 =====
   // 依据：净持仓分布 / 总持仓变动 / 大单动向 三维度，且「净持仓变化 > 绝对持仓量」。
   // 升级：L1 价量仓配合、L2 归一化结构矩阵（主动/被动拆解）、L3 席位动能、L4 多维共振读数。
   // 纯函数、只读，输入为当前快照，不依赖任何后端新增接口。
-  function capFlowAnalytics(s, cf) {
+  function capFlowAnalytics(s, cf, noise) {
     const tiers = (cf.tiers || []).slice();
     const iv = cf.institutional_vs_retail || {};
     const inst = iv.institutional || {}, ret = iv.retail || {};
@@ -699,7 +766,12 @@
     }
     const pv1 = pvStat(2), pv5 = pvStat(6), pv20 = pvStat(21);
     const base = pv5 || pv1 || pv20;
-    const PT = 0.35, OT = 0.8;  // 价格 / 持仓噪音阈值（%）
+    // 噪音阈值按本品种波动率自适应：基准 价 ±0.35% / 仓 ±0.8%（近 5 日口径）
+    const NZ = noise || capFlowNoise(rows);
+    const horizon = base ? base.days : 5;
+    const NB = NZ.eps(horizon, 0.35, 0.8);
+    const PT = NB.px, OT = NB.oi;
+    const zNow = NZ.z(base ? base.dPrice : 0, base ? base.dOiPct : 0);
     let quad;
     if (!base) {
       quad = { key: "na", name: "数据不足", bias: 0, res: 0,
@@ -725,6 +797,8 @@
         desc: "价格下跌但持仓变化不大，缺乏增量空头，信号强度偏弱。" };
       else quad = { key: "flat", name: "价仓双平 · 观望", bias: 0, res: 0,
         desc: "价格与持仓均无明显变化，资金面中性。" };
+      quad.band = NB;
+      quad.horizon = horizon;
     }
 
     // ---- L1 量 × 价 × 仓：三要素配合结论 ----
@@ -832,7 +906,7 @@
     const flatCnt = chgList.length - nonzero.length;
     const contrib = (p) => `${p.v * p.w > 0 ? "+" : ""}${(p.v * p.w).toFixed(2)}`;
     const scoreRule = "读数 = 50 + 50 × Σ(各维归一化值 × 权重)，裁剪到 0~100；50 为中性，≥58 偏多、≤42 偏空。";
-    pPv.tip = `【价·量·仓配合 · 权重 35%】\n近5日价格 × 总持仓构成四象限：价涨仓增／价跌仓减等按方向给 ±1 或 0，价仓背离时判为平仓驱动、方向偏弱。\n成交量只作确认系数（0.7~1.3）调节强度，不单独产生方向：放量增仓增强，缩量或放量减仓削弱。\n本品种贡献 ${contrib(pPv)}。${scoreRule}`;
+    pPv.tip = `【价·量·仓配合 · 权重 35%】\n近${horizon}日价格 × 总持仓构成四象限：价涨仓增／价跌仓减等按方向给 ±1 或 0，价仓背离时判为平仓驱动、方向偏弱。\n噪音阈值按品种波动率自适应：本品种 价 ±${NB.px.toFixed(2)}% / 仓 ±${NB.oi.toFixed(2)}%（${NZ.regime}，基准 ±0.35% / ±0.8% × ${NZ.ratioPx.toFixed(2)} / ${NZ.ratioOi.toFixed(2)} 倍），超过阈值才算有方向。\n成交量只作确认系数（0.7~1.3）调节强度，不单独产生方向：放量增仓增强，缩量或放量减仓削弱。\n本品种贡献 ${contrib(pPv)}。${scoreRule}`;
     pInst.tip = `【机构净变化 · 权重 25%】\n取前 ${inst.count || 5} 席位（超大户/机构层）当日净变化，除以该层双边持仓 ×2% 归一化到 ±1。\n净变化 = 多头增减 − 空头增减，空头回补也会显示为正，须回 L2 看「变化性质」区分新多进场与被动回补。\n本品种贡献 ${contrib(pInst)}。`;
     pAgree.tip = `【分层一致性 · 权重 20%】\n把四档「当日净变化」只取符号（+ 净多增 / − 净空增），数同向层数、取多数方；只数层数、不比金额，防止单层巨额调仓把「共识」伪装出来。方向取四层净变化合计的正负。\n强度按同向占比折算：4/4 → ±0.20 满额，3/4 → ±0.10，2/4 → 0（弃权，20% 权重不贡献方向）。\n本品种：净多增 ${posCnt} 层 / 净空增 ${negCnt} 层${flatCnt ? ` / 持平 ${flatCnt} 层` : ""}，此维贡献 ${contrib(pAgree)}。\n2/4 对半是常态，意味着各层分歧最大；此时勿把机构层单笔大额变化当成全市场看多/看空，回到 L1 用价·量·仓确认。`;
     pLo.tip = `【大单动向 · 权重 20%】\n取「头部净多增 TOP」与「头部净空增 TOP」两组当日净变化合计，按两组绝对额之和的 55% 归一化到 ±1，衡量头部席位调仓合力。\n与机构净变化可能重叠，用于交叉验证而非独立信号。\n本品种贡献 ${contrib(pLo)}。`;
@@ -861,12 +935,13 @@
       structure: { rows: stRows, concentration, totalGross },
       momentum: { all: memRows, leaders, laggards },
       divergence: { position: posDivergence, change: chgDivergence, widening, instChg, retChg },
+      noise: { profile: NZ, band: NB, horizon, z: zNow },
       score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts, evidence, risks, rule: scoreRule } };
   }
 
   // ⑦ 速读卡片：五维精炼（钱在不在 / 谁在动 / 机构vs散户 / 大单 / 历史回溯）+ 一句话整体判断
   // 口径：净持仓＝当日榜单存量；Δ＝席位当日流量；机构/散户为按净持仓规模推断的代理口径。
-  function capFlowRead(cf) {
+  function capFlowRead(cf, noise) {
     const tp = cf.total_position || {};
     const tiers = cf.tiers || [];
     const iv = cf.institutional_vs_retail || {};
@@ -878,13 +953,15 @@
     const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g,
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     const dir = (v, th) => (v > th ? 1 : v < -th ? -1 : 0);
+    // 资金进出的噪音阈值与 L1 共用同一「持仓波动率倍数」，基准为近 5 日 ±0.3%
+    const oiTh = (h) => noise ? noise.eps(h, 0, 0.3).oi : 0.3 * Math.sqrt(Math.max(1, h) / 5);
 
     // ① 钱在不在：总持仓变动（用相对变化，跨品种可比）
     const latest = num(tp.latest), d1 = num(tp.chg_1d), d5 = num(tp.chg_5d), d20 = num(tp.chg_20d);
     const p5 = latest ? d5 / latest * 100 : 0;
     const p20 = latest ? d20 / latest * 100 : 0;
-    const s1 = dir(latest ? d1 / latest * 100 : 0, 0.15);
-    const s5 = dir(p5, 0.3), s20 = dir(p20, 0.5);
+    const s1 = dir(latest ? d1 / latest * 100 : 0, oiTh(1));
+    const s5 = dir(p5, oiTh(5)), s20 = dir(p20, oiTh(20));
     const money = s5 > 0 ? "资金进场" : s5 < 0 ? "资金撤离" : "存量博弈";
     const moneyNote = s5 === 0 ? "5 日进出基本平衡"
       : `${money}：${s1 === s5 ? "1 日与 5 日同向" : `当日${s5 > 0 ? "回吐" : "回补"}`}`;
@@ -995,6 +1072,7 @@
     const iv = cf.institutional_vs_retail || {};
     const lo = cf.large_orders || {};
     const inst = iv.institutional || {}, ret = iv.retail || {};
+    const NOISE = capFlowNoise((s && s.kline && s.kline.rows) || []);
     const sign = (n) => (n > 0 ? "+" : "") + fmt(n);
     const kpi = (label, val, c, sub, hero) =>
       `<div class="netchg-card ${hero ? "hero" : ""}"><div class="k">${label}</div>
@@ -1020,7 +1098,7 @@
       ? arr.map(m => `<div class="kv"><span class="k">${m.name}</span><span class="v ${valCls(m)}">${(key === "net_chg" ? sign(m.net_chg) : fmt(m[key]))}</span></div>`).join("")
       : '<div class="note">—</div>');
 
-    const rd = capFlowRead(cf);
+    const rd = capFlowRead(cf, NOISE);
     const readRows = rd.rows.map(r => `<div class="cfread-row">
       <div class="n ${r.tone}">${r.no}</div>
       <div class="k"><div class="kh"><b>${r.label}</b>${r.info ? `<span class="cf-i" title="${r.info}">ⓘ</span>` : ""}</div><span>${r.sub}</span></div>
@@ -1039,8 +1117,9 @@
     </div>`;
 
     // ===== 专业资金分析决策面板（L1→L4）=====
-    const A = capFlowAnalytics(s, cf);
+    const A = capFlowAnalytics(s, cf, NOISE);
     const q = A.pv.quad;
+    const NZ = A.noise, NB = NZ.band;
     const barColor = A.score.tone === "up" ? "var(--red)" : A.score.tone === "down" ? "var(--green)" : "var(--amber)";
     const scoreHtml = `<div class="cf-score">
       <div class="cf-score-main">
@@ -1078,16 +1157,31 @@
       </div>
       ${VP.divergence ? `<div class="v-warn">⚠ ${VP.divergence}</div>` : ""}
     </div>`;
+    const NP = NZ.profile;
+    const noiseTip = `农产品波动小、有色/化工波动大，统一阈值会让低波品种把噪音当信号、高波品种把真信号磨平。\n算法：近 60 日主连「日收益率 / 日持仓变化率」的稳健波动率（MAD×1.4826，抗涨跌停与移仓跳空）÷ 全市场基准波动率（价 ${NOISE_REF.px.toFixed(2)}%/日、仓 ${NOISE_REF.oi.toFixed(2)}%/日）得到倍数，裁剪到 ${NOISE_REF.min}~${NOISE_REF.max} 倍；\n噪音带 = 基准（近5日 价 ±0.35% / 仓 ±0.8%）× 倍数 × √(观察周期/5)。\n只有变化超过噪音带才判定「价涨/价跌、仓增/仓减」，否则记为「平」。σ = 当前变化 ÷ 本品种同期波动标准差，绝对值越大信号越强。`;
+    const noiseHtml = `<div class="cf-noise">
+      <div class="cf-noise-h">波动率自适应噪音带<span class="cf-i" title="${noiseTip}">ⓘ</span>
+        <span class="cf-nchip ${NP.regime === "低波" ? "low" : NP.regime === "高波" ? "high" : "mid"}">${NP.regime}品种</span>
+        <em>农产品更严 · 有色/化工更宽</em></div>
+      <div class="cf-noise-grid">
+        <div><span class="k">60日稳健日波动</span><b>价 ${NP.sigmaPx.toFixed(2)}% / 仓 ${NP.sigmaOi.toFixed(2)}%</b></div>
+        <div><span class="k">相对全市场基准</span><b>价 ×${NP.ratioPx.toFixed(2)} / 仓 ×${NP.ratioOi.toFixed(2)}</b></div>
+        <div><span class="k">本品种噪音带 · 近${NZ.horizon}日</span><b>价 ±${NB.px.toFixed(2)}% / 仓 ±${NB.oi.toFixed(2)}%</b></div>
+        <div><span class="k">当前变化 / σ</span><b>价 ${NZ.z.px >= 0 ? "+" : ""}${NZ.z.px.toFixed(2)}σ · 仓 ${NZ.z.oi >= 0 ? "+" : ""}${NZ.z.oi.toFixed(2)}σ</b></div>
+      </div>
+      <div class="cf-noise-note">基准 ±0.35% / ±0.8% 对应「中位波动」品种；本品种按上式自动放缩。超过噪音带才算有方向，否则判为「平」——这就是同一组涨跌幅在低波与高波品种上结论不同的原因。⑥ 全市场清单为避免 41 品种噪音，采用更严格基准 ±0.8% / ±1.0%，<b>波动率倍数与本卡完全相同</b>。</div>
+    </div>`;
     const quadHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L1</span>价 · 量 · 仓配合<em>资金是否真正在推动价格</em></div>
       <div class="cf-quad ${q.bias > 0 ? "pos" : q.bias < 0 ? "neg" : "neu"}">
         <div class="q-name">${q.name}</div><div class="q-desc">${q.desc}</div>
       </div>
+      ${noiseHtml}
       ${volCard}
       <div class="table-wrap"><table class="cf-pv-table"><thead><tr>
         <th>周期</th><th>收盘</th><th>价格变化</th><th>总持仓</th><th>持仓变化</th><th>持仓变化%</th><th>成交量(手)</th><th>量比</th><th>量能状态</th>
       </tr></thead><tbody>${pvRow(A.pv.pv1, "近1日")}${pvRow(A.pv.pv5, "近5日")}${pvRow(A.pv.pv20, "近20日")}</tbody></table></div>
-      <div class="cf-hint">表格量比 = 区间末日成交量 ÷ 该区间内前几日均量（1 / 5 / 20 日各自口径）；量能卡片的量比统一为「当日量 ÷ 前20日均量」。价仓四象限以近 5 日为主判据（噪音阈值：价格 ±0.35%、持仓 ±0.8%）。</div>
+      <div class="cf-hint">表格量比 = 区间末日成交量 ÷ 该区间内前几日均量（1 / 5 / 20 日各自口径）；量能卡片的量比统一为「当日量 ÷ 前20日均量」。价仓四象限以近 ${NZ.horizon} 日为主判据，噪音带已按本品种波动率调整为 价 ±${NB.px.toFixed(2)}% / 仓 ±${NB.oi.toFixed(2)}%（基准 ±0.35% / ±0.8%）；三联图的「价仓背离日」沿用同一噪音带逐日标注，悬停标题 ⓘ 可看完整算法。</div>
       <div class="cf-chart-h"><span>价 · 量 · 仓 三联图（近 60 交易日）</span><em>上格 收盘价×总持仓双轴 · 下格 成交量与 VMA5/VMA20</em></div>
       <div id="chCapFlowPriceOi" class="chart" style="height:300px;margin-top:4px"></div>
       <div class="cf-hint">成交量柱按当日涨跌红 / 绿着色，白边为显著放量（≥1.5×）；VMA5 高于 VMA20 表示近期资金关注度升温。三要素读法：<b>放量+增仓 = 增量资金进场</b>（趋势最可靠）、<b>放量+减仓 = 集中平仓/回补</b>（加速或尾声）、<b>缩量+增仓 = 轻仓试探</b>（待确认）、<b>缩量+减仓 = 离场尾声</b>（动能衰竭）。上下两格可同步缩放，悬停查看当日价·量·仓读数。</div>
@@ -1456,8 +1550,12 @@
     if (s.basis && s.basis.main_close != null && s.basis.sub_close != null) Charts.basisSpread($("#chBasis"), s.basis);
     if (s.capital_flow && s.capital_flow.available) {
       // 专业框架 L1：价 · 量 · 仓 三联图（上格价×仓，下格成交量与均量线）
-      if (s.kline && s.kline.rows && s.kline.rows.length > 5)
-        Charts.priceVolumeOi($("#chCapFlowPriceOi"), s.kline.rows);
+      // 背离日标记沿用 L1 四象限的同一条「波动率自适应噪音带」
+      if (s.kline && s.kline.rows && s.kline.rows.length > 5) {
+        const nb = capFlowNoise(s.kline.rows).eps(5, 0.35, 0.8);
+        Charts.priceVolumeOi($("#chCapFlowPriceOi"), s.kline.rows,
+          { pxEps: nb.px, oiEps: nb.oi });
+      }
       // 专业框架 L3：主力席位净变化横条（主动进攻 / 回补离场分色）
       if (s.capital_flow.top_members && s.capital_flow.top_members.length)
         Charts.memberMomentum($("#chCapFlowMomentum"), s.capital_flow.top_members);
