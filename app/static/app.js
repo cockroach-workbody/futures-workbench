@@ -506,9 +506,9 @@
     return card("⑥ 资金面总览", "Capital", "span8", body, c.bias);
   }
 
-  // ===== ⑥· 全市场资金背离预警（紧跟「⑥ 资金面总览」）=====
+  // ===== ⑥· 全市场资金背离预警（细分预警 + 全市场资金结构清单）=====
   // 上：当前品种机构 / 散户背离的细分预警（分歧加大标红、一般背离标琥珀）
-  // 下：全市场背离品种清单，异步加载 /api/market_divergence，失败不影响其它模块
+  // 下：全市场清单（分歧 + 无分歧 + 无分层），异步加载，失败不影响其它模块
   function cardCapitalAlert(s) {
     const cf = s.capital_flow || {};
     const iv = cf.institutional_vs_retail || {};
@@ -530,41 +530,92 @@
     } else if (opp) {
       alertHtml = `<div class="alert-banner warn"><div class="ic">⚠</div><div><span class="ttl">当前品种 · ${type} 背离</span><br>${nums}；大资金与散户方向相反，属典型分歧结构，但当日价差未继续扩大。需结合价格与总持仓放量确认方向，勿单独据此开仓。</div></div>`;
     } else {
-      alertHtml = `<div class="div-alert none">当前品种机构与散户净持仓同向或未明显反向，未触发背离预警。</div>`;
+      alertHtml = `<div class="div-alert none">当前品种机构与散户净持仓同向或未明显反向，未触发背离预警；是否为趋势行情，请看下方清单的「价 × 仓」确认。</div>`;
     }
     const body = `
       <div class="div-h"><span class="no">当前品种预警</span><em>机构 / 散户净持仓反向即触发，「分歧加大」标红</em></div>
       ${alertHtml}
-      <div class="div-h"><span class="no">全市场背离品种清单</span><em>点击任意行跳转该品种资金动向</em></div>
+      <div class="div-h"><span class="no">全市场资金结构清单</span><em>全部品种 · 点击任意行跳转该品种资金动向</em></div>
+      <div class="div-guide"><b>无分歧 ≠ 预期一致 ≠ 趋势行情</b>：净持仓是当日榜单存量，不是当日资金流向；同向也可能是「结构不明」或「多头拥挤」。须用<b>价 × 仓</b>确认 —— 价涨仓增＝增量资金推动（趋势确认）；<span class="risky">价涨仓减＝空头回补 / 存量离场驱动（需警惕回落）</span>；价跌仓增＝新空进场（跌势延续）；价跌仓减＝多头离场（跌势尾声）。</div>
       <div id="divListBox"><div class="note">清单加载中…</div></div>
-      <div class="cf-foot">口径：机构 = 前 ${n(inst.count) || 5} 大净持仓席位、散户 = 其余席位，交易所不披露客户属性，仅作力量推断；「分歧加大」= 机构与散户净持仓价差当日继续扩大。清单按分歧加大优先、反向力量合计降序排列。</div>`;
+      <div class="cf-foot">口径：机构 = 前 ${n(inst.count) || 5} 大净持仓席位、散户 = 其余席位（交易所不披露客户属性，仅作力量推断）；净占比低于 3% 判「方向不明」，不计入共识。价 / 仓为近 5 日主连序列，噪音阈值 ±0.8% / ±1.0%；5 日持仓变动超 15% 须先排除移仓换月。清单按「分歧加大 → 背离 → 需警惕回落 → 其它」排序，悬停任一行可看完整解读。</div>`;
     return card("全市场资金背离预警", "Divergence · 全市场", "span12", body, null, "cardCapitalAlert");
   }
 
+  // 清单筛选：全部 / 仅分歧 / 无分歧 / 需警惕回落（跨分组）
+  function applyDivFilter(f) {
+    const box = $("#divListBox");
+    if (!box) return;
+    box.querySelectorAll(".div-fbtn").forEach(b => b.classList.toggle("on", b.dataset.f === f));
+    box.querySelectorAll(".divrow").forEach(el => {
+      const g = el.dataset.group, risk = el.dataset.risk;
+      const show = f === "all" || (f === "div" && g === "div") ||
+        (f === "ali" && g === "ali") || (f === "caution" && risk === "caution");
+      el.style.display = show ? "" : "none";
+    });
+    box.querySelectorAll(".div-sec").forEach(sec => {
+      const any = Array.from(sec.querySelectorAll(".divrow")).some(el => el.style.display !== "none");
+      sec.style.display = any ? "" : "none";
+    });
+  }
+
   function renderDivergenceList(div) {
-    if (!div || !Array.isArray(div.divergences))
-      return `<div class="note">清单数据格式异常，刷新页面可重试；不影响上方各模块。</div>`;
-    const rows = div.divergences;
+    if (!div) return `<div class="note">清单数据格式异常，刷新页面可重试；不影响上方各模块。</div>`;
+    // 兼容旧接口：仅有 divergences 时退化为只显示分歧品种
+    const all = Array.isArray(div.all) ? div.all
+      : (Array.isArray(div.divergences) ? div.divergences : null);
+    if (!all) return `<div class="note">清单数据格式异常，刷新页面可重试；不影响上方各模块。</div>`;
     const n = (v) => Number(v) || 0;
     const sgn = (v) => (v > 0 ? "+" : "") + fmt(v);
+    const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g,
+      c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const noDiv = n(div.aligned_count) + n(div.neutral_count);
     const head = `<div class="div-summary">
-      <span>共 <b>${div.count || 0}</b> 个分歧品种</span>
-      <span class="danger">分歧加大 <b>${div.danger_count || 0}</b> 个</span>
-      <span>覆盖 <b>${div.covered || 0}</b> 个有资金数据品种</span>
-      <span class="muted">数据截至 ${fmtDate(div.as_of)}</span></div>`;
-    if (!rows.length) return head + `<div class="note">当前无机构与散户净持仓反向（背离）的品种。</div>`;
-    const list = rows.map(r => {
-      const lvl = r.level === "danger" ? "danger" : "warn";
-      const cur = r.code === curProd ? " cur" : "";
-      return `<div class="divrow ${lvl}${cur}" data-code="${r.code}" title="点击查看 ${r.name} 资金动向">
-        <div class="c-prod"><b>${r.name}</b><span class="c-code">${r.code}</span><span class="c-mc">${r.main_contract || ""}</span></div>
-        <div class="c-dir ${lvl}">${r.direction}<span class="chip ${lvl}">${r.widening ? "分歧加大" : "背离"}</span></div>
-        <div class="c-num"><span class="${cls(n(r.inst_net))}">机构 ${sgn(n(r.inst_net))}</span><br><span class="muted">Δ ${sgn(n(r.inst_chg))}</span></div>
-        <div class="c-num"><span class="${cls(n(r.ret_net))}">散户 ${sgn(n(r.ret_net))}</span><br><span class="muted">Δ ${sgn(n(r.ret_chg))}</span></div>
-        <div class="c-num muted">总持仓5日<br>${sgn(n(r.chg_5d))}</div>
+      <span>全市场 <b>${n(div.total) || all.length}</b> 品种</span>
+      <span>有资金数据 <b>${n(div.covered)}</b></span>
+      <span class="danger">分歧 <b>${n(div.count)}</b>（加大 ${n(div.danger_count)}）</span>
+      <span>无分歧 <b>${noDiv}</b> <span class="muted">${n(div.aligned_count)} 一致 / ${n(div.neutral_count)} 不明</span></span>
+      <span class="risky">需警惕回落 <b>${n(div.caution_count)}</b></span>
+      <span>无分层 <b>${n(div.nodata_count)}</b></span>
+      <span class="muted">数据截至 ${fmtDate(div.as_of)}</span></div>
+      <div class="div-filters">
+        <button type="button" class="div-fbtn on" data-f="all">全部</button>
+        <button type="button" class="div-fbtn" data-f="div">仅分歧</button>
+        <button type="button" class="div-fbtn" data-f="ali">无分歧</button>
+        <button type="button" class="div-fbtn" data-f="caution">⚠ 需警惕回落</button>
       </div>`;
-    }).join("");
-    return head + `<div class="divlist">${list}</div>`;
+
+    const rowHtml = (r) => {
+      const stance = r.stance || (r.available === false ? "nodata" : "divergence");
+      const lvl = r.level || "none";
+      const cur = r.code === curProd ? " cur" : "";
+      const grp = stance === "divergence" ? "div" : stance === "nodata" ? "nodata" : "ali";
+      const risk = r.risk || "none";
+      let dirChip;
+      if (stance === "divergence") dirChip = `<span class="chip ${lvl === "danger" ? "danger" : "warn"}">${r.widening ? "分歧加大" : "背离"}</span>`;
+      else if (stance === "nodata") dirChip = `<span class="chip none">无分层</span>`;
+      else if (stance === "aligned_long") dirChip = `<span class="chip pos">一致净多</span>`;
+      else if (stance === "aligned_short") dirChip = `<span class="chip neg">一致净空</span>`;
+      else dirChip = `<span class="chip none">结构不明</span>`;
+      const dirTone = (lvl === "danger" || lvl === "warn") ? lvl : "";
+      return `<div class="divrow ${lvl}${cur}" data-code="${esc(r.code)}" data-group="${grp}" data-risk="${esc(risk)}" title="${esc(r.note)}">
+        <div class="c-prod"><b>${esc(r.name)}</b><span class="c-code">${esc(r.code)}</span><span class="c-mc">${esc(r.main_contract)}</span></div>
+        <div class="c-dir ${dirTone}">${esc(r.direction)}${dirChip}</div>
+        <div class="c-num"><span class="${cls(n(r.inst_net))}">机构 ${sgn(n(r.inst_net))}</span><span class="muted"> ${n(r.inst_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.inst_chg))}</span></div>
+        <div class="c-num"><span class="${cls(n(r.ret_net))}">散户 ${sgn(n(r.ret_net))}</span><span class="muted"> ${n(r.ret_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.ret_chg))}</span></div>
+        <div class="c-pq"><b>${esc(r.pq || "—")}</b><br><span class="muted">5日价 <span class="${cls(n(r.px_5d))}">${pct(n(r.px_5d))}</span> · 仓 <span class="${cls(n(r.oi_5d_pct))}">${pct(n(r.oi_5d_pct))}</span></span></div>
+        <div class="c-flag"><span class="chip f-${esc(risk)}">${esc(r.flag || "—")}</span></div>
+      </div>`;
+    };
+    const groups = [
+      { key: "div", title: "① 机构 / 散户分歧", hint: "净持仓反向，多空对峙", rows: all.filter(r => (r.stance || "divergence") === "divergence") },
+      { key: "ali", title: "② 无分歧：方向一致或结构不明", hint: "一致 ≠ 趋势行情，看右侧价仓确认", rows: all.filter(r => { const st = r.stance || "divergence"; return st !== "divergence" && st !== "nodata"; }) },
+      { key: "nodata", title: "③ 暂无会员持仓排名", hint: "仅有价量仓，无法判断机构 / 散户结构", rows: all.filter(r => r.stance === "nodata") },
+    ];
+    const body = groups.map(g => g.rows.length ? `<div class="div-sec" data-sec="${g.key}">
+      <div class="div-sec-h"><b>${g.title}</b><span>${g.rows.length} 个</span><em>${g.hint}</em></div>
+      ${g.rows.map(rowHtml).join("")}</div>` : "").join("");
+    return head + (body ? `<div class="divlist">${body}</div>` : `<div class="note">当前无可用品种数据。</div>`);
   }
 
   // 清单独立异步填充：带 8s 超时，任何失败都只影响这一块，不阻塞整页
@@ -589,6 +640,9 @@
     box.innerHTML = renderDivergenceList(div);
     box.querySelectorAll(".divrow").forEach(el => {
       el.onclick = () => gotoProduct(el.dataset.code, "capital");
+    });
+    box.querySelectorAll(".div-fbtn").forEach(b => {
+      b.onclick = () => applyDivFilter(b.dataset.f);
     });
   }
 

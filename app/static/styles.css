@@ -193,9 +193,28 @@ tbody tr:hover{background:var(--panel2)}
   background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 11px;margin-bottom:8px}
 .div-summary b{font-size:13px;color:var(--amber)}
 .div-summary .danger,.div-summary .danger b{color:#ff8b82}
+.div-summary .risky,.div-summary .risky b{color:#ffb27a;font-weight:700}
 .div-summary .muted{color:var(--muted)}
-.divlist{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto;padding-right:4px}
-.divrow{display:grid;grid-template-columns:1.5fr 1.7fr 1fr 1fr .9fr;align-items:center;gap:8px;
+/* 读法说明：无分歧不等于趋势行情 */
+.div-guide{font-size:11.5px;line-height:1.8;color:var(--muted);background:var(--panel2);
+  border:1px dashed var(--line);border-radius:8px;padding:8px 11px;margin:0 0 9px}
+.div-guide b{color:var(--text)}
+.div-guide .risky{color:#ffb27a;font-weight:700}
+/* 筛选按钮 */
+.div-filters{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
+.div-fbtn{font-size:11px;padding:4px 10px;border-radius:14px;cursor:pointer;
+  background:var(--panel2);border:1px solid var(--line);color:var(--muted);transition:border-color .15s,color .15s}
+.div-fbtn:hover{border-color:var(--accent);color:var(--text)}
+.div-fbtn.on{background:rgba(61,126,255,.16);border-color:rgba(61,126,255,.55);color:var(--text);font-weight:800}
+.divlist{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow-y:auto;padding-right:4px}
+.div-sec{display:flex;flex-direction:column;gap:6px}
+.div-sec + .div-sec{margin-top:10px}
+.div-sec-h{position:sticky;top:0;z-index:2;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 9px}
+.div-sec-h b{font-size:11.5px;color:var(--text)}
+.div-sec-h span{font-size:10px;color:var(--accent);font-weight:800}
+.div-sec-h em{font-size:10px;font-style:normal;color:var(--muted)}
+.divrow{display:grid;grid-template-columns:1.35fr 1.5fr .95fr .95fr 1.05fr .85fr;align-items:center;gap:8px;
   padding:8px 12px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);
   cursor:pointer;transition:border-color .15s,background .15s}
 .divrow:hover{border-color:var(--accent);background:rgba(61,126,255,.06)}
@@ -212,8 +231,17 @@ tbody tr:hover{background:var(--panel2)}
 .divrow .chip{font-size:10px;font-weight:800;padding:1px 7px;border-radius:8px;white-space:nowrap}
 .divrow .chip.danger{background:rgba(232,72,63,.2);color:#ff8b82}
 .divrow .chip.warn{background:rgba(224,168,58,.2);color:#f0c268}
+.divrow .chip.pos{background:rgba(232,72,63,.16);color:#ff9a91}
+.divrow .chip.neg,.divrow .chip.f-bear{background:rgba(46,190,120,.16);color:#6fd8a0}
+.divrow .chip.none,.divrow .chip.f-none,.divrow .chip.f-fade{background:rgba(140,155,175,.14);color:#9aa8b8}
+.divrow .chip.f-caution{background:rgba(240,140,70,.2);color:#ffb27a}
+.divrow .chip.f-trend{background:rgba(61,126,255,.18);color:#8fb6ff}
+.divlist .divrow[data-risk="caution"]{box-shadow:inset 3px 0 0 rgba(240,140,70,.85)}
 .divrow .c-num{font-size:12px;line-height:1.5}
 .divrow .c-num .muted{color:var(--muted);font-size:11px}
+.divrow .c-pq{font-size:11px;line-height:1.55}
+.divrow .c-pq b{font-size:12px;color:var(--text)}
+.divrow .c-flag{display:flex;align-items:center}
 
 /* ---------- ⑦ 专业资金分析框架（L1→L4） ---------- */
 .cf-panel{margin:0 0 14px;border:1px solid var(--line);border-radius:12px;
@@ -426,11 +454,18 @@ tbody tr:hover{background:var(--panel2)}
   .cf-vol .v-grid .v{font-size:14px}
   .cf-legend-grid{grid-template-columns:1fr}
   .cf-lrow > span:last-child{white-space:normal}
-  /* ⑥· 全市场背离清单移动端 */
-  .divrow{grid-template-columns:1fr 1fr;gap:4px 10px}
+  /* ⑥· 全市场资金结构清单移动端 */
+  .divrow{grid-template-columns:1fr 1fr;gap:4px 10px;padding:8px 10px}
   .divrow .c-dir{grid-column:1 / -1}
+  .divrow .c-pq{font-size:10.5px}
+  .divrow .c-flag{justify-content:flex-start}
   .divlist{max-height:360px}
   .div-summary{gap:8px 12px}
+  .div-guide{font-size:11px;padding:7px 9px}
+  .div-filters{gap:5px}
+  .div-fbtn{font-size:10.5px;padding:3px 8px}
+  .div-sec-h{gap:6px}
+  .div-sec-h em{display:none}
   #chCapFlowPriceOi{height:270px !important}
   #chCapFlowMomentum{height:210px !important}
 }

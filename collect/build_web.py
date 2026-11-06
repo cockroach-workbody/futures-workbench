@@ -27,6 +27,9 @@ CHANLUN_PATH = os.environ.get("WB_CHANLUN_PATH") or (
 # 动态快照日期：与 build_all.py 保持一致（最新已收盘交易日），支撑每日自动刷新。
 from wb_common import snap_date as _snap_date
 SNAP_DATE = _snap_date()
+# 与后端 /api/market_divergence 共用同一份计算口径
+sys.path.insert(0, os.path.join(BASE, "app"))
+from market_view import compute_market_view  # noqa: E402
 
 WEB_DIR = os.path.join(BASE, "web")
 DIST_DIR = os.path.join(BASE, "dist")
@@ -101,6 +104,7 @@ def build_web_dir(slim_map, cats):
     # 代码
     os.makedirs(os.path.join(WEB_DIR, "app"), exist_ok=True)
     shutil.copy2(os.path.join(BASE, "app", "main.py"), os.path.join(WEB_DIR, "app", "main.py"))
+    shutil.copy2(os.path.join(BASE, "app", "market_view.py"), os.path.join(WEB_DIR, "app", "market_view.py"))
     shutil.copytree(os.path.join(BASE, "app", "static"), os.path.join(WEB_DIR, "app", "static"))
     shutil.copytree(os.path.join(BASE, "app", "config"), os.path.join(WEB_DIR, "app", "config"))
     # 数据（紧凑）
@@ -151,7 +155,7 @@ def build_single_html(slim_map, cats, sentiment, divergence):
   function resolve(path){
     if (path === "/api/categories") return D.categories;
     if (path === "/api/sentiment_summary") return D.sentiment;
-    if (path === "/api/market_divergence") return D.divergence || {count:0,danger_count:0,covered:0,divergences:[]};
+    if (path === "/api/market_divergence") return D.divergence || {total:0,count:0,danger_count:0,covered:0,aligned_count:0,neutral_count:0,caution_count:0,nodata_count:0,all:[],divergences:[]};
     var m = path.match(/^\/api\/snapshot\/([^/]+)\/([^/?]+)/);
     if (m) {
       var k = decodeURIComponent(m[1]) + "/" + decodeURIComponent(m[2]);
@@ -200,50 +204,14 @@ def build_single_html(slim_map, cats, sentiment, divergence):
 
 # ---------------------------------------------------------------- 全市场资金背离
 def compute_divergence(cats, slim_map):
-    """与 app/main.py 的 /api/market_divergence 同口径，供离线单文件内嵌。"""
-    def i(v):
-        try:
-            return int(v or 0)
-        except (TypeError, ValueError):
-            return 0
-
-    as_of_set, rows, covered = set(), [], 0
-    for c in cats["categories"]:
-        cname = c["name"]
-        for p in c["products"]:
-            code, name = p["code"], p.get("name", "")
-            snap = slim_map.get((cname, code)) or {}
-            cf = snap.get("capital_flow") or {}
-            if not cf.get("available"):
-                continue
-            covered += 1
-            if cf.get("as_of"):
-                as_of_set.add(cf["as_of"])
-            iv = cf.get("institutional_vs_retail") or {}
-            inst, ret = iv.get("institutional") or {}, iv.get("retail") or {}
-            inst_net, inst_chg = i(inst.get("net")), i(inst.get("net_chg"))
-            ret_net, ret_chg = i(ret.get("net")), i(ret.get("net_chg"))
-            if not ((inst_net > 0 and ret_net < 0) or (inst_net < 0 and ret_net > 0)):
-                continue
-            magnitude = abs(inst_net) + abs(ret_net)
-            gap_chg = inst_chg - ret_chg
-            widening = (inst_net > 0 and gap_chg > 0) or (inst_net < 0 and gap_chg < 0)
-            tp = cf.get("total_position") or {}
-            rows.append({
-                "code": code, "name": name, "category": cname,
-                "main_contract": cf.get("main_contract") or cf.get("contract") or "",
-                "direction": "机构净多 / 散户净空" if inst_net > 0 else "机构净空 / 散户净多",
-                "level": "danger" if widening else "warn", "widening": widening,
-                "inst_net": inst_net, "inst_chg": inst_chg,
-                "ret_net": ret_net, "ret_chg": ret_chg,
-                "total_position": i(tp.get("latest")), "chg_5d": i(tp.get("chg_5d")),
-                "magnitude": magnitude,
-            })
-    rows.sort(key=lambda x: (0 if x["widening"] else 1, -x["magnitude"]))
-    return {"as_of": sorted(as_of_set)[-1] if as_of_set else SNAP_DATE,
-            "count": len(rows),
-            "danger_count": sum(1 for r in rows if r["level"] == "danger"),
-            "covered": covered, "divergences": rows}
+    """全市场资金结构清单；调用 app/market_view.py，与后端接口 100% 同口径。"""
+    def items():
+        for c in cats["categories"]:
+            cname = c["name"]
+            for p in c["products"]:
+                yield {"code": p["code"], "name": p.get("name", ""),
+                       "category": cname, "snap": slim_map.get((cname, p["code"]))}
+    return compute_market_view(items(), default_as_of=SNAP_DATE)
 
 
 # ---------------------------------------------------------------- 情绪汇总
