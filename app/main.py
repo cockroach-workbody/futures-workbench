@@ -9,6 +9,7 @@
   GET /static/<file>           静态资源
   GET /api/categories          板块与品种清单
   GET /api/snapshot/<cat>/<prod>?date=YYYY-MM-DD   读取最新/指定日期快照
+  GET /api/market_divergence     全市场机构/散户资金背离品种清单
   GET /api/recompute/<cat>/<prod>                  重新计算（RB 重跑构建器）
 """
 import json
@@ -142,6 +143,87 @@ def _compute_sentiment_summary():
             "top_bullish": top_bullish, "top_bearish": top_bearish}
 
 
+# ---------------------------------------------------------------------------
+# 全市场资金背离清单：扫描所有接入 capital_flow 的品种，找出「机构与散户反向」的分歧品种。
+# 代理口径：机构 = 前 N 大净持仓席位，散户 = 其余（交易所不披露客户属性，仅作力量推断）。
+# ---------------------------------------------------------------------------
+_DIV_CACHE = {"sig": None, "data": None}
+
+
+def _i(v):
+    try:
+        return int(v or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def build_market_divergence():
+    """扫描全市场机构/散户净持仓反向（背离）品种，生成清单（带缓存）。"""
+    sig = _data_signature()
+    if _DIV_CACHE["sig"] == sig and _DIV_CACHE["data"] is not None:
+        return _DIV_CACHE["data"]
+    data = _compute_market_divergence()
+    _DIV_CACHE["sig"] = sig
+    _DIV_CACHE["data"] = data
+    return data
+
+
+def _compute_market_divergence():
+    cats = load_categories()
+    as_of_set, cf_as_of_set = set(), set()
+    rows, covered = [], 0
+    for c in cats.get("categories", []):
+        cname = c["name"]
+        for p in c.get("products", []):
+            code, name = p["code"], p.get("name", "")
+            snap, _fn = find_snapshot(cname, code)
+            if not snap:
+                continue
+            if snap.get("as_of"):
+                as_of_set.add(snap["as_of"])
+            cf = snap.get("capital_flow") or {}
+            if not cf.get("available"):
+                continue
+            covered += 1
+            if cf.get("as_of"):
+                cf_as_of_set.add(cf["as_of"])
+            iv = cf.get("institutional_vs_retail") or {}
+            inst, ret = iv.get("institutional") or {}, iv.get("retail") or {}
+            inst_net, inst_chg = _i(inst.get("net")), _i(inst.get("net_chg"))
+            ret_net, ret_chg = _i(ret.get("net")), _i(ret.get("net_chg"))
+            # 反向（分歧）判定：机构与散户净持仓方向相反
+            if not ((inst_net > 0 and ret_net < 0) or (inst_net < 0 and ret_net > 0)):
+                continue
+            # 分歧强度 = 两方反向绝对力量的合计；分歧加大 = 价差幅度当日继续扩大
+            magnitude = abs(inst_net) + abs(ret_net)
+            gap_chg = inst_chg - ret_chg
+            widening = (inst_net > 0 and gap_chg > 0) or (inst_net < 0 and gap_chg < 0)
+            direction = "机构净多 / 散户净空" if inst_net > 0 else "机构净空 / 散户净多"
+            tp = cf.get("total_position") or {}
+            rows.append({
+                "code": code, "name": name, "category": cname,
+                "main_contract": cf.get("main_contract") or cf.get("contract") or "",
+                "direction": direction,
+                "level": "danger" if widening else "warn",
+                "widening": widening,
+                "inst_net": inst_net, "inst_chg": inst_chg,
+                "ret_net": ret_net, "ret_chg": ret_chg,
+                "total_position": _i(tp.get("latest")),
+                "chg_5d": _i(tp.get("chg_5d")),
+                "magnitude": magnitude,
+            })
+    # 排序：分歧加大优先，再按反向力量合计降序
+    rows.sort(key=lambda x: (0 if x["widening"] else 1, -x["magnitude"]))
+    return {
+        "as_of": (sorted(cf_as_of_set)[-1] if cf_as_of_set else
+                  (sorted(as_of_set)[-1] if as_of_set else "")),
+        "count": len(rows),
+        "danger_count": sum(1 for r in rows if r["level"] == "danger"),
+        "covered": covered,
+        "divergences": rows,
+    }
+
+
 class Handler(BaseHTTPRequestHandler):
     def _send(self, code, body, ctype="application/json; charset=utf-8"):
         if isinstance(body, (dict, list)):
@@ -188,6 +270,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         if path == "/api/sentiment_summary":
             self._send(200, build_sentiment_summary())
+            return
+        if path == "/api/market_divergence":
+            self._send(200, build_market_divergence())
             return
         if path == "/api/refresh_status":
             self._send(200, read_refresh_status())

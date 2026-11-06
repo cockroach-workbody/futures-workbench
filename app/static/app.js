@@ -19,6 +19,7 @@
   let OP_FILTER = 15;         // 时效窗口（天），0 = 全部
   let OP_EXPANDED = false;    // 观点列表是否展开
   let scrollToOpinion = false; // 从情绪榜点选品种后，自动定位到该品种的机构观点
+  let scrollToCapital = false; // 从全市场背离清单点选品种后，定位到资金背离预警模块
 
   // ---- 刷新状态/时间：注入到「数据日期」展示（在线网页任意设备可见）----
   let dataDateBase = "";
@@ -144,11 +145,16 @@
     SENT = sent;
     d.innerHTML = [
       cardOverview(s), cardSupplyDemand(s), cardInventory(s), cardBasis(s), cardProfit(s),
-      cardCapital(s), cardTop20(s), cardChanlun(s),
+      cardCapital(s), cardCapitalAlert(s), cardTop20(s), cardChanlun(s),
       cardSentimentSummary(sent), cardOpinion(s),
     ].join("");
     initCharts(s, sent);
-    if (scrollToOpinion) {
+    loadMarketDivergence();   // 独立异步填充，不阻塞主仪表盘渲染
+    if (scrollToCapital) {
+      scrollToCapital = false;
+      const el = document.getElementById("cardCapitalAlert");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (scrollToOpinion) {
       scrollToOpinion = false;
       const el = document.getElementById("cardOpinion");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -198,7 +204,8 @@
   }
 
   // 跳转到指定品种详情（切换板块 + 选中品种 + 重载）
-  function gotoProduct(code) {
+  // target: "opinion"（默认，定位机构观点）| "capital"（定位资金背离预警）
+  function gotoProduct(code, target) {
     if (!CATS) return;
     const cat = CATS.categories.find(c => c.products.some(p => p.code === code));
     if (!cat) return;
@@ -214,7 +221,8 @@
     });
     sel.onchange = () => { curProd = sel.value; loadProduct(); };
     curProd = code;
-    scrollToOpinion = true;   // 跳转后直接定位到该品种的机构观点（含日期与时效）
+    scrollToOpinion = target !== "capital";   // 跳转后直接定位到该品种的机构观点（含日期与时效）
+    scrollToCapital = target === "capital";
     loadProduct();
   }
 
@@ -496,6 +504,92 @@
       <div class="kv"><span class="k">多空比</span><span class="v">${fmt(c.long_short_ratio, 3)}</span></div>
       <div class="note" style="margin-top:6px">${c.note || ""}</div>`;
     return card("⑥ 资金面总览", "Capital", "span8", body, c.bias);
+  }
+
+  // ===== ⑥· 全市场资金背离预警（紧跟「⑥ 资金面总览」）=====
+  // 上：当前品种机构 / 散户背离的细分预警（分歧加大标红、一般背离标琥珀）
+  // 下：全市场背离品种清单，异步加载 /api/market_divergence，失败不影响其它模块
+  function cardCapitalAlert(s) {
+    const cf = s.capital_flow || {};
+    const iv = cf.institutional_vs_retail || {};
+    const inst = iv.institutional || {}, ret = iv.retail || {};
+    const n = (v) => Number(v) || 0;
+    const sgn = (v) => (v > 0 ? "+" : "") + fmt(v);
+    const instNet = n(inst.net), retNet = n(ret.net);
+    const instChg = n(inst.net_chg), retChg = n(ret.net_chg);
+    const opp = (instNet > 0 && retNet < 0) || (instNet < 0 && retNet > 0);
+    const gapChg = instChg - retChg;
+    const widening = opp && ((instNet > 0 && gapChg > 0) || (instNet < 0 && gapChg < 0));
+    const type = instNet > 0 ? "机构净多 / 散户净空" : "机构净空 / 散户净多";
+    const nums = `机构净持仓 <b>${sgn(instNet)}</b> 手（当日 Δ ${sgn(instChg)}），散户 <b>${sgn(retNet)}</b> 手（当日 Δ ${sgn(retChg)}）`;
+    let alertHtml;
+    if (!cf.available) {
+      alertHtml = `<div class="div-alert none">该品种暂无资金分层数据，无法判断机构 / 散户背离。</div>`;
+    } else if (widening) {
+      alertHtml = `<div class="alert-banner danger"><div class="ic">⚠</div><div><span class="ttl">当前品种 · ${type}（分歧加大）</span><br>${nums}；机构与散户价差当日继续扩大，属高确定性分歧——常见于底部蓄势 / 顶部派发的关键阶段，务必结合价格与总持仓放量确认拐点，切勿逆势盲动。</div></div>`;
+    } else if (opp) {
+      alertHtml = `<div class="alert-banner warn"><div class="ic">⚠</div><div><span class="ttl">当前品种 · ${type} 背离</span><br>${nums}；大资金与散户方向相反，属典型分歧结构，但当日价差未继续扩大。需结合价格与总持仓放量确认方向，勿单独据此开仓。</div></div>`;
+    } else {
+      alertHtml = `<div class="div-alert none">当前品种机构与散户净持仓同向或未明显反向，未触发背离预警。</div>`;
+    }
+    const body = `
+      <div class="div-h"><span class="no">当前品种预警</span><em>机构 / 散户净持仓反向即触发，「分歧加大」标红</em></div>
+      ${alertHtml}
+      <div class="div-h"><span class="no">全市场背离品种清单</span><em>点击任意行跳转该品种资金动向</em></div>
+      <div id="divListBox"><div class="note">清单加载中…</div></div>
+      <div class="cf-foot">口径：机构 = 前 ${n(inst.count) || 5} 大净持仓席位、散户 = 其余席位，交易所不披露客户属性，仅作力量推断；「分歧加大」= 机构与散户净持仓价差当日继续扩大。清单按分歧加大优先、反向力量合计降序排列。</div>`;
+    return card("全市场资金背离预警", "Divergence · 全市场", "span12", body, null, "cardCapitalAlert");
+  }
+
+  function renderDivergenceList(div) {
+    if (!div || !Array.isArray(div.divergences))
+      return `<div class="note">清单数据格式异常，刷新页面可重试；不影响上方各模块。</div>`;
+    const rows = div.divergences;
+    const n = (v) => Number(v) || 0;
+    const sgn = (v) => (v > 0 ? "+" : "") + fmt(v);
+    const head = `<div class="div-summary">
+      <span>共 <b>${div.count || 0}</b> 个分歧品种</span>
+      <span class="danger">分歧加大 <b>${div.danger_count || 0}</b> 个</span>
+      <span>覆盖 <b>${div.covered || 0}</b> 个有资金数据品种</span>
+      <span class="muted">数据截至 ${fmtDate(div.as_of)}</span></div>`;
+    if (!rows.length) return head + `<div class="note">当前无机构与散户净持仓反向（背离）的品种。</div>`;
+    const list = rows.map(r => {
+      const lvl = r.level === "danger" ? "danger" : "warn";
+      const cur = r.code === curProd ? " cur" : "";
+      return `<div class="divrow ${lvl}${cur}" data-code="${r.code}" title="点击查看 ${r.name} 资金动向">
+        <div class="c-prod"><b>${r.name}</b><span class="c-code">${r.code}</span><span class="c-mc">${r.main_contract || ""}</span></div>
+        <div class="c-dir ${lvl}">${r.direction}<span class="chip ${lvl}">${r.widening ? "分歧加大" : "背离"}</span></div>
+        <div class="c-num"><span class="${cls(n(r.inst_net))}">机构 ${sgn(n(r.inst_net))}</span><br><span class="muted">Δ ${sgn(n(r.inst_chg))}</span></div>
+        <div class="c-num"><span class="${cls(n(r.ret_net))}">散户 ${sgn(n(r.ret_net))}</span><br><span class="muted">Δ ${sgn(n(r.ret_chg))}</span></div>
+        <div class="c-num muted">总持仓5日<br>${sgn(n(r.chg_5d))}</div>
+      </div>`;
+    }).join("");
+    return head + `<div class="divlist">${list}</div>`;
+  }
+
+  // 清单独立异步填充：带 8s 超时，任何失败都只影响这一块，不阻塞整页
+  async function loadMarketDivergence() {
+    const box = $("#divListBox");
+    if (!box) return;
+    let div = null;
+    try {
+      const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      const timer = ctl ? setTimeout(() => ctl.abort(), 8000) : null;
+      let resp;
+      try {
+        resp = await fetch("/api/market_divergence", ctl ? { signal: ctl.signal } : undefined);
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+      div = await resp.json();
+    } catch (e) {
+      box.innerHTML = `<div class="note">清单暂不可用（接口未响应或超时），刷新页面可重试；不影响上方各模块。</div>`;
+      return;
+    }
+    box.innerHTML = renderDivergenceList(div);
+    box.querySelectorAll(".divrow").forEach(el => {
+      el.onclick = () => gotoProduct(el.dataset.code, "capital");
+    });
   }
 
   // ===== ⑦ 专业资金分析框架 · 计算层 =====
