@@ -75,9 +75,9 @@
     $("#btnWind").onclick = () => alert("Wind Alice 三技能（商品日报 / 研报观点 / 量化评分）需在 WorkBuddy 会话内运行并落盘。\n当前 wind-finance 连接器未连接。\n连接后于对话中触发对应技能，结果将填充至「观点与情绪中心」。");
     // ⑦ L4 四维证据：触屏点击固定口径说明（桌面 hover / 键盘 focus 由 CSS 负责）
     document.addEventListener("click", (ev) => {
-      const el = ev.target && ev.target.closest ? ev.target.closest(".cf-ev, .cf-ev-h") : null;
+      const el = ev.target && ev.target.closest ? ev.target.closest(".cf-ev, .cf-ev-h, .cf-vtip") : null;
       const wasOpen = el && el.classList.contains("open");
-      document.querySelectorAll(".cf-ev.open, .cf-ev-h.open").forEach(x => x.classList.remove("open"));
+      document.querySelectorAll(".cf-ev.open, .cf-ev-h.open, .cf-vtip.open").forEach(x => x.classList.remove("open"));
       if (el && !wasOpen) el.classList.add("open");
       else if (el) el.blur();
     });
@@ -1176,7 +1176,18 @@
       </div>
     </div>`;
 
+    // 悬停/聚焦口径说明：属性内换行写成 &#10;，由 CSS white-space:pre-line 还原
+    const tipAttr = (t) => String(t || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "&#10;");
     const VP = A.volume.profile, VV = A.volume.verdict;
+    const volTip = `【量能卡片 · 四格数据口径】
+每格三行 = 指标名 / 当前值 / 基准或状态说明。
+① 当日成交量：最新交易日主连成交量（手）；小字「前20日均量」不含当日，是所有量比的共同基准。
+② 量比(20日) = 当日成交量 ÷ 前20日均量。≥1.5× 显著放量、≥1.2× 温和放量、0.8~1.2× 之间（不含端点）量能平稳、≤0.8× 温和缩量、≤0.6× 明显缩量。卡片标题由这一格决定。
+③ 量能趋势 = 近5日均量 ÷ 前5日均量（前5日 = 再往前 5 天），衡量资金关注度：≥1.2× 升温、≤0.8× 降温，其余平稳。
+④ 均量结构 VMA5/20 = 近5日均量 ÷ 近20日均量；>1 说明近期量能高于中期水平，小字标注 VMA5 走高 / 走低及绝对值。小字「走高/走低」是拿近5日与前5日比，和 VMA5/20（近20日）参照不同，出现「>1 但走低」并不矛盾。
+量能只做确认、不单独定方向：按 0.7~1.3 的系数增强或削弱价仓四象限信号。
+「量能平稳」= 当日量比落在 0.8~1.2×，成交未异常放大或萎缩，价仓信号按常规强度解读；这不等于行情没方向，方向请回到上方四象限看价与仓。`;
     const pvRow = (st, label) => !st ? "" : `<tr>
       <td>${label}</td><td>${fmt(st.close, 2)}</td>
       <td class="${cls(st.dPrice)}">${pct(st.dPrice)}</td>
@@ -1188,14 +1199,16 @@
       <td><span class="cf-tag ${st.volRatio >= 1.2 ? "active" : st.volRatio <= 0.8 ? "passive" : "dual"}">${st.volState}</span></td></tr>`;
     const volCard = `<div class="cf-vol ${VV.tone}">
       <div class="v-head"><span class="v-name">量 · ${VV.tag}</span>
+        <span class="cf-vtip" tabindex="0" data-tip="${tipAttr(volTip)}">ⓘ</span>
         <span class="cf-tag ${VV.confirm > 0 ? "active" : VV.confirm < 0 ? "passive" : "dual"}">${VV.confirm > 0 ? "量能确认价仓信号" : VV.confirm < 0 ? "量能削弱价仓信号" : "量能中性"}</span></div>
       <div class="v-desc">${VV.desc}</div>
       <div class="v-grid">
-        <div><div class="k">当日成交量</div><div class="v">${fmt(VP.last)} <small>手</small></div><div class="s">前20日均量 ${fmt(VP.base20)}</div></div>
-        <div><div class="k">量比 (20日)</div><div class="v ${VP.ratio >= 1.2 ? "up" : VP.ratio <= 0.8 ? "down" : ""}">${VP.ratio.toFixed(2)}×</div><div class="s">${VP.state}</div></div>
-        <div><div class="k">量能趋势</div><div class="v">${VP.trend.toFixed(2)}×</div><div class="s">${VP.trendTag}</div></div>
-        <div><div class="k">均量结构 VMA5/20</div><div class="v">${VP.ma20 ? (VP.ma5 / VP.ma20).toFixed(2) : "—"}×</div><div class="s">${VP.maTag} · VMA5 ${fmt(VP.ma5)}</div></div>
+        <div title="最新交易日主连成交量（手）；下方小字为前 20 个交易日（不含当日）均量，是量比的分母"><div class="k">当日成交量</div><div class="v">${fmt(VP.last)} <small>手</small></div><div class="s">前20日均量 ${fmt(VP.base20)}</div></div>
+        <div title="当日成交量 ÷ 前20日均量；0.8~1.2× 判「量能平稳」，≥1.2× 放量、≤0.8× 缩量"><div class="k">量比 (20日)</div><div class="v ${VP.ratio >= 1.2 ? "up" : VP.ratio <= 0.8 ? "down" : ""}">${VP.ratio.toFixed(2)}×</div><div class="s">${VP.state}</div></div>
+        <div title="近5日均量 ÷ 前5日均量（再往前 5 天）；≥1.2× 关注度升温、≤0.8× 降温"><div class="k">量能趋势</div><div class="v">${VP.trend.toFixed(2)}×</div><div class="s">${VP.trendTag}</div></div>
+        <div title="VMA5 ÷ VMA20；>1 表示近期量能高于中期水平，小字标注 VMA5 绝对值与方向"><div class="k">均量结构 VMA5/20</div><div class="v">${VP.ma20 ? (VP.ma5 / VP.ma20).toFixed(2) : "—"}×</div><div class="s">${VP.maTag} · VMA5 ${fmt(VP.ma5)}</div></div>
       </div>
+      <div class="cf-vol-note">每格三行 = <b>指标名 / 数值 / 基准或状态</b>。量比看当日（0.8~1.2× 即「量能平稳」）· 量能趋势看近5日 vs 前5日的关注度 · VMA5/20 看中期均量结构；量能只作 0.7~1.3 的确认系数，不单独定方向。ⓘ 可看完整口径。</div>
       ${VP.divergence ? `<div class="v-warn">⚠ ${VP.divergence}</div>` : ""}
     </div>`;
     const NP = NZ.profile;
@@ -1222,7 +1235,7 @@
       <div class="table-wrap"><table class="cf-pv-table"><thead><tr>
         <th>周期</th><th>收盘</th><th>价格变化</th><th>总持仓</th><th>持仓变化</th><th>持仓变化%</th><th>成交量(手)</th><th>量比</th><th>量能状态</th>
       </tr></thead><tbody>${pvRow(A.pv.pv1, "近1日")}${pvRow(A.pv.pv5, "近5日")}${pvRow(A.pv.pv20, "近20日")}</tbody></table></div>
-      <div class="cf-hint">表格量比 = 区间末日成交量 ÷ 该区间内前几日均量（1 / 5 / 20 日各自口径）；量能卡片的量比统一为「当日量 ÷ 前20日均量」。价仓四象限以近 ${NZ.horizon} 日为主判据，噪音带已按本品种波动率调整为 价 ±${NB.px.toFixed(2)}% / 仓 ±${NB.oi.toFixed(2)}%（基准 ±0.35% / ±0.8%）；三联图的「价仓背离日」沿用同一噪音带逐日标注，悬停标题 ⓘ 可看完整算法。</div>
+      <div class="cf-hint">表格三行 = 近 <b>1 / 5 / 20 个交易日</b>，均以<b>区间首日</b>的收盘价与总持仓为基准算累计变化；「量比」列 = 区间末日成交量 ÷ 该区间之前的均量（1日=昨日量、5日=前5日均量、20日=前20日均量），故<b>近20日量比与卡片量比同值</b>，卡片口径固定为「当日量 ÷ 前20日均量」。价仓四象限以近 ${NZ.horizon} 日为主判据，噪音带已按本品种波动率调整为 价 ±${NB.px.toFixed(2)}% / 仓 ±${NB.oi.toFixed(2)}%（基准 ±0.35% / ±0.8%）；三联图的「价仓背离日」沿用同一噪音带逐日标注，悬停标题 ⓘ 可看完整算法。</div>
       <div class="cf-chart-h"><span>价 · 量 · 仓 三联图（近 60 交易日）</span><em>上格 收盘价×总持仓双轴 · 下格 成交量与 VMA5/VMA20</em></div>
       <div id="chCapFlowPriceOi" class="chart" style="height:300px;margin-top:4px"></div>
       <div class="cf-hint">成交量柱按当日涨跌红 / 绿着色，白边为显著放量（≥1.5×）；VMA5 高于 VMA20 表示近期资金关注度升温。三要素读法：<b>放量+增仓 = 增量资金进场</b>（趋势最可靠）、<b>放量+减仓 = 集中平仓/回补</b>（加速或尾声）、<b>缩量+增仓 = 轻仓试探</b>（待确认）、<b>缩量+减仓 = 离场尾声</b>（动能衰竭）。上下两格可同步缩放，悬停查看当日价·量·仓读数。</div>
@@ -1280,9 +1293,7 @@
       <div id="chCapFlowMomentum" class="chart" style="height:230px;margin-top:8px"></div>
     </div>`;
 
-    // 悬停/聚焦口径说明：属性内换行写成 &#10;，由 CSS white-space:pre-line 还原
-    const tipAttr = (t) => String(t || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;")
-      .replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "&#10;");
+    // 悬停/聚焦口径说明：属性内换行写成 &#10;，由 CSS white-space:pre-line 还原（tipAttr 已在上方定义）
     const evidenceLi = (p) => `<li class="cf-ev" tabindex="0" data-tip="${tipAttr(p.tip)}">${p.k}：${p.txt}<span class="cf-i">ⓘ</span></li>`;
     const scoreTip = `【四维共振读数】\n${A.score.rule}\n权重：价·量·仓配合 35% / 前5席位净变化 25% / 分层一致性 20% / 大单动向 20%。\n「共振确认度」= 与综合读数同向的维数；≥3 说明信号一致，≤2 说明维度分歧，需谨慎解读。\n悬停下方每条证据可看该维口径与本品种实况。启发式读数，仅供品种间横向比较，不构成交易信号。`;
     const agPart = A.score.parts.find(p => p.k === "分层一致性");
