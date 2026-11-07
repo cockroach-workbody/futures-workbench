@@ -174,6 +174,27 @@ tbody tr:hover{background:var(--panel2)}
 .cfread-chip{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;font-size:10px;font-weight:700;white-space:nowrap}
 .cfread-chip.warn{color:#f0c268;background:rgba(224,168,58,.14);border:1px solid rgba(224,168,58,.5)}
 .cfread-chip.danger{color:#ff8b82;background:rgba(232,72,63,.14);border:1px solid rgba(232,72,63,.5)}
+/* 前20席位持仓占总持仓 · 高亮徽标（琥珀描边，避免与涨跌红绿混淆） */
+.seat-hl{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:9px;font-size:10.5px;
+  font-weight:700;white-space:nowrap;color:#f0c268;background:rgba(224,168,58,.16);
+  border:1px solid rgba(224,168,58,.62);font-variant-numeric:tabular-nums}
+.seat-hl b{font-size:11.5px;font-weight:800;color:#ffd98a}
+/* 徽标主值后紧跟的多/空拆分 */
+.seat-hl-split{display:inline-block;margin-left:6px;padding-left:6px;border-left:1px solid rgba(224,168,58,.45);
+  font-size:10px;font-weight:600;color:#e8c98d;font-variant-numeric:tabular-nums}
+.netchg-card.seat-kpi{border-color:rgba(224,168,58,.7);background:rgba(224,168,58,.09);
+  box-shadow:0 0 0 1px rgba(224,168,58,.18) inset}
+.netchg-card.seat-kpi .v.seat-pct{font-size:24px;color:#ffd98a;font-weight:800;font-variant-numeric:tabular-nums}
+/* KPI 主值后紧跟的多/空拆分：小一号、淡琥珀，不与涨跌红绿混淆 */
+.seat-split{display:inline-flex;gap:10px;margin-left:9px;vertical-align:baseline;
+  font-size:12px;font-weight:600;color:#e8c98d;font-variant-numeric:tabular-nums;white-space:nowrap}
+.netchg-card.seat-kpi .k .cf-i{cursor:help;color:var(--accent);font-size:10px}
+@media(max-width:768px){
+  .seat-hl{display:block;width:max-content;max-width:100%;margin:4px 0 0;white-space:normal}
+  .seat-hl-split{display:block;margin:2px 0 0;padding-left:0;border-left:0}
+  .netchg-card.seat-kpi .v.seat-pct{font-size:20px}
+  .seat-split{display:flex;margin:3px 0 0;gap:9px;font-size:11px}
+}
 .cfread-foot{margin-top:8px;font-size:10.5px;line-height:1.6;color:var(--muted);opacity:.9}
 .alert-banner{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:11px 13px;border-radius:10px;font-size:13px;line-height:1.7}
 .alert-banner.warn{background:rgba(224,168,58,.12);border:1px solid rgba(224,168,58,.55);color:#f0c268}

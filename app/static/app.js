@@ -21,6 +21,13 @@
   let scrollToOpinion = false; // 从情绪榜点选品种后，自动定位到该品种的机构观点
   let scrollToCapital = false; // 从全市场背离清单点选品种后，定位到资金背离预警模块
 
+  // ===== 席位口径（统一文案，勿在数据字段层面改动）=====
+  // 交易所只公布期货公司会员席位，不披露终端客户属性；所谓「前5 / 其余席位」只是旧称。
+  // 二分：前 5 席位 = 按 |净持仓| 排名前 5；其余席位 = 多单/空单/成交量三榜合并去重后第 6 名及以后。
+  const PROXY_NOTE = "前5席位 = 按 |净持仓| 排名前 5 的会员席位；其余席位 = 多单 / 空单 / 成交量三榜合并去重后第 6 名及以后的全部席位。交易所仅公布期货公司席位、不披露终端客户属性，因此这是席位规模口径，不是真实的前5 / 其余席位账户分类。";
+  const TIER_NAMES = { "超大户/机构": "前5席位", "大户": "第6–10名", "中户": "第11–15名", "散户/中小": "第16–20名" };
+  const tierLabel = (t) => TIER_NAMES[t] || t;
+
   // ---- 刷新状态/时间：注入到「数据日期」展示（在线网页任意设备可见）----
   let dataDateBase = "";
   let REFRESH_INFO = null;
@@ -518,7 +525,7 @@
   }
 
   // ===== ⑥· 全市场资金背离预警（细分预警 + 全市场资金结构清单）=====
-  // 上：当前品种机构 / 散户背离的细分预警（分歧加大标红、一般背离标琥珀）
+  // 上：当前品种前5 / 其余席位背离的细分预警（分歧加大标红、一般背离标琥珀）
   // 下：全市场清单（分歧 + 无分歧 + 无分层），异步加载，失败不影响其它模块
   function cardCapitalAlert(s) {
     const cf = s.capital_flow || {};
@@ -531,25 +538,25 @@
     const opp = (instNet > 0 && retNet < 0) || (instNet < 0 && retNet > 0);
     const gapChg = instChg - retChg;
     const widening = opp && ((instNet > 0 && gapChg > 0) || (instNet < 0 && gapChg < 0));
-    const type = instNet > 0 ? "机构净多 / 散户净空" : "机构净空 / 散户净多";
-    const nums = `机构净持仓 <b>${sgn(instNet)}</b> 手（当日 Δ ${sgn(instChg)}），散户 <b>${sgn(retNet)}</b> 手（当日 Δ ${sgn(retChg)}）`;
+    const type = instNet > 0 ? "前5席位净多 / 其余席位净空" : "前5席位净空 / 其余席位净多";
+    const nums = `前5席位净持仓 <b>${sgn(instNet)}</b> 手（当日 Δ ${sgn(instChg)}），其余席位 <b>${sgn(retNet)}</b> 手（当日 Δ ${sgn(retChg)}）`;
     let alertHtml;
     if (!cf.available) {
-      alertHtml = `<div class="div-alert none">该品种暂无资金分层数据，无法判断机构 / 散户背离。</div>`;
+      alertHtml = `<div class="div-alert none">该品种暂无资金分层数据，无法判断前5 / 其余席位背离。</div>`;
     } else if (widening) {
-      alertHtml = `<div class="alert-banner danger"><div class="ic">⚠</div><div><span class="ttl">当前品种 · ${type}（分歧加大）</span><br>${nums}；机构与散户价差当日继续扩大，属高确定性分歧——常见于底部蓄势 / 顶部派发的关键阶段，务必结合价格与总持仓放量确认拐点，切勿逆势盲动。</div></div>`;
+      alertHtml = `<div class="alert-banner danger"><div class="ic">⚠</div><div><span class="ttl">当前品种 · ${type}（分歧加大）</span><br>${nums}；前5与其余席位价差当日继续扩大，属高确定性分歧——常见于底部蓄势 / 顶部派发的关键阶段，务必结合价格与总持仓放量确认拐点，切勿逆势盲动。</div></div>`;
     } else if (opp) {
-      alertHtml = `<div class="alert-banner warn"><div class="ic">⚠</div><div><span class="ttl">当前品种 · ${type} 背离</span><br>${nums}；大资金与散户方向相反，属典型分歧结构，但当日价差未继续扩大。需结合价格与总持仓放量确认方向，勿单独据此开仓。</div></div>`;
+      alertHtml = `<div class="alert-banner warn"><div class="ic">⚠</div><div><span class="ttl">当前品种 · ${type} 背离</span><br>${nums}；前5与其余席位方向相反，属典型分歧结构，但当日价差未继续扩大。需结合价格与总持仓放量确认方向，勿单独据此开仓。</div></div>`;
     } else {
-      alertHtml = `<div class="div-alert none">当前品种机构与散户净持仓同向或未明显反向，未触发背离预警；是否为趋势行情，请看下方清单的「价 × 仓」确认。</div>`;
+      alertHtml = `<div class="div-alert none">当前品种前5与其余席位净持仓同向或未明显反向，未触发背离预警；是否为趋势行情，请看下方清单的「价 × 仓」确认。</div>`;
     }
     const body = `
-      <div class="div-h"><span class="no">当前品种预警</span><em>机构 / 散户净持仓反向即触发，「分歧加大」标红</em></div>
+      <div class="div-h"><span class="no">当前品种预警</span><em>前5 / 其余席位净持仓反向即触发，「分歧加大」标红</em></div>
       ${alertHtml}
       <div class="div-h"><span class="no">全市场资金结构清单</span><em>全部品种 · 点击任意行跳转该品种资金动向</em></div>
       <div class="div-guide"><b>无分歧 ≠ 预期一致 ≠ 趋势行情</b>：净持仓是当日榜单存量，不是当日资金流向；同向也可能是「结构不明」或「多头拥挤」。须用<b>价 × 仓</b>确认 —— 价涨仓增＝增量资金推动（趋势确认）；<span class="risky">价涨仓减＝空头回补 / 存量离场驱动（需警惕回落）</span>；价跌仓增＝新空进场（跌势延续）；价跌仓减＝多头离场（跌势尾声）。</div>
       <div id="divListBox"><div class="note">清单加载中…</div></div>
-      <div class="cf-foot">口径：机构 = 前 ${n(inst.count) || 5} 大净持仓席位、散户 = 其余席位（交易所不披露客户属性，仅作力量推断）；净占比低于 3% 判「方向不明」，不计入共识。价 / 仓为近 5 日主连序列，<b>噪音阈值按品种波动率自适应</b>（基准 ±0.8% / ±1.0%，按近 60 日稳健日波动率放缩 0.55~2.20 倍；农产品更严、有色/化工更宽，具体数值见清单上方噪音带与每行悬停；⑦ 单品种 L1 用更敏感的 ±0.35% / ±0.8%，但倍数相同）；5 日持仓变动超 15% 须先排除移仓换月。清单按「分歧加大 → 背离 → 需警惕回落 → 其它」排序，悬停任一行可看完整解读。</div>`;
+      <div class="cf-foot">口径：${PROXY_NOTE} 两组席位数随当日榜单变化（本品种 前5 ${n(inst.count) || 5} 席 / 其余 ${n(ret.count) || "—"} 席）；净占比低于 3% 判「方向不明」，不计入共识。价 / 仓为近 5 日主连序列，<b>噪音阈值按品种波动率自适应</b>（基准 ±0.8% / ±1.0%，按近 60 日稳健日波动率放缩 0.55~2.20 倍；农产品更严、有色/化工更宽，具体数值见清单上方噪音带与每行悬停；⑦ 单品种 L1 用更敏感的 ±0.35% / ±0.8%，但倍数相同）；5 日持仓变动超 15% 须先排除移仓换月。清单按「分歧加大 → 背离 → 需警惕回落 → 其它」排序，悬停任一行可看完整解读。</div>`;
     return card("全市场资金背离预警", "Divergence · 全市场", "span12", body, null, "cardCapitalAlert");
   }
 
@@ -618,16 +625,16 @@
       return `<div class="divrow ${lvl}${cur}" data-code="${esc(r.code)}" data-group="${grp}" data-risk="${esc(risk)}" title="${esc((r.note || "") + bandTip)}">
         <div class="c-prod"><b>${esc(r.name)}</b><span class="c-code">${esc(r.code)}</span><span class="c-mc">${esc(r.main_contract)}</span></div>
         <div class="c-dir ${dirTone}">${esc(r.direction)}${dirChip}</div>
-        <div class="c-num"><span class="${cls(n(r.inst_net))}">机构 ${sgn(n(r.inst_net))}</span><span class="muted"> ${n(r.inst_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.inst_chg))}</span></div>
-        <div class="c-num"><span class="${cls(n(r.ret_net))}">散户 ${sgn(n(r.ret_net))}</span><span class="muted"> ${n(r.ret_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.ret_chg))}</span></div>
+        <div class="c-num"><span class="${cls(n(r.inst_net))}">前5 ${sgn(n(r.inst_net))}</span><span class="muted"> ${n(r.inst_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.inst_chg))}</span></div>
+        <div class="c-num"><span class="${cls(n(r.ret_net))}">其余 ${sgn(n(r.ret_net))}</span><span class="muted"> ${n(r.ret_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.ret_chg))}</span></div>
         <div class="c-pq"><b>${esc(r.pq || "—")}</b><br><span class="muted">5日价 <span class="${cls(n(r.px_5d))}">${pct(n(r.px_5d))}</span> · 仓 <span class="${cls(n(r.oi_5d_pct))}">${pct(n(r.oi_5d_pct))}</span></span>${nbCell}</div>
         <div class="c-flag"><span class="chip f-${esc(risk)}">${esc(r.flag || "—")}</span></div>
       </div>`;
     };
     const groups = [
-      { key: "div", title: "① 机构 / 散户分歧", hint: "净持仓反向，多空对峙", rows: all.filter(r => (r.stance || "divergence") === "divergence") },
+      { key: "div", title: "① 前5 / 其余席位分歧", hint: "净持仓反向，多空对峙", rows: all.filter(r => (r.stance || "divergence") === "divergence") },
       { key: "ali", title: "② 无分歧：方向一致或结构不明", hint: "一致 ≠ 趋势行情，看右侧价仓确认", rows: all.filter(r => { const st = r.stance || "divergence"; return st !== "divergence" && st !== "nodata"; }) },
-      { key: "nodata", title: "③ 暂无会员持仓排名", hint: "仅有价量仓，无法判断机构 / 散户结构", rows: all.filter(r => r.stance === "nodata") },
+      { key: "nodata", title: "③ 暂无会员持仓排名", hint: "仅有价量仓，无法判断前5 / 其余席位结构", rows: all.filter(r => r.stance === "nodata") },
     ];
     const body = groups.map(g => g.rows.length ? `<div class="div-sec" data-sec="${g.key}">
       <div class="div-sec-h"><b>${g.title}</b><span>${g.rows.length} 个</span><em>${g.hint}</em></div>
@@ -871,7 +878,7 @@
     const leaders = memRows.filter(m => num(m.net_chg) > 0).slice(0, 6);
     const laggards = memRows.filter(m => num(m.net_chg) < 0).slice(-6).reverse();
 
-    // ---- 机构 / 散户：存量方向背离 + 当日变化方向背离 + 分歧是否扩大 ----
+    // ---- 前5 / 其余席位：存量方向背离 + 当日变化方向背离 + 分歧是否扩大 ----
     const instChg = num(inst.net_chg), retChg = num(ret.net_chg);
     const chgDivergence = sgn(instChg) !== 0 && sgn(retChg) !== 0 && sgn(instChg) !== sgn(retChg);
     const posDivergence = sgn(num(inst.net)) !== 0 && sgn(num(ret.net)) !== 0 &&
@@ -892,7 +899,7 @@
     const parts = [
       { k: "价·量·仓配合", v: pvBias, w: 0.35,
         txt: `${quad.name}；${VV.tag}（量比 ${VP.ratio.toFixed(2)}×）` },
-      { k: "机构净变化", v: norm(instChg, instScale), w: 0.25,
+      { k: "前5席位净变化", v: norm(instChg, instScale), w: 0.25,
         txt: `前${inst.count || 5}席位当日净变化 ${instChg > 0 ? "+" : ""}${fmt(instChg)} 手` },
       { k: "分层一致性", v: sgn(chgList.reduce((x, v) => x + v, 0)) * (agree - 0.5) * 2, w: 0.20,
         txt: `${nonzero.length} 个资金层级中同向 ${Math.round(agree * nonzero.length)} 个` },
@@ -907,9 +914,9 @@
     const contrib = (p) => `${p.v * p.w > 0 ? "+" : ""}${(p.v * p.w).toFixed(2)}`;
     const scoreRule = "读数 = 50 + 50 × Σ(各维归一化值 × 权重)，裁剪到 0~100；50 为中性，≥58 偏多、≤42 偏空。";
     pPv.tip = `【价·量·仓配合 · 权重 35%】\n近${horizon}日价格 × 总持仓构成四象限：价涨仓增／价跌仓减等按方向给 ±1 或 0，价仓背离时判为平仓驱动、方向偏弱。\n噪音阈值按品种波动率自适应：本品种 价 ±${NB.px.toFixed(2)}% / 仓 ±${NB.oi.toFixed(2)}%（${NZ.regime}，基准 ±0.35% / ±0.8% × ${NZ.ratioPx.toFixed(2)} / ${NZ.ratioOi.toFixed(2)} 倍），超过阈值才算有方向。\n成交量只作确认系数（0.7~1.3）调节强度，不单独产生方向：放量增仓增强，缩量或放量减仓削弱。\n本品种贡献 ${contrib(pPv)}。${scoreRule}`;
-    pInst.tip = `【机构净变化 · 权重 25%】\n取前 ${inst.count || 5} 席位（超大户/机构层）当日净变化，除以该层双边持仓 ×2% 归一化到 ±1。\n净变化 = 多头增减 − 空头增减，空头回补也会显示为正，须回 L2 看「变化性质」区分新多进场与被动回补。\n本品种贡献 ${contrib(pInst)}。`;
-    pAgree.tip = `【分层一致性 · 权重 20%】\n把四档「当日净变化」只取符号（+ 净多增 / − 净空增），数同向层数、取多数方；只数层数、不比金额，防止单层巨额调仓把「共识」伪装出来。方向取四层净变化合计的正负。\n强度按同向占比折算：4/4 → ±0.20 满额，3/4 → ±0.10，2/4 → 0（弃权，20% 权重不贡献方向）。\n本品种：净多增 ${posCnt} 层 / 净空增 ${negCnt} 层${flatCnt ? ` / 持平 ${flatCnt} 层` : ""}，此维贡献 ${contrib(pAgree)}。\n2/4 对半是常态，意味着各层分歧最大；此时勿把机构层单笔大额变化当成全市场看多/看空，回到 L1 用价·量·仓确认。`;
-    pLo.tip = `【大单动向 · 权重 20%】\n取「头部净多增 TOP」与「头部净空增 TOP」两组当日净变化合计，按两组绝对额之和的 55% 归一化到 ±1，衡量头部席位调仓合力。\n与机构净变化可能重叠，用于交叉验证而非独立信号。\n本品种贡献 ${contrib(pLo)}。`;
+    pInst.tip = `【前5席位净变化 · 权重 25%】\n取前 ${inst.count || 5} 席位（二分口径的前5席位）当日净变化，除以该层双边持仓 ×2% 归一化到 ±1。\n净变化 = 多头增减 − 空头增减，空头回补也会显示为正，须回 L2 看「变化性质」区分新多进场与被动回补。\n本品种贡献 ${contrib(pInst)}。`;
+    pAgree.tip = `【分层一致性 · 权重 20%】\n把四档「当日净变化」只取符号（+ 净多增 / − 净空增），数同向层数、取多数方；只数层数、不比金额，防止单层巨额调仓把「共识」伪装出来。方向取四层净变化合计的正负。\n强度按同向占比折算：4/4 → ±0.20 满额，3/4 → ±0.10，2/4 → 0（弃权，20% 权重不贡献方向）。\n本品种：净多增 ${posCnt} 层 / 净空增 ${negCnt} 层${flatCnt ? ` / 持平 ${flatCnt} 层` : ""}，此维贡献 ${contrib(pAgree)}。\n2/4 对半是常态，意味着各层分歧最大；此时勿把前5席位单笔大额变化当成全市场看多/看空，回到 L1 用价·量·仓确认。`;
+    pLo.tip = `【大单动向 · 权重 20%】\n取「头部净多增 TOP」与「头部净空增 TOP」两组当日净变化合计，按两组绝对额之和的 55% 归一化到 ±1，衡量头部席位调仓合力。\n与前5席位净变化可能重叠，用于交叉验证而非独立信号。\n本品种贡献 ${contrib(pLo)}。`;
     const raw = parts.reduce((x, p) => x + p.v * p.w, 0);
     const score = Math.round(Math.max(0, Math.min(100, 50 + 50 * raw)));
     const sameSign = sgn(raw) === 0 ? 0 : parts.filter(p => sgn(p.v) === sgn(raw)).length;
@@ -923,12 +930,12 @@
     if (VP.trend <= 0.8) risks.push("近5日均量较前5日回落超20%，资金关注度降温，突破信号需更严格确认。");
     if (VP.ratio > 1.8) risks.push(`当日成交量为前20日均量的 ${VP.ratio.toFixed(1)} 倍，极端放量需排除移仓换月与突发事件扰动。`);
     if (posDivergence) risks.push(widening
-      ? "机构与散户持仓方向相反，且机构继续朝原方向加码，分歧正在扩大，波动风险上升。"
-      : "机构与散户持仓方向相反，属典型分歧结构；需价格与总持仓放量共同确认，勿单独据此开仓。");
-    if (chgDivergence) risks.push("当日机构与散户净持仓变化方向相反，短线博弈加剧。");
+      ? "前5与其余席位持仓方向相反，且前5席位继续朝原方向加码，分歧正在扩大，波动风险上升。"
+      : "前5与其余席位持仓方向相反，属典型分歧结构；需价格与总持仓放量共同确认，勿单独据此开仓。");
+    if (chgDivergence) risks.push("当日前5与其余席位净持仓变化方向相反，短线博弈加剧。");
     if (concentration > 45) risks.push(`头部资金层持仓占比 ${concentration.toFixed(1)}%，集中度高，少数席位调仓即可放大波动。`);
     if (pv5 && pv5.volRatio > 1.8 && VP.ratio <= 1.8) risks.push(`最新成交量约为近 ${pv5.days} 日均量的 ${pv5.volRatio.toFixed(1)} 倍，放量日需防换月或突发事件扰动。`);
-    if (!risks.length) risks.push("各维度未出现显著背离，但仍需结合基本面与价格结构确认；机构/散户为按净持仓规模推断的代理口径，交易所不披露终端客户属性。");
+    if (!risks.length) risks.push("各维度未出现显著背离，但仍需结合基本面与价格结构确认；前5 / 其余席位为按净持仓规模推断的代理口径，交易所不披露终端客户属性。");
 
     return { pv: { pv1, pv5, pv20, base, quad, rows: rows.slice(-60) },
       volume: { profile: VP, verdict: VV },
@@ -939,9 +946,27 @@
       score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts, evidence, risks, rule: scoreRule } };
   }
 
-  // ⑦ 速读卡片：五维精炼（钱在不在 / 谁在动 / 机构vs散户 / 大单 / 历史回溯）+ 一句话整体判断
-  // 口径：净持仓＝当日榜单存量；Δ＝席位当日流量；机构/散户为按净持仓规模推断的代理口径。
-  function capFlowRead(cf, noise) {
+  // 前20席位持仓占总持仓比例（榜单口径）
+  // 分子：top20 榜单「前20会员」持买/持卖合计；分母：capital_flow.total_position.latest（主连单边总持仓）。
+  // 多空两侧分别相除后取均值，等价于 (持买+持卖) / (2 × 总持仓)，表示前20席位对总持仓的覆盖率。
+  // 注意：榜单为主力合约、总持仓为主连口径，合约换月时可能错位（>100%），故仅作集中度参考。
+  function calcSeatShare(s, cf) {
+    const t = (s && s.top20) || {};
+    const tp = (cf && cf.total_position) || {};
+    const n = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
+    const latest = n(tp.latest), L = n(t.long_total), S = n(t.short_total);
+    if (latest <= 0 || L <= 0 || S <= 0) return { valid: false };
+    const lp = L / latest * 100, sp = S / latest * 100;
+    return {
+      valid: true, pct: (lp + sp) / 2, longPct: lp, shortPct: sp,
+      longTotal: L, shortTotal: S, latest, over: lp > 100 || sp > 100
+    };
+  }
+
+  // ⑦ 速读卡片：五维精炼（钱在不在 / 谁在动 / 前5 vs 其余席位 / 大单 / 历史回溯）+ 一句话整体判断
+  // 口径：净持仓＝当日榜单存量；Δ＝席位当日流量；前5 / 其余席位按席位净持仓规模划分。
+  // seat：由 calcSeatShare 计算的前20席位持仓占比，作为纯入参传入，保持调用链单向无环。
+  function capFlowRead(cf, noise, seat) {
     const tp = cf.total_position || {};
     const tiers = cf.tiers || [];
     const iv = cf.institutional_vs_retail || {};
@@ -966,7 +991,7 @@
     const moneyNote = s5 === 0 ? "5 日进出基本平衡"
       : `${money}：${s1 === s5 ? "1 日与 5 日同向" : `当日${s5 > 0 ? "回吐" : "回补"}`}`;
 
-    // ② 谁在动：按资金规模分档的净持仓分布
+    // ② 谁在动：按席位 |净持仓| 名次分档的净持仓分布
     const nPos = tiers.filter(t => num(t.net) > 0).length;
     const nNeg = tiers.filter(t => num(t.net) < 0).length;
     const nUp = tiers.filter(t => num(t.net_chg) > 0).length;
@@ -980,35 +1005,35 @@
     else if (mL > 0 && mS > 0) moverAct = mC > 0 ? "双向增仓·多占优" : "双向增仓·空占优";
     const sameTier = !!(lead && mover && lead.tier === mover.tier);
     const tierNote = sameTier
-      ? `${lead.tier} ${lead.net > 0 ? "净多" : "净空"} ${sgn(num(lead.net))} 主导，当日${moverAct}；${nUp}/4 档净多增`
+      ? `${tierLabel(lead.tier)} ${lead.net > 0 ? "净多" : "净空"} ${sgn(num(lead.net))} 主导，当日${moverAct}；${nUp}/4 档净多增`
       : lead && mover
-        ? `${lead.tier} ${lead.net > 0 ? "净多" : "净空"} ${sgn(num(lead.net))} 主导；${mover.tier} ${moverAct}，${nUp}/4 档净多增`
+        ? `${tierLabel(lead.tier)} ${lead.net > 0 ? "净多" : "净空"} ${sgn(num(lead.net))} 主导；${tierLabel(mover.tier)} ${moverAct}，${nUp}/4 档净多增`
         : "暂无分层数据";
 
-    // ③ 机构 vs 散户（代理口径）：重点看背离与价差方向
+    // ③ 前5席位 vs 其余席位（席位口径）：重点看背离与价差方向
     const instNet = num(inst.net), instChg = num(inst.net_chg);
     const retNet = num(ret.net), retChg = num(ret.net_chg);
     const diverg = (instNet > 0 && retNet < 0) || (instNet < 0 && retNet > 0);
     const gapChg = instChg - retChg;
     const widening = diverg && ((instNet > 0 && gapChg > 0) || (instNet < 0 && gapChg < 0));
-    const instAct = instChg > 0 ? (instNet > 0 ? "机构净多加码" : "机构空头回补")
-      : instChg < 0 ? (instNet > 0 ? "机构净多减" : "机构净空加码") : "机构持平";
-    const retAct = retChg > 0 ? (retNet > 0 ? "散户净多加码" : "散户空头回补")
-      : retChg < 0 ? (retNet > 0 ? "散户净多减" : "散户净空加码") : "散户持平";
-    const divWord = diverg ? (widening ? "机构/散户背离扩大" : "机构/散户背离收窄") : "机构与散户同向";
+    const instAct = instChg > 0 ? (instNet > 0 ? "前5席位净多加码" : "前5席位空头回补")
+      : instChg < 0 ? (instNet > 0 ? "前5席位净多减" : "前5席位净空加码") : "前5席位持平";
+    const retAct = retChg > 0 ? (retNet > 0 ? "其余席位净多加码" : "其余席位空头回补")
+      : retChg < 0 ? (retNet > 0 ? "其余席位净多减" : "其余席位净空加码") : "其余席位持平";
+    const divWord = diverg ? (widening ? "前5 / 其余席位背离扩大" : "前5 / 其余席位背离收窄") : "前5与其余席位同向";
     const divNote = diverg
-      ? `${instNet > 0 ? "机构净多 / 散户净空" : "机构净空 / 散户净多"}，当日价差${widening ? "继续扩大" : "收窄"}`
+      ? `${instNet > 0 ? "前5席位净多 / 其余席位净空" : "前5席位净空 / 其余席位净多"}，当日价差${widening ? "继续扩大" : "收窄"}`
       : "方向未明显反向，未触发背离";
     // 背离长段落预警：讲清市场含义与操作提醒（与 ⑥ 独立预警卡并存）
     let alert = null;
     if (diverg) {
       const instBull = instNet > 0;
       alert = {
-        type: instBull ? "机构净多 / 散户净空" : "机构净空 / 散户净多",
+        type: instBull ? "前5席位净多 / 其余席位净空" : "前5席位净空 / 其余席位净多",
         level: widening ? "danger" : "warn",
         desc: instBull
-          ? "大资金偏多、散户偏空，典型分歧结构。常见于下跌末端或底部蓄势（大资金低位承接），也需警惕大资金被套后的摊平。务必结合价格与总持仓放量确认方向，勿单独据此开仓。"
-          : "大资金偏空、散户偏多，典型分歧结构。常见于上涨末端或顶部派发（散户追高、机构离场），警惕反转。务必结合价格与总持仓放量确认方向。"
+          ? "前5席位偏多、其余席位偏空，典型分歧结构。常见于下跌末端或底部蓄势（前5席位低位承接），也需警惕前5席位被套后的摊平。务必结合价格与总持仓放量确认方向，勿单独据此开仓。"
+          : "前5席位偏空、其余席位偏多，典型分歧结构。常见于上涨末端或顶部派发（其余席位追高、前5席位离场），警惕反转。务必结合价格与总持仓放量确认方向。"
       };
     }
 
@@ -1042,17 +1067,20 @@
           : s5 > 0 && s20 < 0 ? "短期资金回流、中期仍偏流出" : "资金面缺乏明确方向";
     const headline = `${bigPicture}；${instAct}、${retAct}，${divWord}，头部席位${balance}。`;
     const state = `${s5 > 0 ? "增仓" : s5 < 0 ? "减仓" : "观望"} · ${diverg ? "分歧" : "同向"}${widening ? "加大" : ""}`;
-    const proxyTip = cf.note_proxy || "机构/散户为按净持仓规模推断的代理口径（交易所排名不披露终端客户属性）。";
+    const proxyTip = PROXY_NOTE;
 
     const rows = [
       { no: "①", label: "总持仓变动", sub: "钱在不在", tone: cls(s5),
-        metric: `${fmt(latest)} 手｜1日 ${cv(d1)} · 5日 ${cv(d5)}（${pct(p5)}）`,
+        metric: `${fmt(latest)} 手｜1日 ${cv(d1)} · 5日 ${cv(d5)}（${pct(p5)}）` +
+          (seat && seat.valid
+            ? `<span class="seat-hl" title="前20席位持仓占总持仓 ${seat.pct.toFixed(2)}%｜多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%">前20席位占总持仓 <b>${seat.pct.toFixed(2)}%</b><span class="seat-hl-split">多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%</span></span>`
+            : ""),
         note: moneyNote },
       { no: "②", label: "净持仓分布", sub: "谁在动 · 分档", tone: cls(mover ? mC : 0),
-        metric: `净多 ${nPos} / 净空 ${nNeg} 档｜最大变化 ${mover ? esc(mover.tier) : "—"} ${cv(mC)}`,
+        metric: `净多 ${nPos} / 净空 ${nNeg} 档｜最大变化 ${mover ? esc(tierLabel(mover.tier)) : "—"} ${cv(mC)}`,
         note: tierNote },
-      { no: "③", label: "机构 vs 散户", sub: "代理口径 · 看背离", info: esc(proxyTip), tone: diverg ? "warn" : cls(instChg),
-        metric: `机构 ${cv(instNet)} / 散户 ${cv(retNet)}｜Δ ${cv(instChg)} / ${cv(retChg)}`,
+      { no: "③", label: "前5席位 vs 其余席位", sub: "席位口径 · 看背离", info: esc(proxyTip), tone: diverg ? "warn" : cls(instChg),
+        metric: `前5 ${cv(instNet)} / 其余 ${cv(retNet)}｜Δ ${cv(instChg)} / ${cv(retChg)}`,
         note: divNote,
         chip: diverg ? { text: widening ? "分歧加大" : "背离", kind: widening ? "danger" : "warn" } : null },
       { no: "④", label: "大单动向", sub: "头部席位痕迹", tone: cls(bigNet),
@@ -1068,6 +1096,7 @@
   // ⑦ 资金动向（AKShare·持仓结构·主力追踪）—— 由 capital_flow 数据驱动；缺失时回退原前20会员
   function renderCapFlow(s, cf) {
     const tp = cf.total_position || {};
+    const seat = calcSeatShare(s, cf);   // 前20席位持仓占总持仓比例（数据层，只读）
     const tiers = cf.tiers || [];
     const iv = cf.institutional_vs_retail || {};
     const lo = cf.large_orders || {};
@@ -1078,17 +1107,29 @@
       `<div class="netchg-card ${hero ? "hero" : ""}"><div class="k">${label}</div>
         <div class="v ${c || ""}">${val}</div><div class="s">${sub || ""}</div></div>`;
 
+    const seatKpi = seat.valid ? `<div class="netchg-card hero seat-kpi">
+        <div class="k">前20席位持仓占总持仓 <span class="cf-i" title="口径：前20会员榜单持买/持卖合计 ÷ 主连总持仓（单边），多空两侧分别相除后取均值，即 (持买+持卖)/(2×总持仓)；衡量前20席位对全市场持仓的覆盖率/集中度。榜单为主力合约、总持仓为主连口径，换月时或有偏差。">ⓘ</span></div>
+        <div class="v seat-pct">${seat.pct.toFixed(2)}%<span class="seat-split"><span>多 ${seat.longPct.toFixed(2)}%</span><span>空 ${seat.shortPct.toFixed(2)}%</span></span></div>
+        <div class="s">${seat.over ? "口径错位 · " : ""}多空两侧分别相除后取均值</div>
+      </div>` : "";
+
+    // 现算席位口径摘要，不沿用旧快照里「机构 / 散户」的措辞
+    const summaryText = cf.available
+      ? `截至 ${fmtDate(cf.as_of)}，前5席位合计净持仓 ${sign(inst.net)} 手、当日净变化 ${sign(inst.net_chg)} 手；其余 ${ret.count || "—"} 个席位合计净持仓 ${sign(ret.net)} 手、当日净变化 ${sign(ret.net_chg)} 手。${inst.net_chg > 0 && ret.net_chg > 0 ? "两组同向净多增，方向相对一致。" : inst.net_chg < 0 && ret.net_chg < 0 ? "两组同向净空增，方向相对一致。" : "两组当日变化方向相反，分歧加大。"}`
+      : (cf.note || "暂无会员持仓排名数据。");
+
     const kpis = `<div class="netchg">
       ${kpi("总持仓(主连)", (tp.latest != null ? fmt(tp.latest) : "—") + " 手", "", "近20日 " + (tp.chg_20d != null ? sign(tp.chg_20d) : "—"), true)}
+      ${seatKpi}
       ${kpi("总持仓变化(1日)", (tp.chg_1d != null ? sign(tp.chg_1d) : "—") + " 手", cls(tp.chg_1d), tp.chg_1d > 0 ? "资金流入 ↑" : "资金流出 ↓")}
       ${kpi("总持仓变化(5日)", (tp.chg_5d != null ? sign(tp.chg_5d) : "—") + " 手", cls(tp.chg_5d), tp.chg_5d > 0 ? "5日净流入" : "5日净流出")}
-      ${kpi("机构净持仓(前" + (inst.count || 5) + ")", sign(inst.net) + " 手", cls(inst.net), "机构/主力席位", true)}
-      ${kpi("机构净持仓变化", sign(inst.net_chg) + " 手", cls(inst.net_chg), inst.net_chg > 0 ? "主力净多增仓" : "主力净空增仓")}
-      ${kpi("散户净持仓变化", sign(ret.net_chg) + " 手", cls(ret.net_chg), ret.net_chg > 0 ? "散户净多增仓" : "散户净空增仓")}
+      ${kpi("前5席位净持仓", sign(inst.net) + " 手", cls(inst.net), "按 |净持仓| 排名前 5", true)}
+      ${kpi("前5席位净变化", sign(inst.net_chg) + " 手", cls(inst.net_chg), inst.net_chg > 0 ? "前5净多增仓" : "前5净空增仓")}
+      ${kpi("其余席位净变化", sign(ret.net_chg) + " 手", cls(ret.net_chg), ret.net_chg > 0 ? "其余净多增仓" : "其余净空增仓")}
     </div>`;
 
     const tierRows = tiers.map(t => `<tr>
-      <td>${t.tier}</td>
+      <td>${tierLabel(t.tier)}</td>
       <td class="${cls(t.net)}">${sign(t.net)}</td>
       <td class="${cls(t.net_chg)}">${sign(t.net_chg)}</td>
       <td>${fmt(t.long)}</td><td>${fmt(t.short)}</td><td>${t.count}</td>
@@ -1098,7 +1139,7 @@
       ? arr.map(m => `<div class="kv"><span class="k">${m.name}</span><span class="v ${valCls(m)}">${(key === "net_chg" ? sign(m.net_chg) : fmt(m[key]))}</span></div>`).join("")
       : '<div class="note">—</div>');
 
-    const rd = capFlowRead(cf, NOISE);
+    const rd = capFlowRead(cf, NOISE, seat);
     const readRows = rd.rows.map(r => `<div class="cfread-row">
       <div class="n ${r.tone}">${r.no}</div>
       <div class="k"><div class="kh"><b>${r.label}</b>${r.info ? `<span class="cf-i" title="${r.info}">ⓘ</span>` : ""}</div><span>${r.sub}</span></div>
@@ -1113,7 +1154,7 @@
       <div class="conclusion">${rd.headline}</div>
       ${alertHtml}
       <div class="cfread-rows">${readRows}</div>
-      <div class="cfread-foot">注：机构/散户为按净持仓规模推断的代理口径（交易所不披露客户属性）；净持仓＝当日榜单存量，Δ＝席位当日流量；榜单每日重排，勿倒推昨日值；历史分层采样换月前后不可比，仅作方向参考。</div>
+      <div class="cfread-foot">注：${PROXY_NOTE} 四档分档仅取排名前 20 席位，③ 的「其余席位」含第 21 名及以后；净持仓＝当日榜单存量，Δ＝席位当日流量；榜单每日重排，勿倒推昨日值；历史分层采样换月前后不可比，仅作方向参考。</div>
     </div>`;
 
     // ===== 专业资金分析决策面板（L1→L4）=====
@@ -1131,7 +1172,7 @@
         <div class="cf-bar"><i style="width:${A.score.value}%;background:${barColor}"></i><span class="mid"></span></div>
         <div class="cf-bar-lbl"><span>强偏空</span><span>中性</span><span>强偏多</span></div>
         <div class="cf-confirm">共振确认度 <b>${A.score.confirm}/${A.score.total}</b> 维同向${A.score.confirm >= 3 ? " · 信号一致" : " · 维度分歧，谨慎解读"}</div>
-        <div class="cf-note">启发式读数，非行情预测。由「价·量·仓配合 35% / 机构净变化 25% / 分层一致性 20% / 大单动向 20%」加权合成；成交量作为价仓信号的确认系数（放量增仓增强、缩量或放量减仓削弱），不单独产生方向。仅供品种间横向比较，不构成交易信号。</div>
+        <div class="cf-note">启发式读数，非行情预测。由「价·量·仓配合 35% / 前5席位净变化 25% / 分层一致性 20% / 大单动向 20%」加权合成；成交量作为价仓信号的确认系数（放量增仓增强、缩量或放量减仓削弱），不单独产生方向。仅供品种间横向比较，不构成交易信号。</div>
       </div>
     </div>`;
 
@@ -1189,7 +1230,7 @@
 
     const chgTip = (r) => `多头增减 ${sign(r.long_chg)} 手 / 空头增减 ${sign(r.short_chg)} 手｜当日净变化 = 多头增减 − 空头增减 = ${sign(r.net_chg)} 手（席位相对上一交易日的自身持仓变化）`;
     const matrixRows = A.structure.rows.map(r => `<tr>
-      <td><b>${r.tier}</b><span class="cf-sub">${r.count} 席 · 权重 ${r.weight.toFixed(0)}%</span></td>
+      <td><b>${tierLabel(r.tier)}</b><span class="cf-sub">${r.count} 席 · 权重 ${r.weight.toFixed(0)}%</span></td>
       <td>${fmt(r.gross)}</td>
       <td class="${cls(r.net)}" title="净持仓 = 上榜多单量 ${fmt(r.long)} − 上榜空单量 ${fmt(r.short)}（当日存量）">${sign(r.net)}</td>
       <td class="${cls(r.netRatio)}">${r.netRatio.toFixed(1)}%</td>
@@ -1216,7 +1257,7 @@
     const matrixHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L2</span>资金结构矩阵<em>归一化后可跨品种比较</em></div>
       <div class="table-wrap"><table><thead><tr>
-        <th>资金层级</th><th>双边持仓</th>
+        <th>席位分档</th><th>双边持仓</th>
         <th class="cf-th" title="当日存量：该层席位「上榜多单量 − 上榜空单量」。多空为两张独立榜单，未上榜一侧记 0，故为榜单口径近似">净持仓 ⓘ</th>
         <th>净占比</th><th>多空比</th>
         <th class="cf-th" title="当日流量：该层席位「多头增减 − 空头增减」之和。不是两日榜单净持仓之差，悬停数值可看多空拆解">当日净变化 ⓘ</th>
@@ -1243,7 +1284,7 @@
     const tipAttr = (t) => String(t || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;")
       .replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "&#10;");
     const evidenceLi = (p) => `<li class="cf-ev" tabindex="0" data-tip="${tipAttr(p.tip)}">${p.k}：${p.txt}<span class="cf-i">ⓘ</span></li>`;
-    const scoreTip = `【四维共振读数】\n${A.score.rule}\n权重：价·量·仓配合 35% / 机构净变化 25% / 分层一致性 20% / 大单动向 20%。\n「共振确认度」= 与综合读数同向的维数；≥3 说明信号一致，≤2 说明维度分歧，需谨慎解读。\n悬停下方每条证据可看该维口径与本品种实况。启发式读数，仅供品种间横向比较，不构成交易信号。`;
+    const scoreTip = `【四维共振读数】\n${A.score.rule}\n权重：价·量·仓配合 35% / 前5席位净变化 25% / 分层一致性 20% / 大单动向 20%。\n「共振确认度」= 与综合读数同向的维数；≥3 说明信号一致，≤2 说明维度分歧，需谨慎解读。\n悬停下方每条证据可看该维口径与本品种实况。启发式读数，仅供品种间横向比较，不构成交易信号。`;
     const agPart = A.score.parts.find(p => p.k === "分层一致性");
     const upN = A.structure.rows.filter(r => r.net_chg > 0).length;
     const dnN = A.structure.rows.filter(r => r.net_chg < 0).length;
@@ -1268,13 +1309,13 @@
     const body = `${capread}
       ${panelHtml}
       ${kpis}
-      <div class="verdict">${cf.summary || ""}</div>
+      <div class="verdict">${summaryText}</div>
       <div class="flex">
         <div style="flex:1.2">
-          <div class="t20-hist-head"><span class="t">净持仓分布 · 按账户资金规模分层（净持仓 / 当日净变化）</span></div>
+          <div class="t20-hist-head"><span class="t">净持仓分布 · 按 |净持仓| 名次分档（前5 / 6–10 / 11–15 / 16–20 名）</span></div>
           <div id="chCapFlowTier" class="chart" style="height:230px"></div>
           <div class="table-wrap" style="margin-top:6px">
-            <table><thead><tr><th>资金规模分层</th><th>净持仓</th><th>当日净变化</th><th>持买</th><th>持卖</th><th>席位</th></tr></thead>
+            <table><thead><tr><th>席位名次分档</th><th>净持仓</th><th>当日净变化</th><th>持买</th><th>持卖</th><th>席位</th></tr></thead>
             <tbody>${tierRows}</tbody></table>
           </div>
         </div>
@@ -1285,7 +1326,7 @@
       </div>
       <div class="flex" style="margin-top:10px">
         <div style="flex:1.3">
-          <div class="t20-hist-head"><span class="t">大单动向 · 主力机构操作痕迹</span></div>
+          <div class="t20-hist-head"><span class="t">大单动向 · 头部席位操作痕迹</span></div>
           <div class="note">净持仓变化 = 多头增仓 − 空头增仓；正值=净多增加（偏多），负值=净空增加（偏空）。</div>
           <div class="flex">
             <div style="flex:1"><div class="k">净多增仓主力</div>${listItems(lo.top_net_increase, "net_chg", m => cls(m.net_chg))}</div>
@@ -1294,7 +1335,7 @@
           </div>
         </div>
         <div style="flex:1.2">
-          <div class="t20-hist-head"><span class="t">历史回溯 · 各资金层级净持仓变化</span></div>
+          <div class="t20-hist-head"><span class="t">历史回溯 · 各名次分档净持仓变化</span></div>
           <div id="chCapFlowHist" class="chart" style="height:220px"></div>
         </div>
       </div>
@@ -1305,9 +1346,9 @@
           <div id="capFlowT20Verdict" class="verdict" style="margin-top:4px"></div>
         </div>
       </div>
-      <div class="note" style="margin-top:8px">数据来源：${cf.source}。${cf.note_proxy || ""} 主力合约 ${cf.main_contract || cf.contract}；数据交易日 ${cf.as_of}。总持仓为主连口径，合约换月时或有跳变。</div>`;
+      <div class="note" style="margin-top:8px">数据来源：${cf.source}。${PROXY_NOTE} 主力合约 ${cf.main_contract || cf.contract}；数据交易日 ${cf.as_of}。总持仓为主连口径，合约换月时或有跳变。前20席位持仓占总持仓 =（前20会员持买合计 + 持卖合计）÷（2 × 主连总持仓），多空两侧占比取均值，用于衡量头部席位集中度；榜单为主力合约、总持仓为主连，换月时口径可能错位。</div>`;
 
-    const tone = inst.net_chg > 0 ? "机构净多增仓" : (inst.net_chg < 0 ? "机构净空增仓" : "中性");
+    const tone = inst.net_chg > 0 ? "前5席位净多增仓" : (inst.net_chg < 0 ? "前5席位净空增仓" : "中性");
     return card("⑦ 资金动向", "AKShare·持仓结构·主力追踪", "span12", body, tone);
   }
 

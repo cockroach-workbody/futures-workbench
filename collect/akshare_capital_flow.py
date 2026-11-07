@@ -13,9 +13,9 @@ AKShare 期货资金流采集器（奇货可查式 / 交易所会员持仓排名
 
 计算产出（collect/raw_capflow/capflow_<CODE>.json），供 build_all 注入快照 capital_flow 键，
 第7部分（资金动向）渲染：
-  1) 净持仓分布：按账户资金规模分层的多空力量对比（机构/散户 二分 + 4 档资金规模）
+  1) 净持仓分布：按席位 |净持仓| 名次分层的多空力量对比（前5/其余 二分 + 4 档名次分档）
   2) 总持仓变动：资金整体进出场节奏（主连 hold 历史回溯 + 当日/5日/20日变化）
-  3) 大单动向：追踪主力机构的操作痕迹（净持仓变化最大的增/减仓席位 + 成交量领先席位）
+  3) 大单动向：追踪头部席位的操作痕迹（净持仓变化最大的增/减仓席位 + 成交量领先席位）
   4) 净持仓变化而非绝对持仓量：全程以 Δ净持仓 为主信号
   5) 历史回溯数据：总持仓历史 + 各资金层级净持仓变化序列
 
@@ -24,8 +24,8 @@ AKShare 期货资金流采集器（奇货可查式 / 交易所会员持仓排名
   python collect/akshare_capital_flow.py RB        # 单品种
   python collect/akshare_capital_flow.py --with-history   # 额外采样历史分层净持仓
 
-注：机构/散户为按「净持仓规模」推断的代理口径（交易所排名不直接披露终端客户属性），
-    前端会如实标注。
+注：交易所只公布期货公司会员席位，不披露终端客户属性。所谓「机构 / 散户」只是旧称，
+    现统一表述为「前5席位 / 其余席位」：前 5 按 |净持仓| 排名，其余为三榜合并去重后第 6 名及以后。
 """
 import os
 import sys
@@ -54,7 +54,7 @@ TIER_DEFS = [
     ("中户", 10, 15),
     ("散户/中小", 15, 20),
 ]
-INST_TOPN = 5  # 机构/主力 = 前 N 大净持仓规模席位
+INST_TOPN = 5  # 前5席位 = |净持仓| 排名前 N 的会员席位
 
 
 def _sina_contract(main_contract):
@@ -143,7 +143,7 @@ def _build_member_table(long_df, short_df, vol_df):
 
 
 def _tier_stats(members):
-    """按 |净持仓| 降序分 4 档资金规模，返回每档聚合 + 机构/散户二分。"""
+    """按 |净持仓| 降序分 4 档名次，返回每档聚合 + 前5/其余席位二分。档名为历史字段名，勿改（前端映射显示名）。"""
     ranked = sorted(members, key=lambda m: abs(m["net"]), reverse=True)
     n = len(ranked)
     tiers = []
@@ -166,7 +166,7 @@ def _tier_stats(members):
             "long_chg": round(sum(m["long_chg"] for m in grp)),
             "short_chg": round(sum(m["short_chg"] for m in grp)),
         })
-    # 机构/散户二分：机构 = 前 INST_TOPN 大净持仓规模席位
+    # 前5/其余席位二分：前5 = |净持仓| 排名前 INST_TOPN 的席位
     inst = ranked[:INST_TOPN]
     retail = ranked[INST_TOPN:]
     inst_net = round(sum(m["net"] for m in inst))
@@ -268,7 +268,7 @@ def _build_capflow(cfg, with_history=False):
         "contract": contract,
         "main_contract": mc,
         "as_of": SNAP_DATE,
-        "note_proxy": "机构/散户为按净持仓规模推断的代理口径（交易所排名不直接披露终端客户属性）。",
+        "note_proxy": "前5席位 = 按 |净持仓| 排名前 5 的会员席位；其余席位 = 多单 / 空单 / 成交量三榜合并去重后第 6 名及以后的全部席位。交易所仅公布期货公司席位、不披露终端客户属性，因此这是席位规模口径，不是真实的机构 / 散户账户分类。",
     }
     if not contract:
         result["note"] = "未找到活跃合约（需先 build_all 生成快照 main_contract）。"
@@ -339,13 +339,13 @@ def _build_capflow(cfg, with_history=False):
     chg_inst = inst["net_chg"]
     chg_ret = retail["net_chg"]
     result["summary"] = (
-        f"截至{SNAP_DATE}，前{INST_TOPN}大主力席位合计净持仓 {inst['net']:,} 手（{tone_inst}），"
+        f"截至{SNAP_DATE}，前5席位合计净持仓 {inst['net']:,} 手（{tone_inst}），"
         f"当日净持仓变化 {chg_inst:+,} 手；其余 {retail['count']} 个席位合计净持仓 {retail['net']:,} 手"
         f"（{tone_ret}），当日净持仓变化 {chg_ret:+,} 手。"
         f"净持仓变化 = 多头增仓 − 空头增仓；"
-        + ("机构与散户同向增仓，资金共识偏强。" if chg_inst > 0 and chg_ret > 0
-           else "机构与散户同向减仓，资金离场迹象。" if chg_inst < 0 and chg_ret < 0
-           else "机构与散户方向相反，资金分歧加大。")
+        + ("两组席位同向增仓，方向相对一致。" if chg_inst > 0 and chg_ret > 0
+           else "两组席位同向减仓，资金离场迹象。" if chg_inst < 0 and chg_ret < 0
+           else "两组席位方向相反，分歧加大。")
     )
     return result
 

@@ -3,6 +3,9 @@
   const AX = "#2a3543", TX = "#8b9bb0", TXT = "#e6edf3";
   const RED = "#e8483f", GREEN = "#1fab6b", BLUE = "#3d7eff", AMBER = "#e0a83a";
   const baseGrid = { left: 56, right: 16, top: 30, bottom: 40 };
+  // 四档分档按 |净持仓| 名次划分：只改显示名，数据字段仍是原始档名（兼容历史采样 key）
+  const TIER_NAMES = { "超大户/机构": "前5席位", "大户": "第6–10名", "中户": "第11–15名", "散户/中小": "第16–20名" };
+  const tierName = (t) => TIER_NAMES[t] || t;
 
   function base(dom) {
     const c = echarts.init(dom, null, { renderer: "canvas" });
@@ -483,10 +486,10 @@
     return c;
   }
 
-  // ⑦ 资金动向：各资金规模层级 净持仓(柱) + 当日净持仓变化(线，次轴) 组合图
+  // ⑦ 资金动向：按 |净持仓| 名次分档 净持仓(柱) + 当日净持仓变化(线，次轴) 组合图
   function capitalFlowTier(dom, tiers) {
     const c = base(dom);
-    const names = tiers.map(t => t.tier);
+    const names = tiers.map(t => tierName(t.tier));
     const net = tiers.map(t => t.net);
     const chg = tiers.map(t => t.net_chg);
     c.setOption({
@@ -551,14 +554,14 @@
     return c;
   }
 
-  // ⑦ 资金动向：历史回溯 —— 各资金规模层级净持仓变化曲线
+  // ⑦ 资金动向：历史回溯 —— 各名次分档净持仓变化曲线
   function tierNetHistory(dom, history) {
     const c = base(dom);
     const tiers = Object.keys(history[0] || {}).filter(k => k !== "date");
     const colors = [RED, AMBER, BLUE, GREEN, "#9b6dff"];
     const dates = history.map(h => h.date);
     const series = tiers.map((t, i) => ({
-      name: t, type: "line", data: history.map(h => h[t]), smooth: true, showSymbol: false, connectNulls: true,
+      name: tierName(t), type: "line", data: history.map(h => h[t]), smooth: true, showSymbol: false, connectNulls: true,
       itemStyle: { color: colors[i % colors.length] }, lineStyle: { width: 2, color: colors[i % colors.length] },
     }));
     if (series[0]) series[0].markLine = { silent: true, symbol: "none", lineStyle: { color: TX, type: "dashed" }, data: [{ yAxis: 0 }] };
@@ -566,7 +569,7 @@
       backgroundColor: "transparent",
       tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
         formatter: (ps) => { let s = ps[0].axisValue + "<br/>"; ps.forEach(p => { s += `${p.seriesName} <b>${fmtN(p.value)}</b> 手<br/>`; }); return s; } },
-      legend: { data: tiers, textStyle: { color: TX }, top: 0, itemWidth: 12, itemHeight: 8 },
+      legend: { data: tiers.map(tierName), textStyle: { color: TX }, top: 0, itemWidth: 12, itemHeight: 8 },
       grid: { left: 62, right: 16, top: 34, bottom: 36 },
       xAxis: { type: "category", data: dates, boundaryGap: false, ...axisCommon(),
         axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(dates.length / 6)) } },

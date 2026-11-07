@@ -4,10 +4,12 @@
 全市场资金结构清单 —— 后端 /api/market_divergence 与离线单文件共用同一份口径。
 
 两层判定：
-  结构层：机构 / 散户净持仓反向（分歧）、同向且双方显著（一致偏多 / 一致偏空）、
+  结构层：前5席位 / 其余席位净持仓反向（分歧）、同向且双方显著（一致偏多 / 一致偏空）、
           或至少一方不明显（结构不明）。
   价仓层：近 5 日「价格 × 持仓」四象限，判断行情是增量资金推动还是平仓 / 回补驱动。
 
+席位口径：前5席位 = 按 |净持仓| 排名前 5 的会员席位，其余席位 = 多/空/成交量三榜合并去重后第 6 名及以后；
+交易所只公布期货公司席位，不披露终端客户属性，故不用「机构 / 散户」表述。
 关键口径：净持仓是当日榜单存量，不是当日资金流向；无分歧 ≠ 预期一致 ≠ 趋势行情。
 一致偏多也可能是多头拥挤（增量买盘枯竭），必须用价格与持仓确认。
 
@@ -154,12 +156,12 @@ def structure(inst, ret, available=True):
     ret_ratio = round(ret_net / ret_gross * 100 if ret_gross else 0.0, 1)
     # 沿用既有口径：只要两侧净持仓符号相反即为分歧（不做显著性过滤，保证与 ⑥/⑦ 预警一致）
     if (inst_net > 0 and ret_net < 0) or (inst_net < 0 and ret_net > 0):
-        direction = "机构净多 / 散户净空" if inst_net > 0 else "机构净空 / 散户净多"
+        direction = "前5净多 / 其余净空" if inst_net > 0 else "前5净空 / 其余净多"
         return "divergence", direction, inst_ratio, ret_ratio
     if si and sr and si == sr:
         return ("aligned_long" if si > 0 else "aligned_short"), \
                ("一致净多" if si > 0 else "一致净空"), inst_ratio, ret_ratio
-    direction = _part(inst, "机构", si) + " / " + _part(ret, "散户", sr)
+    direction = _part(inst, "前5", si) + " / " + _part(ret, "其余", sr)
     return "neutral", direction, inst_ratio, ret_ratio
 
 
@@ -232,11 +234,11 @@ def price_oi_signal(po, stance, band=None):
                   f"{px_txt}：价格走平且持仓下降，资金离场观望，等待新驱动。")
     elif stance == "aligned_long":
         result = (pq, "多头拥挤", "caution",
-                  f"{px_txt}：机构与散户同为净多，但价格未跟涨——多头持仓拥挤、"
+                  f"{px_txt}：前5与其余席位同为净多，但价格未跟涨——多头持仓拥挤、"
                   "增量买盘不足，警惕获利回吐。")
     elif stance == "aligned_short":
         result = (pq, "空头拥挤", "fade",
-                  f"{px_txt}：机构与散户同为净空，但价格未跟跌——空头拥挤，"
+                  f"{px_txt}：前5与其余席位同为净空，但价格未跟跌——空头拥挤，"
                   "警惕利多触发的集中回补反弹。")
     else:
         result = (pq, "观望", "none", f"{px_txt}：价格与持仓均无明显变化，资金面中性。")
@@ -305,7 +307,7 @@ def compute_market_view(items, default_as_of=""):
         }
         if not available:
             row.update({"pq": pq, "flag": "—", "risk": "none", "level": "none",
-                        "note": "暂无前 20 会员持仓排名，无法判断机构 / 散户结构；价仓象限仍可参考。"})
+                        "note": "暂无前 20 会员持仓排名，无法判断前5 / 其余席位结构；价仓象限仍可参考。"})
         out.append(row)
 
     # 分组排序：分歧（加大优先）→ 无分歧（需警惕回落优先）→ 无数据
