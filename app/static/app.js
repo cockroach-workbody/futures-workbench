@@ -946,26 +946,42 @@
       score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts, evidence, risks, rule: scoreRule } };
   }
 
-  // 前20席位持仓占总持仓比例（榜单口径）
-  // 分子：top20 榜单「前20会员」持买/持卖合计；分母：capital_flow.total_position.latest（主连单边总持仓）。
-  // 多空两侧分别相除后取均值，等价于 (持买+持卖) / (2 × 总持仓)，表示前20席位对总持仓的覆盖率。
-  // 注意：榜单为主力合约、总持仓为主连口径，合约换月时可能错位（>100%），故仅作集中度参考。
+  // 三榜合一总持仓占比（与 ⑦「前5席位 / 其余席位」同源同日）
+  // 分子：多单 / 空单 / 成交量三榜按会员简称合并去重后的「全部席位」持买 / 持卖合计
+  //       = capital_flow.institutional_vs_retail 两组 long / short 之和（两组覆盖全部 member_count 席位，
+  //         不再是旧口径的「前20会员」榜单合计，后者来自另一路 NeoData 数据、与资金结构不同源）。
+  // 分母：capital_flow.total_position.latest（主连单边总持仓）。
+  // 多空两侧分别相除后取均值 = (持买+持卖)/(2×总持仓)，衡量三榜席位对全市场持仓的覆盖率 / 集中度。
+  // 榜单为主力合约、总持仓为主连口径，合约换月时可能错位（>100%），故仅作集中度参考。
   function calcSeatShare(s, cf) {
-    const t = (s && s.top20) || {};
     const tp = (cf && cf.total_position) || {};
     const n = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
-    const latest = n(tp.latest), L = n(t.long_total), S = n(t.short_total);
-    if (latest <= 0 || L <= 0 || S <= 0) return { valid: false };
-    const lp = L / latest * 100, sp = S / latest * 100;
-    return {
-      valid: true, pct: (lp + sp) / 2, longPct: lp, shortPct: sp,
-      longTotal: L, shortTotal: S, latest, over: lp > 100 || sp > 100
+    const latest = n(tp.latest);
+    if (latest <= 0) return { valid: false };
+    const share = (L, S, count, basis) => {
+      if (L <= 0 || S <= 0) return null;
+      const lp = L / latest * 100, sp = S / latest * 100;
+      return {
+        valid: true, pct: (lp + sp) / 2, longPct: lp, shortPct: sp,
+        longTotal: L, shortTotal: S, latest, count, basis,
+        over: lp > 100 || sp > 100
+      };
     };
+    const iv = (cf && cf.institutional_vs_retail) || {};
+    const inst = iv.institutional || {}, ret = iv.retail || {};
+    const merged = share(n(inst.long) + n(ret.long), n(inst.short) + n(ret.short),
+      n(inst.count) + n(ret.count), "三榜合一");
+    if (merged) return merged;
+    // 旧快照缺 long / short 字段时才回退 top20 榜单，界面会如实标注口径
+    const t = (s && s.top20) || {};
+    const fallback = share(n(t.long_total), n(t.short_total),
+      (t.members && t.members.length) || 0, "前20榜单");
+    return fallback || { valid: false };
   }
 
   // ⑦ 速读卡片：五维精炼（钱在不在 / 谁在动 / 前5 vs 其余席位 / 大单 / 历史回溯）+ 一句话整体判断
   // 口径：净持仓＝当日榜单存量；Δ＝席位当日流量；前5 / 其余席位按席位净持仓规模划分。
-  // seat：由 calcSeatShare 计算的前20席位持仓占比，作为纯入参传入，保持调用链单向无环。
+  // seat：由 calcSeatShare 计算的「三榜合一总持仓占比」，作为纯入参传入，保持调用链单向无环。
   function capFlowRead(cf, noise, seat) {
     const tp = cf.total_position || {};
     const tiers = cf.tiers || [];
@@ -1073,7 +1089,7 @@
       { no: "①", label: "总持仓变动", sub: "钱在不在", tone: cls(s5),
         metric: `${fmt(latest)} 手｜1日 ${cv(d1)} · 5日 ${cv(d5)}（${pct(p5)}）` +
           (seat && seat.valid
-            ? `<span class="seat-hl" title="前20席位持仓占总持仓 ${seat.pct.toFixed(2)}%｜多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%">前20席位占总持仓 <b>${seat.pct.toFixed(2)}%</b><span class="seat-hl-split">多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%</span></span>`
+            ? `<span class="seat-hl" title="${seat.basis === "三榜合一" ? "三榜合一总持仓占比" : "前20榜单总持仓占比"} ${seat.pct.toFixed(2)}%｜多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%｜${seat.basis} ${seat.count} 席｜分子＝全部席位持买/持卖合计，分母＝主连总持仓">${seat.basis === "三榜合一" ? "三榜合一占总持仓" : "前20榜单占总持仓"} <b>${seat.pct.toFixed(2)}%</b><span class="seat-hl-split">多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%</span></span>`
             : ""),
         note: moneyNote },
       { no: "②", label: "净持仓分布", sub: "谁在动 · 分档", tone: cls(mover ? mC : 0),
@@ -1096,7 +1112,7 @@
   // ⑦ 资金动向（AKShare·持仓结构·主力追踪）—— 由 capital_flow 数据驱动；缺失时回退原前20会员
   function renderCapFlow(s, cf) {
     const tp = cf.total_position || {};
-    const seat = calcSeatShare(s, cf);   // 前20席位持仓占总持仓比例（数据层，只读）
+    const seat = calcSeatShare(s, cf);   // 三榜合一总持仓占比（数据层，只读，与席位结构同源）
     const tiers = cf.tiers || [];
     const iv = cf.institutional_vs_retail || {};
     const lo = cf.large_orders || {};
@@ -1107,11 +1123,18 @@
       `<div class="netchg-card ${hero ? "hero" : ""}"><div class="k">${label}</div>
         <div class="v ${c || ""}">${val}</div><div class="s">${sub || ""}</div></div>`;
 
+    const seatName = seat.basis === "三榜合一" ? "三榜合一总持仓占比" : "前20榜单总持仓占比";
+    const seatTip = seat.basis === "三榜合一"
+      ? `口径：多单 / 空单 / 成交量三榜按会员简称合并去重后的全部席位（本品种 ${seat.count} 席）持买合计 / 持卖合计 ÷ 主连总持仓（单边），多空两侧分别相除后取均值，即 (持买+持卖)/(2×总持仓)；与 ⑦「前5席位 / 其余席位」同源同日，衡量榜单席位对全市场持仓的覆盖率 / 集中度。榜单为主力合约、总持仓为主连口径，换月时或有偏差。`
+      : `口径：旧快照缺三榜合一席位数据，回退前20会员榜单持买/持卖合计 ÷ 主连总持仓（单边），多空两侧分别相除后取均值；与三榜合一新口径不可直接比较。`;
     const seatKpi = seat.valid ? `<div class="netchg-card hero seat-kpi">
-        <div class="k">前20席位持仓占总持仓 <span class="cf-i" title="口径：前20会员榜单持买/持卖合计 ÷ 主连总持仓（单边），多空两侧分别相除后取均值，即 (持买+持卖)/(2×总持仓)；衡量前20席位对全市场持仓的覆盖率/集中度。榜单为主力合约、总持仓为主连口径，换月时或有偏差。">ⓘ</span></div>
+        <div class="k">${seatName} <span class="cf-i" title="${seatTip}">ⓘ</span></div>
         <div class="v seat-pct">${seat.pct.toFixed(2)}%<span class="seat-split"><span>多 ${seat.longPct.toFixed(2)}%</span><span>空 ${seat.shortPct.toFixed(2)}%</span></span></div>
-        <div class="s">${seat.over ? "口径错位 · " : ""}多空两侧分别相除后取均值</div>
+        <div class="s">${seat.over ? "口径错位 · " : ""}${seat.basis} ${seat.count} 席 · 多空分别相除取均值</div>
       </div>` : "";
+    const seatNote = seat.valid
+      ? `${seatName} =（${seat.basis === "三榜合一" ? "多单 / 空单 / 成交量三榜合并去重后的全部席位" : "前20会员榜单"}持买合计 + 持卖合计）÷（2 × 主连总持仓），多空两侧占比取均值；本品种 ${seat.basis} ${seat.count} 席，与「前5席位 / 其余席位」同源，用于衡量榜单席位对全市场持仓的覆盖率 / 集中度；榜单为主力合约、总持仓为主连，换月时口径可能错位。`
+      : "暂无榜单席位持仓数据，占比不展示。";
 
     // 现算席位口径摘要，不沿用旧快照里「机构 / 散户」的措辞
     const summaryText = cf.available
@@ -1357,7 +1380,7 @@
           <div id="capFlowT20Verdict" class="verdict" style="margin-top:4px"></div>
         </div>
       </div>
-      <div class="note" style="margin-top:8px">数据来源：${cf.source}。${PROXY_NOTE} 主力合约 ${cf.main_contract || cf.contract}；数据交易日 ${cf.as_of}。总持仓为主连口径，合约换月时或有跳变。前20席位持仓占总持仓 =（前20会员持买合计 + 持卖合计）÷（2 × 主连总持仓），多空两侧占比取均值，用于衡量头部席位集中度；榜单为主力合约、总持仓为主连，换月时口径可能错位。</div>`;
+      <div class="note" style="margin-top:8px">数据来源：${cf.source}。${PROXY_NOTE} 主力合约 ${cf.main_contract || cf.contract}；数据交易日 ${cf.as_of}。总持仓为主连口径，合约换月时或有跳变。${seatNote}</div>`;
 
     const tone = inst.net_chg > 0 ? "前5席位净多增仓" : (inst.net_chg < 0 ? "前5席位净空增仓" : "中性");
     return card("⑦ 资金动向", "AKShare·持仓结构·主力追踪", "span12", body, tone);

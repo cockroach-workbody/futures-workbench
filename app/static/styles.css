@@ -174,7 +174,7 @@ tbody tr:hover{background:var(--panel2)}
 .cfread-chip{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;font-size:10px;font-weight:700;white-space:nowrap}
 .cfread-chip.warn{color:#f0c268;background:rgba(224,168,58,.14);border:1px solid rgba(224,168,58,.5)}
 .cfread-chip.danger{color:#ff8b82;background:rgba(232,72,63,.14);border:1px solid rgba(232,72,63,.5)}
-/* 前20席位持仓占总持仓 · 高亮徽标（琥珀描边，避免与涨跌红绿混淆） */
+/* 三榜合一总持仓占比 · 高亮徽标（琥珀描边，避免与涨跌红绿混淆） */
 .seat-hl{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:9px;font-size:10.5px;
   font-weight:700;white-space:nowrap;color:#f0c268;background:rgba(224,168,58,.16);
   border:1px solid rgba(224,168,58,.62);font-variant-numeric:tabular-nums}
