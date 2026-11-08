@@ -1384,9 +1384,10 @@
       </div>
       <div class="flex" style="margin-top:10px">
         <div style="flex:1">
-          <div class="t20-hist-head"><span class="t">前20会员近1月净持仓变化（合计净持仓 · 主力追踪）</span></div>
+          <div class="t20-hist-head"><span class="t">三榜合一近1月合计净持仓变化（合计净持仓 · 主力合约追踪）</span></div>
           <div id="chCapFlowT20Hist" class="chart" style="height:240px"></div>
           <div id="capFlowT20Verdict" class="verdict" style="margin-top:4px"></div>
+          <div class="note" style="margin-top:4px">口径：席位集合 = 多单 / 空单 / 成交量三榜合并去重；合计净持仓 = 多单榜前20持买合计 − 空单榜前20持卖合计（只在成交量榜出现的席位不计持仓，对分子零增量），与「三榜合一总持仓占比」同源同日。按当前主力合约逐日回溯，换月前后规模或有跳变。曲线已覆盖全部有资金数据品种（当前 39 个；PD / PT 无资金数据）。</div>
         </div>
       </div>
       <div class="note" style="margin-top:8px">数据来源：${cf.source}。${PROXY_NOTE} 主力合约 ${cf.main_contract || cf.contract}；数据交易日 ${cf.as_of}。总持仓为主连口径，合约换月时或有跳变。${seatNote}</div>`;
@@ -1650,13 +1651,25 @@
         Charts.totalPositionCurve($("#chCapFlowTotal"), s.capital_flow.total_position.series);
       if (s.capital_flow.tier_net_history && s.capital_flow.tier_net_history.length >= 2)
         Charts.tierNetHistory($("#chCapFlowHist"), s.capital_flow.tier_net_history);
-      // 前20会员近1月净持仓变化（复用 top20.history 累计曲线）
-      if (s.top20 && s.top20.history && s.top20.history.length >= 2) {
-        const h = s.top20.history.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
-        Charts.top20NetCurve($("#chCapFlowT20Hist"), h);
-        const chg = h[h.length - 1].net - h[0].net;
+      // 三榜合一近1月合计净持仓：优先 capital_flow.net_history（全部有资金数据品种），
+      // 旧 top20.history 仅在缺字段时回退（口径不同，结论里必须显式标注）
+      const cfh = s.capital_flow.net_history;
+      const hasNew = cfh && cfh.length >= 2;
+      const oldHist = s.top20 && s.top20.history;
+      const hasOld = oldHist && oldHist.length >= 2;
+      if (hasNew || hasOld) {
+        const h = (hasNew ? cfh : oldHist).slice().sort((a, b) => (a.date < b.date ? -1 : 1));
+        Charts.capflowNetCurve($("#chCapFlowT20Hist"), h, { legacy: !hasNew });
+        const last = h[h.length - 1];
+        const chg = last.net - h[0].net;
+        const seatTxt = last.seat_count ? `（三榜合并 ${last.seat_count} 席）` : "";
+        const srcTxt = hasNew ? "三榜合一合计净持仓" : "前20会员合计净持仓（旧口径回退）";
         const v = document.getElementById("capFlowT20Verdict");
-        if (v) v.innerHTML = `期末前20会员合计净持仓 <b>${fmt(h[h.length - 1].net)}</b> 手，近1月变化 <b class="${cls(chg)}">${chg > 0 ? "+" : ""}${fmt(chg)}</b> 手`;
+        if (v) v.innerHTML = `期末${srcTxt} <b>${fmt(last.net)}</b> 手${seatTxt}，近1月变化 <b class="${cls(chg)}">${chg > 0 ? "+" : ""}${fmt(chg)}</b> 手` +
+          (hasNew ? "" : ` <span class="note">（该品种缺三榜合一历史序列，暂用旧前20会员全合约曲线，数值不可与当日资金结构直接对照）</span>`);
+      } else {
+        const v = document.getElementById("capFlowT20Verdict");
+        if (v) v.innerHTML = `<span class="note">该品种暂无近1月三榜合一历史序列（PD / PT 无资金数据）。</span>`;
       }
     } else if (s.top20 && s.top20.members && s.top20.members.length) {
       // 回退：原前20会员图表

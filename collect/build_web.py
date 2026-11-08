@@ -98,15 +98,15 @@ def write_json_compact(path, obj):
 
 # ---------------------------------------------------------------- 1) web/
 def build_web_dir(slim_map, cats):
-    if os.path.isdir(WEB_DIR):
-        shutil.rmtree(WEB_DIR)
+    # 增量覆盖：不整目录删除 web/。部署目录可能含运行期资源（如 __wb_rsc），
+    # 静态资源与快照均为固定文件名，逐一覆盖即可达到与重建相同的效果。
     os.makedirs(WEB_DIR, exist_ok=True)
     # 代码
     os.makedirs(os.path.join(WEB_DIR, "app"), exist_ok=True)
     shutil.copy2(os.path.join(BASE, "app", "main.py"), os.path.join(WEB_DIR, "app", "main.py"))
     shutil.copy2(os.path.join(BASE, "app", "market_view.py"), os.path.join(WEB_DIR, "app", "market_view.py"))
-    shutil.copytree(os.path.join(BASE, "app", "static"), os.path.join(WEB_DIR, "app", "static"))
-    shutil.copytree(os.path.join(BASE, "app", "config"), os.path.join(WEB_DIR, "app", "config"))
+    shutil.copytree(os.path.join(BASE, "app", "static"), os.path.join(WEB_DIR, "app", "static"), dirs_exist_ok=True)
+    shutil.copytree(os.path.join(BASE, "app", "config"), os.path.join(WEB_DIR, "app", "config"), dirs_exist_ok=True)
     # 数据（紧凑）
     for (cat, code), snap in slim_map.items():
         write_json_compact(os.path.join(WEB_DIR, "data", cat, code, SNAP_DATE + ".json"), snap)

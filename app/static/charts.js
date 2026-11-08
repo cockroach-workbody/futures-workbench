@@ -418,6 +418,51 @@
     return c;
   }
 
+  // ⑦ 三榜合一：近一月「合计净持仓」变化曲线
+  // history: [{date, net, long_total, short_total, long_chg, short_chg, seat_count?, contract?}]
+  // 口径：多单/空单/成交量三榜合并去重席位；合计 = 多单榜持买合计 − 空单榜持卖合计。
+  // opts.legacy=true 表示回退旧「前20会员·全合约」序列，文案需显式区分口径。
+  function capflowNetCurve(dom, history, opts) {
+    const c = base(dom);
+    const legacy = !!(opts && opts.legacy);
+    const pts = history.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
+    const labels = pts.map(p => p.date.length === 8 ? p.date.slice(4).replace(/(..)(..)/, "$1-$2") : p.date);
+    const line = pts.map(p => p.net);
+    const last = pts[pts.length - 1];
+    const up = last.net >= 0;
+    const col = up ? RED : GREEN;
+    const labelTxt = legacy ? "前20会员合计净持仓（旧口径）" : "三榜合一合计净持仓";
+    const fmtN = (n) => (n == null ? "-" : Number(n).toLocaleString("en-US"));
+    c.setOption({
+      backgroundColor: "transparent",
+      tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
+        formatter: (p) => {
+          const x = pts[p[0].dataIndex];
+          return `${x.date}<br/>${labelTxt} <b>${fmtN(x.net)}</b> 手` +
+            `<br/>持买 ${fmtN(x.long_total)} / 持卖 ${fmtN(x.short_total)}` +
+            `<br/>当日增减：多 ${fmtN(x.long_chg)} / 空 ${fmtN(x.short_chg)}` +
+            (x.seat_count ? `<br/>三榜合并席位 <b>${x.seat_count}</b> 个` : "") +
+            (x.contract ? `<br/>合约 ${x.contract}` : "");
+        } },
+      grid: { left: 66, right: 18, top: 18, bottom: 40 },
+      xAxis: { type: "category", data: labels, boundaryGap: false, ...axisCommon(),
+        axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(labels.length / 8)) } },
+      yAxis: { type: "value", ...axisCommon(), name: legacy ? "合计净持仓(旧)" : "三榜合计净持仓",
+        nameTextStyle: { color: TX },
+        axisLabel: { color: TX, formatter: (v) => (v >= 0 ? "+" : "") + (Math.abs(v) >= 10000 ? (v / 10000).toFixed(1) + "万" : v) } },
+      series: [{
+        name: labelTxt, type: "line", data: line, smooth: true, showSymbol: true,
+        symbolSize: 5, connectNulls: true,
+        itemStyle: { color: col }, lineStyle: { width: 2, color: col },
+        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1,
+          [{ offset: 0, color: up ? "rgba(232,72,63,.26)" : "rgba(31,171,107,.26)" },
+           { offset: 1, color: "rgba(0,0,0,0)" }]) },
+        markLine: { silent: true, symbol: "none", lineStyle: { color: TX, type: "dashed" }, data: [{ yAxis: 0 }] },
+      }],
+    });
+    return c;
+  }
+
   // 前20会员：COT 净持仓 + z-score 归一化轴 + 观点净情绪 叠加背离分析
   // history: [{date, net, z, contract?}]；opinion: [{date, net, bull, bear, z}]
   function t20Divergence(dom, history, opinion) {
@@ -730,5 +775,5 @@
     return c;
   }
 
-  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, t20Divergence, capitalFlowTier, totalPositionCurve, tierNetHistory, priceVolumeOi, priceOiDual, memberMomentum };
+  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, capflowNetCurve, t20Divergence, capitalFlowTier, totalPositionCurve, tierNetHistory, priceVolumeOi, priceOiDual, memberMomentum };
 })(window);

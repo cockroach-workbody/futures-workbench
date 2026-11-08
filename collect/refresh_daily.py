@@ -21,7 +21,9 @@
   4) 运行 build_all.py 生成 data/<板块>/<CODE>/<SNAP_DATE>.json（首遍，生成 main_contract）
   4.5) AKShare 资金流采集 akshare_capital_flow.py（读取快照 main_contract，产出 raw_capflow；
        含 --with-history 历史回溯；最佳努力，失败则第7部分回退前20）
-  4.6) 二次 build_all.py 把 capital_flow 注入快照（供第7部分资金动向渲染）
+  4.55) 三榜合一近一月合计净持仓曲线 capflow_net_history.py（39 个有资金数据品种，
+       逐日缓存增量补采，写入 capflow 的 net_history；必须在 4.6 二次 build_all 之前）
+  4.6) 二次 build_all.py 把 capital_flow（含 net_history）注入快照（供第7部分渲染）
   5) 运行 build_web.py 生成 web/（线上部署源）+ dist/ 单文件
   6) 写 refresh_status.json 供前端/日志查看
 
@@ -305,6 +307,27 @@ def main():
         except Exception as e:  # noqa
             cf_ok = False
             log(f"[警告] AKShare 资金流采集运行异常(已跳过，第7部分回退前20): {e}")
+
+    # 4.55) 三榜合一近一月合计净持仓曲线：写入 net_history（逐日缓存，仅补新增交易日）
+    #       口径与「三榜合一总持仓占比」一致；必须在 4.6 二次 build_all 之前，
+    #       否则新字段进不了快照。失败不影响主流程，前端会回退旧 top20.history。
+    if not args.no_capflow and cf_ok:
+        log("三榜合一近一月合计净持仓曲线（39 品种 · 增量补采） ...")
+        try:
+            r_nh = subprocess.run(
+                [sys.executable, os.path.join(COLLECT_DIR, "capflow_net_history.py"),
+                 "--days", "22", "--workers", "4"],
+                cwd=BASE, capture_output=True, text=True,
+                env=dict(os.environ, WB_SNAP_DATE=sd), timeout=900)
+            tail = (r_nh.stdout or "")[-900:]
+            if r_nh.returncode != 0:
+                log(f"[警告] 三榜合一历史曲线采集异常(rc={r_nh.returncode}):\n{tail}")
+            else:
+                log(f"三榜合一历史曲线采集完成:\n{tail}")
+        except Exception as e:  # noqa
+            log(f"[警告] 三榜合一历史曲线采集运行异常(已跳过，前端回退旧曲线): {e}")
+    else:
+        log("三榜合一近一月曲线：跳过（--no-capflow 或资金流采集失败）")
 
     # 4.6) 二次 build_all：注入 capital_flow 到快照（供第7部分资金动向渲染；缺失则前端回退前20）
     log("重新构建 data/ 快照（注入 capital_flow） ...")
