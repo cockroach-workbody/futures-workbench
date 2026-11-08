@@ -946,7 +946,11 @@
       score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts, evidence, risks, rule: scoreRule } };
   }
 
-  // 三榜合一总持仓占比（与 ⑦「前5席位 / 其余席位」同源同日）
+  // 三榜合一总持仓占比（席位口径，与 ⑦「前5席位 / 其余席位」同源同日）
+  // 「三榜合一」指席位集合：多单榜 / 空单榜 / 成交量榜各 20 名按会员简称合并去重（通常 27~37 席）。
+  // 分子并不是三榜持仓量相加：long 只来自多单榜、short 只来自空单榜；只在成交量榜出现的席位
+  // long/short 记 0，所以并集对分子零增量 —— 分子恒等于「多单榜前20持买 + 空单榜前20持卖」。
+  // 分母是主连总持仓；多空两侧分别相除取均值 = (持买+持卖)/(2×总持仓)。
   // 分子：多单 / 空单 / 成交量三榜按会员简称合并去重后的「全部席位」持买 / 持卖合计
   //       = capital_flow.institutional_vs_retail 两组 long / short 之和（两组覆盖全部 member_count 席位，
   //         不再是旧口径的「前20会员」榜单合计，后者来自另一路 NeoData 数据、与资金结构不同源）。
@@ -973,8 +977,8 @@
       n(inst.count) + n(ret.count), "三榜合一");
     if (merged) return merged;
     // 旧快照缺 long / short 字段时才回退 top20 榜单。注意：top20 来自一次性导入的
-    // NeoData 静态快照（全市场 41 品种自 10-28 起 long_total 从未变化），并非当日榜单，
-    // 与「当日分母」配在一起会虚高，故标记 stale 并在界面显著标注，禁止与三榜口径对比。
+    // NeoData 静态快照（全市场 41 品种的 long_total 长期未变，as_of 早于当前交易日），并非当日榜单。
+    // 旧分子对应的是当时的高持仓，与当日已缩小的分母相除会虚高，故标记 stale 并在界面显著标注。
     const t = (s && s.top20) || {};
     const fallback = share(n(t.long_total), n(t.short_total),
       (t.members && t.members.length) || 0, "前20榜单");
@@ -1092,7 +1096,7 @@
       { no: "①", label: "总持仓变动", sub: "钱在不在", tone: cls(s5),
         metric: `${fmt(latest)} 手｜1日 ${cv(d1)} · 5日 ${cv(d5)}（${pct(p5)}）` +
           (seat && seat.valid
-            ? `<span class="seat-hl${seat.stale ? " stale" : ""}" title="${seat.basis === "三榜合一" ? "三榜合一总持仓占比" : "前20榜单总持仓占比"} ${seat.pct.toFixed(2)}%｜多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%｜${seat.basis} ${seat.count} 席｜分子＝全部席位持买/持卖合计，分母＝主连总持仓${seat.stale ? "｜⚠ 静态历史快照，非当日数据，不可与三榜口径比较" : `｜分子分母同为 ${fmtDate(cf.as_of)} 当日`}">${seat.basis === "三榜合一" ? "三榜合一占总持仓" : "前20榜单占总持仓"} <b>${seat.pct.toFixed(2)}%</b>${seat.stale ? " <b>⚠静态</b>" : ""}<span class="seat-hl-split">多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%</span></span>`
+            ? `<span class="seat-hl${seat.stale ? " stale" : ""}" title="${seat.basis === "三榜合一" ? "三榜合一总持仓占比" : "前20榜单总持仓占比"} ${seat.pct.toFixed(2)}%｜多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%｜${seat.basis} ${seat.count} 席｜分子＝多单榜前20持买 + 空单榜前20持卖，分母＝当日主连总持仓${seat.stale ? "｜⚠ 静态历史快照，非当日数据，不可与三榜口径比较" : `｜分子分母同为 ${fmtDate(cf.as_of)} 当日`}">${seat.basis === "三榜合一" ? "三榜合一占总持仓" : "前20榜单占总持仓"} <b>${seat.pct.toFixed(2)}%</b>${seat.stale ? " <b>⚠静态</b>" : ""}<span class="seat-hl-split">多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%</span></span>`
             : ""),
         note: moneyNote },
       { no: "②", label: "净持仓分布", sub: "谁在动 · 分档", tone: cls(mover ? mC : 0),
@@ -1128,15 +1132,17 @@
 
     const seatName = seat.basis === "三榜合一" ? "三榜合一总持仓占比" : "前20榜单总持仓占比";
     const seatTip = seat.basis === "三榜合一"
-      ? `口径：多单 / 空单 / 成交量三榜按会员简称合并去重后的全部席位（本品种 ${seat.count} 席）持买合计 / 持卖合计 ÷ 主连总持仓（单边），多空两侧分别相除后取均值，即 (持买+持卖)/(2×总持仓)；分子与分母同为 ${fmtDate(cf.as_of)} 当日数据，与 ⑦「前5席位 / 其余席位」同源同日，衡量榜单席位对全市场持仓的覆盖率 / 集中度。\n注意两点：① 某席位只在一个方向的榜单进前 20 时，另一方向按 0 计，故该值是「榜单可观测持仓覆盖率」，不是严格的席位持仓总额；② 榜单为主力合约、总持仓为主连口径，换月时或有偏差。旧版「前20榜单总持仓占比」用的是一次性导入的静态历史快照（分子长期不更新），与当日分母相除会虚高，两个口径的数值不可直接比较。`
-      : `口径：旧快照缺三榜合一席位数据，回退前20会员榜单持买/持卖合计 ÷ 当日主连总持仓（单边），多空两侧分别相除后取均值。\n⚠ 该榜单是一次性导入的静态历史快照，并非当日数据；分子不随持仓变化更新，与当日分母相除会虚高，仅供兜底展示，不可与三榜合一新口径或历史数值比较。`;
+      ? `口径：分子 = 当日多单榜前 20 名持买合计 + 空单榜前 20 名持卖合计；分母 = 当日主连总持仓（单边），多空分别相除取均值，即 (持买+持卖)/(2×总持仓)。分子与分母同为 ${fmtDate(cf.as_of)} 当日数据。\n「三榜合一」是席位集合口径，不是持仓量相加：三张榜各 20 名按会员简称去重后共 ${seat.count} 席，用于 ⑦「前5席位 / 其余席位」分组；long 只来自多单榜、short 只来自空单榜，只在成交量榜出现的席位 long/short 记 0，并集对分子零增量。故该值是「榜单可观测持仓覆盖率」，不是席位持仓总额。\n旧版「前20榜单总持仓占比」取自一次性导入的静态历史快照，交易日早于当前、当时持仓更高；拿旧分子除当日分母会虚高。两者日期不同，数值不可直接比较；按各自当日分母计算，新口径并不低于旧口径。\n榜单为主力合约、总持仓为主连口径，换月时或有偏差。`
+      : `口径：旧快照缺三榜合一席位数据，回退前20会员榜单持买/持卖合计 ÷ 当日主连总持仓（单边），多空两侧分别相除后取均值。\n⚠ 该榜单是一次性导入的静态历史快照，交易日早于当前、持仓水平不同；分子与分母不同日，结果仅供兜底展示，不可与三榜合一新口径或历史数值比较。`;
     const seatKpi = seat.valid ? `<div class="netchg-card hero seat-kpi${seat.stale ? " stale" : ""}">
         <div class="k">${seatName} <span class="cf-i" title="${seatTip}">ⓘ</span></div>
         <div class="v seat-pct">${seat.pct.toFixed(2)}%<span class="seat-split"><span>多 ${seat.longPct.toFixed(2)}%</span><span>空 ${seat.shortPct.toFixed(2)}%</span></span></div>
         <div class="s">${seat.stale ? "⚠ 静态历史快照 · 非当日数据 · 不可比" : `${seat.over ? "口径错位 · " : ""}当日 ${fmtDate(cf.as_of)} · ${seat.basis} ${seat.count} 席 · 分子分母同日`}</div>
       </div>` : "";
     const seatNote = seat.valid
-      ? `${seatName} =（${seat.basis === "三榜合一" ? "当日多单 / 空单 / 成交量三榜合并去重后的全部席位" : "前20会员榜单"}持买合计 + 持卖合计）÷（2 × 主连总持仓），多空两侧占比取均值；本品种 ${seat.basis} ${seat.count} 席，与「前5席位 / 其余席位」同源，用于衡量榜单席位对全市场持仓的覆盖率 / 集中度；榜单为主力合约、总持仓为主连，换月时口径可能错位。${seat.basis === "三榜合一" ? "分子分母同为当交易日，旧版「前20榜单」占比用的是静态历史快照，两者不可直接比较。" : "⚠ 该口径为静态历史快照，非当日数据，仅供兜底。"}`
+      ? seat.basis === "三榜合一"
+        ? `${seatName} =（当日多单榜前 20 持买 + 空单榜前 20 持卖）÷（2 × 当日主连总持仓），多空分别相除取均值；本品种三榜合并去重 ${seat.count} 席用于分组，只在成交量榜出现的席位不贡献分子，故「三榜合一」指席位集合而非持仓量相加。与「前5席位 / 其余席位」同源同日，衡量榜单可观测持仓对全市场的覆盖率；榜单为主力合约、总持仓为主连，换月时口径可能错位。旧版「前20榜单」为静态历史快照，分子分母不同日，不可与当日值直接比较。`
+        : `⚠ ${seatName} 回退自静态历史快照，交易日早于当前、分子分母不同日，仅供兜底展示，不可与三榜合一当日口径或历史数值比较。`
       : "暂无榜单席位持仓数据，占比不展示。";
 
     // 现算席位口径摘要，不沿用旧快照里「机构 / 散户」的措辞
