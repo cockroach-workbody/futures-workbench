@@ -189,6 +189,14 @@ tbody tr:hover{background:var(--panel2)}
 .seat-split{display:inline-flex;gap:10px;margin-left:9px;vertical-align:baseline;
   font-size:12px;font-weight:600;color:#e8c98d;font-variant-numeric:tabular-nums;white-space:nowrap}
 .netchg-card.seat-kpi .k .cf-i{cursor:help;color:var(--accent);font-size:10px}
+/* 回退到静态历史快照时的警示态：改冷灰蓝 + 虚线，区别于当日琥珀口径 */
+.seat-hl.stale,.seat-hl.stale b{color:#a9b6c8;background:rgba(140,158,182,.14);
+  border-color:rgba(140,158,182,.6)}
+.seat-hl.stale b{background:none;border:0;font-size:10.5px;font-weight:700}
+.netchg-card.seat-kpi.stale{border-color:rgba(140,158,182,.6);border-style:dashed;
+  background:rgba(140,158,182,.08);box-shadow:none}
+.netchg-card.seat-kpi.stale .v.seat-pct{color:#c3cfdd}
+.netchg-card.seat-kpi.stale .s{color:#a9b6c8}
 @media(max-width:768px){
   .seat-hl{display:block;width:max-content;max-width:100%;margin:4px 0 0;white-space:normal}
   .seat-hl-split{display:block;margin:2px 0 0;padding-left:0;border-left:0}
