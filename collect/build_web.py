@@ -111,9 +111,36 @@ def build_web_dir(slim_map, cats):
     for (cat, code), snap in slim_map.items():
         write_json_compact(os.path.join(WEB_DIR, "data", cat, code, SNAP_DATE + ".json"), snap)
     # 同步最近一次刷新状态（供页面顶部状态条展示，不依赖本地/桌面）
+    # 不能整文件覆盖：cloud_cron 写入的「本次任务运行信息」(generated_at / mode /
+    # summary) 不在 collect 状态里，粗暴 copy 会让顶部时间倒退回上次数据主跑。
     src_status = os.path.join(BASE, "collect", "refresh_status.json")
+    dst_status = os.path.join(WEB_DIR, "refresh_status.json")
     if os.path.isfile(src_status):
-        shutil.copy2(src_status, os.path.join(WEB_DIR, "refresh_status.json"))
+        cur = {}
+        if os.path.isfile(dst_status):
+            try:
+                with open(dst_status, encoding="utf-8") as f:
+                    cur = json.load(f)
+            except Exception:
+                cur = {}
+        try:
+            with open(src_status, encoding="utf-8") as f:
+                st = json.load(f)
+        except Exception:
+            st = {}
+        merged = dict(st)
+        merged["data_refreshed_at"] = st.get("finished_at")
+        for k in ("generated_at", "run_started_at", "run_finished_at",
+                  "mode", "summary", "available", "python", "host"):
+            if k in cur:
+                merged[k] = cur[k]
+        # 旧字段兼容：finished_at 指向最近一次任务运行，而非上一次数据主跑
+        merged["started_at"] = cur.get("run_started_at") or cur.get("started_at") or st.get("started_at")
+        merged["finished_at"] = cur.get("run_finished_at") or cur.get("generated_at") or st.get("finished_at")
+        merged["available"] = True
+        os.makedirs(os.path.dirname(dst_status), exist_ok=True)
+        with open(dst_status, "w", encoding="utf-8") as f:
+            json.dump(merged, f, ensure_ascii=False, indent=2)
     log(f"[OK] web/ 已生成：{len(slim_map)} 个品种")
 
 

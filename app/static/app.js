@@ -38,10 +38,16 @@
     } catch (e) { REFRESH_INFO = null; }
     paintDataDate();
   }
+  const MODE_LABEL = { data: "数据主跑", both: "全量刷新", opinion: "观点刷新", deploy: "仅部署", offline: "离线版" };
+  const shortTime = (s) => (!s ? "—" : (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(s) ? s.slice(5, 16) : s));
   function refreshSuffix() {
     if (!REFRESH_INFO || REFRESH_INFO.available === false) return "";
+    // 最近一次任务运行时间；旧状态文件里 generated_at 才是本次运行时间，
+    // finished_at 曾被上一次数据主跑覆盖，不能当「刷新」显示。
+    const runAt = REFRESH_INFO.run_finished_at || REFRESH_INFO.generated_at || REFRESH_INFO.finished_at;
     const parts = [];
-    parts.push("· 刷新 " + (REFRESH_INFO.finished_at || REFRESH_INFO.generated_at || ""));
+    parts.push("· 运行 " + shortTime(runAt));
+    if (REFRESH_INFO.mode) parts.push(MODE_LABEL[REFRESH_INFO.mode] || REFRESH_INFO.mode);
     if (REFRESH_INFO.build_all_ok != null)
       parts.push("构建" + (REFRESH_INFO.build_all_ok ? "✓" : "✗"));
     if (REFRESH_INFO.kline_ok != null) parts.push("K线" + REFRESH_INFO.kline_ok);

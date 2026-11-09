@@ -102,18 +102,38 @@ def run_cmd(cmd, timeout=600):
 
 
 def write_web_status(report):
-    """把运行报告同步给 web 服务（供页面顶部状态条展示），不依赖本地/桌面。"""
+    """把运行报告同步给 web 服务（供页面顶部状态条展示），不依赖本地/桌面。
+
+    两个时间语义必须分开，不能用 merge 混在一起：
+      * collect/refresh_status.json ——「上一次完整数据主跑」的结果（snap_date、
+        kline_ok、各步骤状态），只有 data / both 模式会更新；
+      * report ——「本次任务」的运行信息，opinion 模式也会更新。
+    旧实现先放 report 再 update(collect 旧状态)，导致 opinion 刷新后
+    started_at / finished_at 被覆盖回上一次 data 主跑时间，页面顶部
+    「最后刷新」永远停在旧日期，看起来像任务没跑。
+    """
     web_status = os.path.join(BASE, "web", "refresh_status.json")
     src = os.path.join(COLLECT_DIR, "refresh_status.json")
-    merged = dict(report)
+    merged = {}
     if os.path.isfile(src):
         try:
             with open(src, encoding="utf-8") as f:
                 merged.update(json.load(f))
         except Exception:
             pass
+    # 数据侧：沿用 collect 状态，并显式记下「数据刷新时间」
+    merged["data_refreshed_at"] = merged.get("finished_at")
+    # 运行侧：以本次 report 为准，绝不被旧状态覆盖（同时保留旧字段兼容前端）
+    merged["run_started_at"] = report.get("started_at")
+    merged["run_finished_at"] = report.get("finished_at")
+    merged["started_at"] = report.get("started_at")
+    merged["finished_at"] = report.get("finished_at")
     merged["generated_at"] = report.get("finished_at")
+    merged["elapsed_sec"] = report.get("elapsed_sec")
     merged["mode"] = report.get("mode")
+    merged["summary"] = report.get("summary") or merged.get("summary")
+    merged["python"] = report.get("python") or merged.get("python")
+    merged["host"] = report.get("host") or merged.get("host")
     merged["available"] = True
     os.makedirs(os.path.dirname(web_status), exist_ok=True)
     with open(web_status, "w", encoding="utf-8") as f:
