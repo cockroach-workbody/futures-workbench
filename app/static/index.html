@@ -70,7 +70,7 @@
       if(s.kline_ok!=null) parts.push('K线：' + s.kline_ok + (s.kline_fail ? (' / 失败'+s.kline_fail) : ''));
       if(s.build_all_ok!=null) parts.push('构建：' + (s.build_all_ok ? '✓' : '✗'));
       if(s.deploy){ var ok = (String(s.deploy).indexOf('成功')>=0) || s.deploy_ok; parts.push('部署：' + (ok ? '✓' : '…')); }
-      if(s.mode !== 'offline') parts.push('数据为最近完整交易日 · 工作日19:30更新');
+      if(s.mode !== 'offline') parts.push('时间均为北京时间(UTC+8) · 数据为最近完整交易日 · 工作日19:30更新');
       el.className='refresh-status';
       el.textContent = parts.join('　|　');
     }

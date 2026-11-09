@@ -57,7 +57,7 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 COLLECT_DIR = os.path.join(BASE, "collect")
 sys.path.insert(0, COLLECT_DIR)
 
-from wb_common import latest_kline_date, snap_date  # noqa: E402
+from wb_common import latest_kline_date, snap_date, bj_now, BJ_LABEL  # noqa: E402
 import build_all  # noqa: E402  (取 PRODUCTS / SINA 映射)
 
 SINA_URL = ("https://stock2.finance.sina.com.cn/futures/api/json.php/"
@@ -67,7 +67,7 @@ UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
 
 
 def log(msg):
-    ts = datetime.datetime.now().strftime("%H:%M:%S")
+    ts = bj_now().strftime("%H:%M:%S")
     print(f"[{ts}] {msg}", flush=True)
 
 
@@ -196,11 +196,11 @@ def main():
     args = ap.parse_args()
 
     # 本机开机自启场景：周末自动跳过（避免无意义运行）；手动运行加 --allow-weekend 可强制
-    if not args.allow_weekend and datetime.datetime.now().weekday() >= 5:
+    if not args.allow_weekend and bj_now().weekday() >= 5:
         log("今天是周末，自动跳过刷新（如需强制请加 --allow-weekend）")
         return 0
 
-    started = datetime.datetime.now()
+    started = bj_now()
     log("==== 期货工作台每日刷新开始 ====")
 
     # 1) K 线
@@ -361,10 +361,11 @@ def main():
     else:
         log("inject_t20_history 完成")
 
-    elapsed = (datetime.datetime.now() - started).total_seconds()
+    elapsed = (bj_now() - started).total_seconds()
     status = {
         "started_at": started.strftime("%Y-%m-%d %H:%M:%S"),
-        "finished_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "finished_at": bj_now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timezone": BJ_LABEL,
         "snap_date": sd,
         "kline_ok": len(ok), "kline_skip": len(skip), "kline_fail": len(fail),
         "kline_fail_detail": [{"code": c, "msg": m} for c, m in fail],

@@ -14,10 +14,21 @@
 import os
 import json
 import glob
+import datetime
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 COLLECT_DIR = os.path.join(BASE, "collect")
 FALLBACK = "2026-10-28"
+
+# 刷新状态时间戳统一用北京时间，不依赖本机 / 云端沙箱的 TZ。
+# 云端容器常为 UTC，若直接用 datetime.now() 会写出比实际慢 8 小时的时间。
+BJ_TZ = datetime.timezone(datetime.timedelta(hours=8))
+BJ_LABEL = "Asia/Shanghai (UTC+8)"
+
+
+def bj_now():
+    """返回不带 tzinfo 的「当前北京时间」datetime，兼容既有 strftime 与时间差运算。"""
+    return datetime.datetime.now(BJ_TZ).replace(tzinfo=None)
 
 
 def latest_kline_date():

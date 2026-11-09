@@ -34,6 +34,8 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 COLLECT_DIR = os.path.join(BASE, "collect")
 sys.path.insert(0, COLLECT_DIR)
 
+from wb_common import bj_now, BJ_LABEL  # noqa: E402  (统一北京时间，不依赖宿主 TZ)
+
 # 可选：把缠论引擎路径注入环境，供 build_all / build_web 读取
 if "WB_CHANLUN_PATH" not in os.environ:
     # 本地开发兜底；云端/容器通过环境变量覆盖
@@ -41,7 +43,7 @@ if "WB_CHANLUN_PATH" not in os.environ:
 
 
 def log(msg):
-    ts = datetime.datetime.now().strftime("%H:%M:%S")
+    ts = bj_now().strftime("%H:%M:%S")
     print(f"[{ts}] {msg}", flush=True)
 
 
@@ -131,6 +133,7 @@ def write_web_status(report):
     merged["generated_at"] = report.get("finished_at")
     merged["elapsed_sec"] = report.get("elapsed_sec")
     merged["mode"] = report.get("mode")
+    merged["timezone"] = report.get("timezone") or BJ_LABEL
     merged["summary"] = report.get("summary") or merged.get("summary")
     merged["python"] = report.get("python") or merged.get("python")
     merged["host"] = report.get("host") or merged.get("host")
@@ -189,7 +192,7 @@ def mode_both():
 
 def main():
     mode = (sys.argv[1] if len(sys.argv) > 1 else "both").lower()
-    started = datetime.datetime.now()
+    started = bj_now()
     log(f"===== 期货工作台 cron 任务开始（mode={mode}） =====")
 
     ok = True
@@ -213,12 +216,13 @@ def main():
         d_ok, d_msg = deploy()
         summary["deploy"] = d_msg
 
-    finished = datetime.datetime.now()
+    finished = bj_now()
     elapsed = (finished - started).total_seconds()
     report = {
         "mode": mode,
         "started_at": started.strftime("%Y-%m-%d %H:%M:%S"),
         "finished_at": finished.strftime("%Y-%m-%d %H:%M:%S"),
+        "timezone": BJ_LABEL,
         "elapsed_sec": round(elapsed, 1),
         "host": os.environ.get("HOST", "0.0.0.0"),
         "summary": summary,

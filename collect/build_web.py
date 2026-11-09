@@ -131,9 +131,10 @@ def build_web_dir(slim_map, cats):
         merged = dict(st)
         merged["data_refreshed_at"] = st.get("finished_at")
         for k in ("generated_at", "run_started_at", "run_finished_at",
-                  "mode", "summary", "available", "python", "host"):
+                  "mode", "summary", "available", "python", "host", "timezone"):
             if k in cur:
                 merged[k] = cur[k]
+        merged["timezone"] = merged.get("timezone") or "Asia/Shanghai (UTC+8)"
         # 旧字段兼容：finished_at 指向最近一次任务运行，而非上一次数据主跑
         merged["started_at"] = cur.get("run_started_at") or cur.get("started_at") or st.get("started_at")
         merged["finished_at"] = cur.get("run_finished_at") or cur.get("generated_at") or st.get("finished_at")

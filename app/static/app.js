@@ -45,8 +45,9 @@
     // 最近一次任务运行时间；旧状态文件里 generated_at 才是本次运行时间，
     // finished_at 曾被上一次数据主跑覆盖，不能当「刷新」显示。
     const runAt = REFRESH_INFO.run_finished_at || REFRESH_INFO.generated_at || REFRESH_INFO.finished_at;
+    const tzTag = REFRESH_INFO.mode === "offline" ? "" : " 北京时间";
     const parts = [];
-    parts.push("· 运行 " + shortTime(runAt));
+    parts.push("· 运行 " + shortTime(runAt) + tzTag);
     if (REFRESH_INFO.mode) parts.push(MODE_LABEL[REFRESH_INFO.mode] || REFRESH_INFO.mode);
     if (REFRESH_INFO.build_all_ok != null)
       parts.push("构建" + (REFRESH_INFO.build_all_ok ? "✓" : "✗"));
