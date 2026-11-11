@@ -16,7 +16,7 @@
 
 产物：
   collect/raw_capflow/scoreinput_<CODE>.json  逐日打分输入缓存（幂等）
-  collect/raw_capflow/capflow_<CODE>.json     新增 score_history 字段
+  collect/raw_capflow/capflow_<CODE>.json     新增 score_history 字段（含逐日 close / chg_pct 价格对照）
   build_all.py 原样透传 capital_flow，score_history 自动进入各品种快照。
 
 调用：
@@ -97,6 +97,30 @@ def load_kline_rows(code, snap_date):
         if not isinstance(r, dict) or not r.get("date"):
             continue
         out.append(dict(r, date=_norm(r["date"])))
+    return out
+
+
+def price_by_date(rows):
+    """主连日线 → {日期: {close, chg_pct}}，供 L4 曲线叠加价格对照。
+
+    严格按同一交易日对齐（与打分用的行情窗口同日），缺失就不写，
+    绝不用前一交易日的价格顶替，避免跨日错配。
+    """
+    out = {}
+    for r in rows:
+        d = _norm(r.get("date"))
+        if not d or r.get("close") in (None, ""):
+            continue
+        try:
+            close = round(float(r["close"]), 4)
+        except (TypeError, ValueError):
+            continue
+        chg = r.get("chg_pct")
+        try:
+            chg = round(float(chg), 4) if chg not in (None, "") else None
+        except (TypeError, ValueError):
+            chg = None
+        out[d] = {"close": close, "chg_pct": chg}
     return out
 
 
@@ -247,7 +271,8 @@ def main():
         "复原当日四档 tiers / 前5席位 / 大单动向，并取截止该交易日的主连行情计算价量仓、量能与自适应噪音带；"
         "分数由页面同一份 capFlowAnalytics 公式计算（Node 桥接），与当日读数口径完全一致，不使用未来数据。"
         "权重：价·量·仓配合 35% / 前5席位净变化 25% / 分层一致性 20% / 大单动向 20%；"
-        "50 中性，≥58 偏多、≤42 偏空。合约为当前主力，换月前后规模或有跳变；读数仅供横向比较，非交易信号。")
+        "50 中性，≥58 偏多、≤42 偏空。每个点同时附上同一交易日主连收盘价与当日涨跌幅，仅作价格对照（右轴、独立刻度），不参与打分。"
+        "合约为当前主力，换月前后规模或有跳变；读数仅供横向比较，非交易信号。")
     ok, bad = [], []
     for code in all_codes:
         rs = results.get(code) or {}
@@ -255,8 +280,12 @@ def main():
         if len(hist) < 2:
             bad.append((code, len(hist)))
             continue
+        px = price_by_date(prepared[code]["rows"])
         for r in hist:
             r["contract"] = (prepared[code]["inputs"].get(r["date"]) or {}).get("contract")
+            p = px.get(_norm(r.get("date"))) or {}
+            r["close"] = p.get("close")
+            r["chg_pct"] = p.get("chg_pct")
         cf = prepared[code]["cf"]
         cf["score_history"] = hist
         cf["score_history_note"] = note
@@ -264,6 +293,12 @@ def main():
         ok.append((code, len(hist), hist[-1]["score"], hist[-1]["label"]))
 
     print(f"\n[汇总] 写入 {len(ok)}/{len(all_codes)} 品种；失败 {bad}", flush=True)
+    px_hit = px_all = 0
+    for code, n, _, _ in ok:
+        hist = (load_json(cf_path(code), {}) or {}).get("score_history") or []
+        px_all += len(hist)
+        px_hit += sum(1 for r in hist if isinstance(r.get("close"), (int, float)))
+    print(f"[价格对照] {px_hit}/{px_all} 个交易日已按同日主连收盘价对齐", flush=True)
     for code, n, sc, label in ok[:8]:
         print(f"  {code:4} {n:2} 点  末日读数 {sc:3} {label}", flush=True)
     if len(ok) > 8:

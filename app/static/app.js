@@ -1231,12 +1231,31 @@
       const shVerdict = `近1月读数区间 <b>${Math.min(...scs)}–${Math.max(...scs)}</b>，均值 <b>${avgV.toFixed(1)}</b>；` +
         `偏多 <b class="up">${bullN}</b> 日 / 中性 <b>${midN}</b> 日 / 偏空 <b class="down">${bearN}</b> 日；` +
         `当前 <b>${lastV}</b>（${lastLabel}），较期初 <b class="${cls(dlt)}">${dlt > 0 ? "+" : ""}${dlt}</b>`;
+      // 与读数严格同日的主连收盘价：只做对照、不参与打分；同向天数仅观察方向一致性
+      const pxPts = shRaw.filter(x => typeof x.close === "number" && isFinite(x.close) && x.close > 0);
+      const hasPx = pxPts.length >= 2;
+      let pxVerdict = "";
+      if (hasPx) {
+        const p0 = pxPts[0].close, p1 = pxPts[pxPts.length - 1].close;
+        const pxChg = (p1 / p0 - 1) * 100;
+        let sameN = 0, cmpN = 0;
+        for (let i = 1; i < shRaw.length; i++) {
+          const a = shRaw[i - 1], b = shRaw[i];
+          if (!(a.close > 0 && b.close > 0)) continue;
+          const ds = b.score - a.score, dp = b.close / a.close - 1;
+          if (ds === 0 || Math.abs(dp) < 1e-9) continue;
+          cmpN++;
+          if (Math.sign(ds) === Math.sign(dp)) sameN++;
+        }
+        pxVerdict = `；同期主连收盘 <b>${fmt(p0, 2)} → ${fmt(p1, 2)}</b>（<b class="${cls(pxChg)}">${pct(pxChg)}</b>），` +
+          `读数与价格逐日同向 <b>${sameN}/${cmpN}</b> 日`;
+      }
       scoreHistHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L4</span>近1月综合读数曲线<em>逐日按当日截面复算</em></div>
-      <div class="t20-hist-head"><span class="t">四维共振读数 · 近1月逐日回溯（0~100）</span></div>
+      <div class="t20-hist-head"><span class="t">${hasPx ? "四维共振读数 × 主连收盘价 · 近1月对照" : "四维共振读数 · 近1月逐日回溯（0~100）"}</span></div>
       <div id="chCapFlowScoreHist" class="chart" style="height:230px"></div>
-      <div id="capFlowScoreHistVerdict" class="verdict" style="margin-top:4px">${shVerdict}</div>
-      <div class="cf-foot">注：逐日按当日三榜明细复原四档 / 前5席位 / 大单动向，并取截止该交易日的主连行情计算价量仓、量能与自适应噪音带；分数由页面同一份 L4 公式计算，与当日读数完全同口径、不使用未来数据。50 中性，≥58 偏多、≤42 偏空；红点偏多、绿点偏空、琥珀点中性。启发式读数仅供横向比较与自身历史对照，不构成交易信号；合约按当前主力回溯，换月前后读数可能跳变。</div>
+      <div id="capFlowScoreHistVerdict" class="verdict" style="margin-top:4px">${shVerdict}${pxVerdict}</div>
+      <div class="cf-foot">注：逐日按当日三榜明细复原四档 / 前5席位 / 大单动向，并取截止该交易日的主连行情计算价量仓、量能与自适应噪音带；分数由页面同一份 L4 公式计算，与当日读数完全同口径、不使用未来数据。50 中性，≥58 偏多、≤42 偏空；红点偏多、绿点偏空、琥珀点中性。启发式读数仅供横向比较与自身历史对照，不构成交易信号；合约按当前主力回溯，换月前后读数可能跳变。${hasPx ? "紫色虚线为同一交易日主连收盘价（右轴，独立价格刻度、不做归一化），只作对照、不参与打分；悬停可看当日涨跌及相对前一日的读数/价格同向或背向。逐日同向天数只是方向一致性观察，不代表预测准确率。" : ""}</div>
     </div>`;
     }
 

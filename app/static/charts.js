@@ -502,13 +502,24 @@
     return c;
   }
 
-  // ⑦ L4「四维共振读数」近一月曲线：0~100 轴 + 偏多/中性/偏空分档背景带
-  // history: [{date, score, label, tone, confirm, parts:[{k,v,w,contrib}], quad, band, volTag, contract}]
+  // ⑦ L4「四维共振读数」近一月曲线：0~100 轴 + 偏多/中性/偏空分档背景带 + 主连收盘价（右轴）
+  // history: [{date, score, label, tone, confirm, parts:[{k,v,w,contrib}], quad, band, volTag,
+  //            contract, close, chg_pct}]
   // 每个交易日按当日榜单截面 + 截止该日行情复算，与页面当日读数同一公式。
+  // close 为同一交易日主连收盘价，严格同日对齐，仅作对照、不参与打分。
   function scoreHistoryCurve(dom, history) {
     const c = base(dom);
     const pts = history.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
     const labels = pts.map(p => p.date.length === 8 ? p.date.slice(4).replace(/(..)(..)/, "$1-$2") : p.date);
+    const PRICE_COL = "#a78bfa";
+    const pxFmt = (v) => Number(v).toFixed(Math.abs(v) >= 1000 ? 0 : Math.abs(v) >= 100 ? 1 : 2);
+    const priceLine = pts.map(p => (typeof p.close === "number" && isFinite(p.close) ? p.close : null));
+    const pv = priceLine.filter(v => v != null);
+    const hasPrice = pv.length >= 2;
+    const pMin = hasPrice ? Math.min.apply(null, pv) : 0;
+    const pMax = hasPrice ? Math.max.apply(null, pv) : 1;
+    // 右轴留出边距，避免价格线贴顶贴底；与左轴 0~100 独立，不做归一化
+    const pad = hasPrice ? Math.max((pMax - pMin) * 0.15, pMax * 0.003, 0.01) : 0;
     const toneOf = (v) => v >= 58 ? { col: RED, txt: "偏多" } : v <= 42 ? { col: GREEN, txt: "偏空" }
       : { col: AMBER, txt: "中性" };
     const data = pts.map(p => {
@@ -516,8 +527,45 @@
       return { value: p.score, itemStyle: { color: t.col, borderColor: t.col, borderWidth: 1 } };
     });
     const sgn = (v) => (v > 0 ? "+" : "") + Number(v).toFixed(2);
+    const sdir = (v) => v > 0.0001 ? 1 : v < -0.0001 ? -1 : 0;
+    const series = [{
+      name: "L4 综合读数", type: "line", yAxisIndex: 0, data, smooth: true, showSymbol: true,
+      symbolSize: 7, connectNulls: true, z: 3,
+      lineStyle: { width: 2, color: "#8fa7c4" },
+      areaStyle: { color: "rgba(143,167,196,.10)" },
+      markArea: { silent: true, data: [
+        [{ yAxis: 58, itemStyle: { color: "rgba(232,72,63,.07)" } }, { yAxis: 100 }],
+        [{ yAxis: 0, itemStyle: { color: "rgba(31,171,107,.07)" } }, { yAxis: 42 }],
+      ] },
+      markLine: { silent: true, symbol: "none", data: [
+        { yAxis: 50, lineStyle: { color: TX, type: "dashed", width: 1 },
+          label: { show: true, position: "insideEndTop", color: TX, fontSize: 10, formatter: "中性 50" } },
+        { yAxis: 58, lineStyle: { color: RED, type: "dotted", width: 1 },
+          label: { show: true, position: "insideEndTop", color: RED, fontSize: 10, formatter: "偏多 58" } },
+        { yAxis: 42, lineStyle: { color: GREEN, type: "dotted", width: 1 },
+          label: { show: true, position: "insideEndBottom", color: GREEN, fontSize: 10, formatter: "偏空 42" } },
+      ] },
+    }];
+    if (hasPrice) series.push({
+      name: "主连收盘价(右轴)", type: "line", yAxisIndex: 1, data: priceLine,
+      smooth: true, showSymbol: false, connectNulls: true, z: 5,
+      itemStyle: { color: PRICE_COL }, lineStyle: { width: 2, color: PRICE_COL, type: "dashed" },
+    });
+    const yAxis = [{ type: "value", min: 0, max: 100, interval: 25, ...axisCommon(),
+      name: "读数", nameTextStyle: { color: TX },
+      axisLabel: { color: TX, formatter: (v) => v } }];
+    if (hasPrice) yAxis.push({
+      type: "value", min: +(pMin - pad).toFixed(4), max: +(pMax + pad).toFixed(4),
+      ...axisCommon(), name: "主连价", nameTextStyle: { color: TX },
+      axisLabel: { color: PRICE_COL, formatter: pxFmt }, splitLine: { show: false },
+    });
     const opt = {
       backgroundColor: "transparent",
+      legend: hasPrice ? {
+        data: ["L4 综合读数", "主连收盘价(右轴)"],
+        top: 2, left: 0, itemWidth: 14, itemHeight: 8, itemGap: 12,
+        textStyle: { color: TX, fontSize: 10 },
+      } : { show: false },
       tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX,
         textStyle: { color: TXT }, formatter: (p) => {
           const x = pts[p[0].dataIndex];
@@ -525,6 +573,20 @@
           const t = toneOf(x.score);
           let h = `${x.date}<br/>L4 综合读数 <b style="color:${t.col}">${x.score}</b> /100 · ${x.label || t.txt}` +
             `<br/>共振确认度 <b>${x.confirm == null ? "—" : x.confirm + "/4"}</b> 维同向`;
+          if (typeof x.close === "number" && isFinite(x.close)) {
+            const cp = x.chg_pct == null ? null : Number(x.chg_pct);
+            h += `<br/><span style="color:${PRICE_COL}">●</span> 主连收盘 <b>${pxFmt(x.close)}</b>` +
+              (cp == null || !isFinite(cp) ? "" :
+                ` <span style="color:${cp > 0 ? RED : cp < 0 ? GREEN : TX}">${cp > 0 ? "+" : ""}${cp.toFixed(2)}%</span>`);
+            const prev = pts[p[0].dataIndex - 1];
+            if (prev && typeof prev.close === "number" && prev.close > 0) {
+              const ds = x.score - prev.score, dp = (x.close / prev.close - 1) * 100;
+              const a = sdir(ds), b = sdir(dp);
+              const tag = !a || !b ? "有持平" : a === b ? "同向" : "背向";
+              h += `<br/>较前日：读数 <b>${ds > 0 ? "+" : ""}${ds}</b> / 价格 <b>${dp > 0 ? "+" : ""}${dp.toFixed(2)}%</b>` +
+                ` · <b style="color:${a && a === b ? PRICE_COL : TX}">${tag}</b>`;
+            }
+          }
           if (x.parts && x.parts.length) {
             h += `<br/><span style="color:${TX}">四维贡献（归一化 × 权重）</span>`;
             x.parts.forEach(pt => {
@@ -539,30 +601,11 @@
           if (x.contract) h += `<br/>合约 ${x.contract}`;
           return h;
         } },
-      grid: { left: 52, right: 24, top: 20, bottom: 40 },
+      grid: { left: 52, right: hasPrice ? 62 : 24, top: hasPrice ? 44 : 20, bottom: 40 },
       xAxis: { type: "category", data: labels, boundaryGap: false, ...axisCommon(),
         axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(labels.length / 8)) } },
-      yAxis: { type: "value", min: 0, max: 100, interval: 25, ...axisCommon(),
-        name: "读数", nameTextStyle: { color: TX },
-        axisLabel: { color: TX, formatter: (v) => v } },
-      series: [{
-        name: "L4 综合读数", type: "line", data, smooth: true, showSymbol: true,
-        symbolSize: 7, connectNulls: true, z: 3,
-        lineStyle: { width: 2, color: "#8fa7c4" },
-        areaStyle: { color: "rgba(143,167,196,.10)" },
-        markArea: { silent: true, data: [
-          [{ yAxis: 58, itemStyle: { color: "rgba(232,72,63,.07)" } }, { yAxis: 100 }],
-          [{ yAxis: 0, itemStyle: { color: "rgba(31,171,107,.07)" } }, { yAxis: 42 }],
-        ] },
-        markLine: { silent: true, symbol: "none", data: [
-          { yAxis: 50, lineStyle: { color: TX, type: "dashed", width: 1 },
-            label: { show: true, position: "insideEndTop", color: TX, fontSize: 10, formatter: "中性 50" } },
-          { yAxis: 58, lineStyle: { color: RED, type: "dotted", width: 1 },
-            label: { show: true, position: "insideEndTop", color: RED, fontSize: 10, formatter: "偏多 58" } },
-          { yAxis: 42, lineStyle: { color: GREEN, type: "dotted", width: 1 },
-            label: { show: true, position: "insideEndBottom", color: GREEN, fontSize: 10, formatter: "偏空 42" } },
-        ] },
-      }],
+      yAxis,
+      series,
     };
     c.setOption(opt);
     return c;
