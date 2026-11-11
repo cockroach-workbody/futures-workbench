@@ -1215,6 +1215,31 @@
       </div>
     </div>`;
 
+    // ===== L4 近1月综合读数曲线：逐日按当日截面复算，公式与页面读数完全一致 =====
+    const shRaw = (cf.score_history || []).filter(x => x && typeof x.score === "number");
+    // 与 capFlowAnalytics 的五档标签保持一致（历史序列落盘的 label 为准）
+    const shLabel = (v) => v >= 70 ? "强偏多" : v >= 58 ? "偏多" : v > 42 ? "中性" : v > 30 ? "偏空" : "强偏空";
+    let scoreHistHtml = "";
+    if (shRaw.length >= 2) {
+      const scs = shRaw.map(x => x.score);
+      const firstV = scs[0], lastV = scs[scs.length - 1];
+      const bullN = scs.filter(v => v >= 58).length, bearN = scs.filter(v => v <= 42).length;
+      const midN = scs.length - bullN - bearN;
+      const avgV = scs.reduce((a, b) => a + b, 0) / scs.length;
+      const dlt = lastV - firstV;
+      const lastLabel = shRaw[shRaw.length - 1].label || shLabel(lastV);
+      const shVerdict = `近1月读数区间 <b>${Math.min(...scs)}–${Math.max(...scs)}</b>，均值 <b>${avgV.toFixed(1)}</b>；` +
+        `偏多 <b class="up">${bullN}</b> 日 / 中性 <b>${midN}</b> 日 / 偏空 <b class="down">${bearN}</b> 日；` +
+        `当前 <b>${lastV}</b>（${lastLabel}），较期初 <b class="${cls(dlt)}">${dlt > 0 ? "+" : ""}${dlt}</b>`;
+      scoreHistHtml = `<div class="cf-block">
+      <div class="cf-sec"><span class="no">L4</span>近1月综合读数曲线<em>逐日按当日截面复算</em></div>
+      <div class="t20-hist-head"><span class="t">四维共振读数 · 近1月逐日回溯（0~100）</span></div>
+      <div id="chCapFlowScoreHist" class="chart" style="height:230px"></div>
+      <div id="capFlowScoreHistVerdict" class="verdict" style="margin-top:4px">${shVerdict}</div>
+      <div class="cf-foot">注：逐日按当日三榜明细复原四档 / 前5席位 / 大单动向，并取截止该交易日的主连行情计算价量仓、量能与自适应噪音带；分数由页面同一份 L4 公式计算，与当日读数完全同口径、不使用未来数据。50 中性，≥58 偏多、≤42 偏空；红点偏多、绿点偏空、琥珀点中性。启发式读数仅供横向比较与自身历史对照，不构成交易信号；合约按当前主力回溯，换月前后读数可能跳变。</div>
+    </div>`;
+    }
+
     // 悬停/聚焦口径说明：属性内换行写成 &#10;，由 CSS white-space:pre-line 还原
     const tipAttr = (t) => String(t || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;")
       .replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "&#10;");
@@ -1353,7 +1378,7 @@
 
     const panelHtml = `<div class="cf-panel">
       <div class="cf-panel-h"><span class="ttl">专业资金分析框架</span><span class="sub">四维交叉验证 · 变化优先于绝对量 · 历史回溯</span></div>
-      ${scoreHtml}${quadHtml}${matrixHtml}${momentumHtml}${verdictHtml}
+      ${scoreHtml}${scoreHistHtml}${quadHtml}${matrixHtml}${momentumHtml}${verdictHtml}
     </div>`;
 
     const body = `${capread}
@@ -1648,6 +1673,9 @@
         Charts.priceVolumeOi($("#chCapFlowPriceOi"), s.kline.rows,
           { pxEps: nb.px, oiEps: nb.oi });
       }
+      // 专业框架 L4：近1月综合读数逐日回溯（无 score_history 时整块已在 HTML 中隐藏）
+      if (s.capital_flow.score_history && s.capital_flow.score_history.length >= 2)
+        Charts.scoreHistoryCurve($("#chCapFlowScoreHist"), s.capital_flow.score_history);
       // 专业框架 L3：主力席位净变化横条（主动进攻 / 回补离场分色）
       if (s.capital_flow.top_members && s.capital_flow.top_members.length)
         Charts.memberMomentum($("#chCapFlowMomentum"), s.capital_flow.top_members);
@@ -1740,6 +1768,11 @@
     });
     resizeBound = true;
   }
+
+  // 构建期复用：把纯计算层挂到 window，供 collect/score_bridge.js 按历史截面
+  // 逐日重算 L4 读数，保证「近1月综合读数」与页面当日读数使用同一份公式，零口径漂移。
+  // 浏览器端无副作用；Node 桥接脚本通过 VM 加载本文件后调用。
+  window.__wbScoreCore = { analytics: capFlowAnalytics, noise: capFlowNoise };
 
   window.addEventListener("DOMContentLoaded", init);
 })();

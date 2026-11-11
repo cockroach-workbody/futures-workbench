@@ -502,6 +502,72 @@
     return c;
   }
 
+  // ⑦ L4「四维共振读数」近一月曲线：0~100 轴 + 偏多/中性/偏空分档背景带
+  // history: [{date, score, label, tone, confirm, parts:[{k,v,w,contrib}], quad, band, volTag, contract}]
+  // 每个交易日按当日榜单截面 + 截止该日行情复算，与页面当日读数同一公式。
+  function scoreHistoryCurve(dom, history) {
+    const c = base(dom);
+    const pts = history.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
+    const labels = pts.map(p => p.date.length === 8 ? p.date.slice(4).replace(/(..)(..)/, "$1-$2") : p.date);
+    const toneOf = (v) => v >= 58 ? { col: RED, txt: "偏多" } : v <= 42 ? { col: GREEN, txt: "偏空" }
+      : { col: AMBER, txt: "中性" };
+    const data = pts.map(p => {
+      const t = toneOf(p.score);
+      return { value: p.score, itemStyle: { color: t.col, borderColor: t.col, borderWidth: 1 } };
+    });
+    const sgn = (v) => (v > 0 ? "+" : "") + Number(v).toFixed(2);
+    const opt = {
+      backgroundColor: "transparent",
+      tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX,
+        textStyle: { color: TXT }, formatter: (p) => {
+          const x = pts[p[0].dataIndex];
+          if (!x) return "";
+          const t = toneOf(x.score);
+          let h = `${x.date}<br/>L4 综合读数 <b style="color:${t.col}">${x.score}</b> /100 · ${x.label || t.txt}` +
+            `<br/>共振确认度 <b>${x.confirm == null ? "—" : x.confirm + "/4"}</b> 维同向`;
+          if (x.parts && x.parts.length) {
+            h += `<br/><span style="color:${TX}">四维贡献（归一化 × 权重）</span>`;
+            x.parts.forEach(pt => {
+              const v = pt.contrib != null ? pt.contrib : pt.v * pt.w;
+              const cc = v > 0 ? RED : v < 0 ? GREEN : TX;
+              h += `<br/><span style="color:${cc}">●</span> ${pt.k} <b style="color:${cc}">${sgn(v)}</b>`;
+            });
+          }
+          if (x.quad) h += `<br/>价仓象限：${x.quad}`;
+          if (x.volTag) h += `<br/>量能：${x.volTag}`;
+          if (x.band) h += `<br/>噪音带：价 ±${Number(x.band.px).toFixed(2)}% / 仓 ±${Number(x.band.oi).toFixed(2)}%`;
+          if (x.contract) h += `<br/>合约 ${x.contract}`;
+          return h;
+        } },
+      grid: { left: 52, right: 24, top: 20, bottom: 40 },
+      xAxis: { type: "category", data: labels, boundaryGap: false, ...axisCommon(),
+        axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(labels.length / 8)) } },
+      yAxis: { type: "value", min: 0, max: 100, interval: 25, ...axisCommon(),
+        name: "读数", nameTextStyle: { color: TX },
+        axisLabel: { color: TX, formatter: (v) => v } },
+      series: [{
+        name: "L4 综合读数", type: "line", data, smooth: true, showSymbol: true,
+        symbolSize: 7, connectNulls: true, z: 3,
+        lineStyle: { width: 2, color: "#8fa7c4" },
+        areaStyle: { color: "rgba(143,167,196,.10)" },
+        markArea: { silent: true, data: [
+          [{ yAxis: 58, itemStyle: { color: "rgba(232,72,63,.07)" } }, { yAxis: 100 }],
+          [{ yAxis: 0, itemStyle: { color: "rgba(31,171,107,.07)" } }, { yAxis: 42 }],
+        ] },
+        markLine: { silent: true, symbol: "none", data: [
+          { yAxis: 50, lineStyle: { color: TX, type: "dashed", width: 1 },
+            label: { show: true, position: "insideEndTop", color: TX, fontSize: 10, formatter: "中性 50" } },
+          { yAxis: 58, lineStyle: { color: RED, type: "dotted", width: 1 },
+            label: { show: true, position: "insideEndTop", color: RED, fontSize: 10, formatter: "偏多 58" } },
+          { yAxis: 42, lineStyle: { color: GREEN, type: "dotted", width: 1 },
+            label: { show: true, position: "insideEndBottom", color: GREEN, fontSize: 10, formatter: "偏空 42" } },
+        ] },
+      }],
+    };
+    c.setOption(opt);
+    return c;
+  }
+
   // 前20会员：COT 净持仓 + z-score 归一化轴 + 观点净情绪 叠加背离分析
   // history: [{date, net, z, contract?}]；opinion: [{date, net, bull, bear, z}]
   function t20Divergence(dom, history, opinion) {
@@ -814,5 +880,5 @@
     return c;
   }
 
-  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, capflowNetCurve, t20Divergence, capitalFlowTier, totalPositionCurve, tierNetHistory, priceVolumeOi, priceOiDual, memberMomentum };
+  global.Charts = { kline, butterfly, netBars, netChgBars, inventory, gauge, capital, basisSpread, sentimentPie, sentimentNet, sentimentCurve, top20NetCurve, capflowNetCurve, scoreHistoryCurve, t20Divergence, capitalFlowTier, totalPositionCurve, tierNetHistory, priceVolumeOi, priceOiDual, memberMomentum };
 })(window);
