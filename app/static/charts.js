@@ -418,10 +418,13 @@
     return c;
   }
 
-  // ⑦ 三榜合一：近一月「合计净持仓」变化曲线
-  // history: [{date, net, long_total, short_total, long_chg, short_chg, seat_count?, contract?}]
+  // ⑦ 三榜合一：近一月「合计净持仓」+ 两条占总持仓占比（左轴手数 / 右轴百分比）
+  // history: [{date, net, long_total, short_total, long_chg, short_chg, seat_count?, contract?,
+  //            total_oi?, seat_share?, net_share?}]
   // 口径：多单/空单/成交量三榜合并去重席位；合计 = 多单榜持买合计 − 空单榜持卖合计。
-  // opts.legacy=true 表示回退旧「前20会员·全合约」序列，文案需显式区分口径。
+  //   seat_share = (持买+持卖)/(2×当日主连总持仓) —— 卡片「三榜合一总持仓占比」的逐日展开
+  //   net_share  = 合计净持仓/当日主连总持仓     —— 剔除合约规模与换月量级变化，跨日可比
+  // opts.legacy=true 表示回退旧「前20会员·全合约」序列（无逐日分母），不画占比线。
   function capflowNetCurve(dom, history, opts) {
     const c = base(dom);
     const legacy = !!(opts && opts.legacy);
@@ -433,32 +436,68 @@
     const col = up ? RED : GREEN;
     const labelTxt = legacy ? "前20会员合计净持仓（旧口径）" : "三榜合一合计净持仓";
     const fmtN = (n) => (n == null ? "-" : Number(n).toLocaleString("en-US"));
+    const hasShare = !legacy && pts.some(p => p.total_oi > 0 && p.seat_share != null && p.net_share != null);
+    const seatLine = hasShare ? pts.map(p => (p.seat_share == null ? null : p.seat_share)) : [];
+    const netShareLine = hasShare ? pts.map(p => (p.net_share == null ? null : p.net_share)) : [];
+
+    const series = [{
+      name: labelTxt, type: "line", yAxisIndex: 0, data: line, smooth: true, showSymbol: true,
+      symbolSize: 5, connectNulls: true,
+      itemStyle: { color: col }, lineStyle: { width: 2, color: col },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1,
+        [{ offset: 0, color: up ? "rgba(232,72,63,.26)" : "rgba(31,171,107,.26)" },
+         { offset: 1, color: "rgba(0,0,0,0)" }]) },
+      markLine: { silent: true, symbol: "none", lineStyle: { color: TX, type: "dashed" }, data: [{ yAxis: 0 }] },
+    }];
+    if (hasShare) {
+      series.push({
+        name: "三榜合一占总持仓", type: "line", yAxisIndex: 1, data: seatLine,
+        smooth: true, showSymbol: false, connectNulls: true, z: 3,
+        itemStyle: { color: AMBER }, lineStyle: { width: 2, color: AMBER, type: "dashed" },
+      });
+      series.push({
+        name: "净持仓占总持仓", type: "line", yAxisIndex: 1, data: netShareLine,
+        smooth: true, showSymbol: false, connectNulls: true, z: 4,
+        itemStyle: { color: BLUE }, lineStyle: { width: 2, color: BLUE },
+      });
+    }
+    const yAxis = [{
+      type: "value", ...axisCommon(), name: legacy ? "合计净持仓(旧)" : "三榜合计净持仓",
+      nameTextStyle: { color: TX },
+      axisLabel: { color: TX, formatter: (v) => (v >= 0 ? "+" : "") + (Math.abs(v) >= 10000 ? (v / 10000).toFixed(1) + "万" : v) },
+    }];
+    if (hasShare) yAxis.push({
+      type: "value", ...axisCommon(), name: "占比(%)", nameTextStyle: { color: TX },
+      axisLabel: { color: TX, formatter: (v) => v.toFixed(0) + "%" },
+      splitLine: { show: false },
+    });
+
     c.setOption({
       backgroundColor: "transparent",
+      legend: hasShare ? {
+        data: [labelTxt, "三榜合一占总持仓", "净持仓占总持仓"],
+        top: 2, left: 0, itemWidth: 14, itemHeight: 8, itemGap: 12,
+        textStyle: { color: TX, fontSize: 10 },
+      } : { show: false },
       tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
         formatter: (p) => {
           const x = pts[p[0].dataIndex];
-          return `${x.date}<br/>${labelTxt} <b>${fmtN(x.net)}</b> 手` +
+          let h = `${x.date}<br/>${labelTxt} <b>${fmtN(x.net)}</b> 手` +
             `<br/>持买 ${fmtN(x.long_total)} / 持卖 ${fmtN(x.short_total)}` +
-            `<br/>当日增减：多 ${fmtN(x.long_chg)} / 空 ${fmtN(x.short_chg)}` +
-            (x.seat_count ? `<br/>三榜合并席位 <b>${x.seat_count}</b> 个` : "") +
+            `<br/>当日增减：多 ${fmtN(x.long_chg)} / 空 ${fmtN(x.short_chg)}`;
+          if (hasShare && x.seat_share != null) {
+            h += `<br/>主连总持仓(分母) ${fmtN(x.total_oi)}` +
+              `<br/><span style="color:${AMBER}">●</span> 三榜合一占总持仓 <b>${x.seat_share.toFixed(2)}%</b>` +
+              `<br/><span style="color:${BLUE}">●</span> 净持仓占总持仓 <b>${(x.net_share > 0 ? "+" : "") + x.net_share.toFixed(2)}%</b>`;
+          }
+          return h + (x.seat_count ? `<br/>三榜合并席位 <b>${x.seat_count}</b> 个` : "") +
             (x.contract ? `<br/>合约 ${x.contract}` : "");
         } },
-      grid: { left: 66, right: 18, top: 18, bottom: 40 },
+      grid: { left: 66, right: hasShare ? 58 : 18, top: hasShare ? 44 : 18, bottom: 40 },
       xAxis: { type: "category", data: labels, boundaryGap: false, ...axisCommon(),
         axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(labels.length / 8)) } },
-      yAxis: { type: "value", ...axisCommon(), name: legacy ? "合计净持仓(旧)" : "三榜合计净持仓",
-        nameTextStyle: { color: TX },
-        axisLabel: { color: TX, formatter: (v) => (v >= 0 ? "+" : "") + (Math.abs(v) >= 10000 ? (v / 10000).toFixed(1) + "万" : v) } },
-      series: [{
-        name: labelTxt, type: "line", data: line, smooth: true, showSymbol: true,
-        symbolSize: 5, connectNulls: true,
-        itemStyle: { color: col }, lineStyle: { width: 2, color: col },
-        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1,
-          [{ offset: 0, color: up ? "rgba(232,72,63,.26)" : "rgba(31,171,107,.26)" },
-           { offset: 1, color: "rgba(0,0,0,0)" }]) },
-        markLine: { silent: true, symbol: "none", lineStyle: { color: TX, type: "dashed" }, data: [{ yAxis: 0 }] },
-      }],
+      yAxis,
+      series,
     });
     return c;
   }

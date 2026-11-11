@@ -1391,10 +1391,10 @@
       </div>
       <div class="flex" style="margin-top:10px">
         <div style="flex:1">
-          <div class="t20-hist-head"><span class="t">三榜合一近1月合计净持仓变化（合计净持仓 · 主力合约追踪）</span></div>
-          <div id="chCapFlowT20Hist" class="chart" style="height:240px"></div>
+          <div class="t20-hist-head"><span class="t">三榜合一近1月：合计净持仓 + 占总持仓占比（左轴手数 · 右轴占比）</span></div>
+          <div id="chCapFlowT20Hist" class="chart" style="height:260px"></div>
           <div id="capFlowT20Verdict" class="verdict" style="margin-top:4px"></div>
-          <div class="note" style="margin-top:4px">口径：席位集合 = 多单 / 空单 / 成交量三榜合并去重；合计净持仓 = 多单榜前20持买合计 − 空单榜前20持卖合计（只在成交量榜出现的席位不计持仓，对分子零增量），与「三榜合一总持仓占比」同源同日。按当前主力合约逐日回溯，换月前后规模或有跳变。曲线已覆盖全部有资金数据品种（当前 39 个；PD / PT 无资金数据）。</div>
+          <div class="note" style="margin-top:4px">口径：席位集合 = 多单 / 空单 / 成交量三榜合并去重；合计净持仓 = 多单榜前20持买合计 − 空单榜前20持卖合计（只在成交量榜出现的席位不计持仓，对分子零增量）。左轴为合计净持仓（手）；右轴两条占比共用：① <b>三榜合一占总持仓</b> =（持买 + 持卖）/（2 × 当日主连总持仓），即速读卡「三榜合一总持仓占比」的逐日展开，衡量三榜席位对全市场持仓的覆盖率；② <b>净持仓占总持仓</b> = 合计净持仓 / 当日主连总持仓，正负表示三榜席位整体净多 / 净空，剔除合约规模与换月带来的量级变化，跨日可比。两条占比的分子分母严格同日（分母取主连日线当日 hold），换月错位时占比可能 &gt;100%，仅作参考。曲线覆盖全部当日有资金数据的品种（PD / PT 无资金数据；当日榜单源缺失的品种会显式回退旧口径）。</div>
         </div>
       </div>
       <div class="note" style="margin-top:8px">数据来源：${cf.source}。${PROXY_NOTE} 主力合约 ${cf.main_contract || cf.contract}；数据交易日 ${cf.as_of}。总持仓为主连口径，合约换月时或有跳变。${seatNote}</div>`;
@@ -1667,13 +1667,25 @@
       if (hasNew || hasOld) {
         const h = (hasNew ? cfh : oldHist).slice().sort((a, b) => (a.date < b.date ? -1 : 1));
         Charts.capflowNetCurve($("#chCapFlowT20Hist"), h, { legacy: !hasNew });
-        const last = h[h.length - 1];
-        const chg = last.net - h[0].net;
+        const last = h[h.length - 1], first = h[0];
+        const chg = last.net - first.net;
         const seatTxt = last.seat_count ? `（三榜合并 ${last.seat_count} 席）` : "";
         const srcTxt = hasNew ? "三榜合一合计净持仓" : "前20会员合计净持仓（旧口径回退）";
+        // 占比：期末值 + 近1月百分点变化（pp）。分母缺失的旧口径回退不显示。
+        const pp = (a, b) => {
+          if (typeof a !== "number" || typeof b !== "number") return "—";
+          const d = Math.abs(a - b) < 0.005 ? 0 : a - b;
+          return `<b class="${cls(d)}">${d > 0 ? "+" : ""}${d.toFixed(2)}pp</b>`;
+        };
+        const hasShare = hasNew && typeof last.seat_share === "number" && typeof last.net_share === "number";
+        const shareTxt = hasShare
+          ? ` ｜ 三榜合一占总持仓 <b>${last.seat_share.toFixed(2)}%</b>（近1月 ${pp(last.seat_share, first.seat_share)}）` +
+            ` ｜ 净持仓占总持仓 <b class="${cls(last.net_share)}">${last.net_share > 0 ? "+" : ""}${last.net_share.toFixed(2)}%</b>（近1月 ${pp(last.net_share, first.net_share)}）`
+          : "";
         const v = document.getElementById("capFlowT20Verdict");
         if (v) v.innerHTML = `期末${srcTxt} <b>${fmt(last.net)}</b> 手${seatTxt}，近1月变化 <b class="${cls(chg)}">${chg > 0 ? "+" : ""}${fmt(chg)}</b> 手` +
-          (hasNew ? "" : ` <span class="note">（该品种缺三榜合一历史序列，暂用旧前20会员全合约曲线，数值不可与当日资金结构直接对照）</span>`);
+          shareTxt +
+          (hasNew ? "" : ` <span class="note">（该品种缺三榜合一历史序列，暂用旧前20会员全合约曲线，无逐日总持仓分母，故不显示两条占比线）</span>`);
       } else {
         const v = document.getElementById("capFlowT20Verdict");
         if (v) v.innerHTML = `<span class="note">该品种暂无近1月三榜合一历史序列（PD / PT 无资金数据）。</span>`;

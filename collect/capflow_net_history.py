@@ -15,6 +15,11 @@
       （即三榜按会员简称合并去重后全部席位的净持仓之和；只在成交量榜出现的席位
        long / short 记 0，对分子零增量 —— 与 calcSeatShare 的分子口径完全一致）
   - seat_count = 三榜合并去重后的席位总数，随曲线一起落盘供前端提示
+  - 逐日两条占比（分子分母同日，分母取 total_position.series 当日主连总持仓 hold）：
+      seat_share = (多单榜持买 + 空单榜持卖) / (2 × hold) × 100
+          = 「三榜合一总持仓占比」的逐日展开，衡量三榜席位对全市场持仓的覆盖率；
+      net_share  = 合计净持仓 / hold × 100
+          = 三榜席位整体净多 / 净空相对全市场规模，剔除合约规模与换月导致的量级变化。
 
 产物：
   collect/raw_capflow/hist_<CODE>.json   逐日缓存（幂等，已采集日跳过）
@@ -85,6 +90,41 @@ def trade_dates(cf, days, as_of):
     ds = sorted({_norm(p.get("date")) for p in series
                  if p.get("date") and _norm(p.get("date")) <= a})
     return ds[-days:] if days > 0 else ds
+
+
+def oi_by_date(cf):
+    """主连日线每日总持仓（分母）：{YYYYMMDD: hold}。与榜单交易日严格同日对齐。"""
+    series = (cf.get("total_position") or {}).get("series") or []
+    out = {}
+    for p in series:
+        d = _norm(p.get("date"))
+        try:
+            hold = float(p.get("hold") or 0)
+        except (TypeError, ValueError):
+            continue
+        if d and hold > 0:
+            out[d] = hold
+    return out
+
+
+def enrich(hist, cf):
+    """为逐日曲线补 total_oi / seat_share / net_share；分母缺失则该点占比为 null。"""
+    oi = oi_by_date(cf)
+    out = []
+    for rec in hist:
+        r = dict(rec)
+        hold = oi.get(_norm(r.get("date")))
+        if hold and hold > 0 and r.get("long_total") is not None and r.get("short_total") is not None:
+            r["total_oi"] = int(hold)
+            # 与前端 calcSeatShare 一致：多空两侧分别相除再取均值
+            r["seat_share"] = round((r["long_total"] + r["short_total"]) / (2 * hold) * 100, 4)
+            r["net_share"] = round(r["net"] / hold * 100, 4)
+        else:
+            r["total_oi"] = None
+            r["seat_share"] = None
+            r["net_share"] = None
+        out.append(r)
+    return out
 
 
 def fetch_board(contract, date, sym, val_col):
@@ -166,17 +206,20 @@ def run_one(code, days, force, delay):
     cache["data"] = dict(sorted(data.items()))
     dump_json(hist_path(code), cache)
 
-    # net_history 只取本次窗口内的交易日（按日期升序）
+    # net_history 只取本次窗口内的交易日（按日期升序）；逐日补两条占比（纯计算，无需重抓榜单）
     window = set(dates)
-    hist = [cache["data"][d] for d in sorted(cache["data"]) if d in window]
-    if len(hist) < 2:
-        return {"code": code, "ok": False, "msg": f"only {len(hist)} history point(s)",
+    raw = [cache["data"][d] for d in sorted(cache["data"]) if d in window]
+    if len(raw) < 2:
+        return {"code": code, "ok": False, "msg": f"only {len(raw)} history point(s)",
                 "added": added}
+    hist = enrich(raw, cf)
     cf["net_history"] = hist
     cf["net_history_note"] = (
         "三榜合一合计净持仓 = 多单榜前20持买合计 − 空单榜前20持卖合计；"
         "席位集合为多单/空单/成交量三榜合并去重，只在成交量榜出现的席位不计持仓、对分子零增量。"
-        "按当前主力合约逐日回溯，合约换月时规模或有跳变。")
+        "占总持仓占比 = (持买+持卖)/(2×当日主连总持仓)，衡量三榜席位覆盖率；"
+        "净持仓占比 = 合计净持仓/当日主连总持仓，正负代表三榜席位整体净多/净空。"
+        "两条占比的分子分母严格同日，按当前主力合约逐日回溯，换月前后规模或有跳变。")
     dump_json(cf_path(code), cf, compact=False)
 
     # 自检：最新交易日 net 应与当日 institutional_vs_retail 两组合计净持仓一致
@@ -188,7 +231,9 @@ def run_one(code, days, force, delay):
     return {"code": code, "ok": True, "added": added, "points": len(hist),
             "first": hist[0]["date"], "last": last["date"],
             "last_net": last["net"], "cf_net": int(cf_net),
-            "diff": int(last["net"] - cf_net), "seats": last.get("seat_count")}
+            "diff": int(last["net"] - cf_net), "seats": last.get("seat_count"),
+            "oi_points": sum(1 for p in hist if p.get("total_oi")),
+            "seat_share": last.get("seat_share"), "net_share": last.get("net_share")}
 
 
 def main():
@@ -223,8 +268,11 @@ def main():
                 r = {"code": futs[fu], "ok": False, "msg": f"EXC {e}"}
             results.append(r)
             if r.get("ok"):
+                ss, ns = r.get("seat_share"), r.get("net_share")
                 print(f"  {r['code']:4} {r['points']:2} pts  {r['first']}..{r['last']}  "
-                      f"net={r['last_net']:>10}  当日校验差={r['diff']:>8}  席位={r['seats']}  "
+                      f"net={r['last_net']:>10}  校验差={r['diff']:>7}  席位={r['seats']}  "
+                      f"分母点={r.get('oi_points')}/{r['points']}  "
+                      f"占比={ss if ss is not None else '-'}% / {ns if ns is not None else '-'}%  "
                       f"新增={r['added']}", flush=True)
             else:
                 print(f"  {r['code']:4} [FAIL] {r.get('msg')}", flush=True)
