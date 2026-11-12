@@ -59,16 +59,78 @@ def load_agg_rawhist(code):
 CAPFLOW_DIR = os.path.join(NEODATA_DIR, "raw_capflow")
 
 
-def load_capflow(code):
+def _norm8(d):
+    return str(d or "").replace("-", "")[:8]
+
+
+def all_months_rows(am, kline):
+    """第⑦部分专用合成日线：价格取主力/主连（不同月份价格不可加总），
+    量 / 仓取全部月份合计。严格按同一交易日 join，缺日即跳过，绝不跨日兜底。"""
+    series = {_norm8(r.get("date")): r for r in (am.get("totals") or {}).get("series") or []}
+    out = []
+    for r in ((kline or {}).get("rows") or []):
+        d = _norm8(r.get("date"))
+        s = series.get(d)
+        if not s:
+            continue
+        out.append({
+            "date": d,
+            "open": r.get("open"), "high": r.get("high"), "low": r.get("low"),
+            "close": r.get("close"), "settle": r.get("settle"),
+            "oi": s.get("hold"), "oi_chg": s.get("chg"),
+            "volume": s.get("volume"), "chg_pct": r.get("chg_pct"),
+        })
+    return out
+
+
+def apply_all_months(cf, am, kline):
+    """把资金分析框架的数据源整体切到「品种全部月份合约」口径。
+    字段名保持不变，前端占比 / 分层 / 速读卡无需改计算逻辑。"""
+    d = _norm8(am.get("as_of"))
+    sec = (am.get("data") or {}).get(d)
+    if not sec:
+        return cf
+    tp = am.get("totals") or {}
+    cf = dict(cf or {})
+    cf["available"] = True
+    cf["scope"] = "all_months"
+    cf["source"] = am.get("source")
+    cf["as_of"] = am.get("as_of")
+    cf["all_months_note"] = am.get("note")
+    cf["months"] = am.get("months") or []
+    cf["month_stats"] = am.get("stats") or {}
+    cf["rollover_daily"] = am.get("daily") or []
+    cf["total_position"] = {k: tp.get(k) for k in
+                            ("latest", "prev", "chg_1d", "chg_5d", "chg_20d", "series", "as_of")}
+    for k in ("member_count", "tiers", "institutional_vs_retail", "large_orders", "top_members",
+              "long_total", "short_total", "total_oi", "months_with_rank", "months_hold"):
+        if k in sec:
+            cf[k] = sec[k]
+    cf["all_months_rows"] = all_months_rows(am, kline)
+    # contract / main_contract 保留主力合约代码：L4 移仓识别需要据其推算交割月
+    return cf
+
+
+def load_capflow(code, kline=None):
     """读取 collect/raw_capflow/capflow_<CODE>.json（AKShare 资金流采集器产出）。
-    第7部分（资金动向）优先使用；缺失或 available=False 时前端回退到 NeoData top20。"""
+    第7部分（资金动向）优先使用；缺失或 available=False 时前端回退到 NeoData top20。
+    若存在 allmonths_<CODE>.json，则整体切到「品种全部月份」口径（用户选定口径）。"""
     fp = os.path.join(CAPFLOW_DIR, f"capflow_{code}.json")
-    if not os.path.exists(fp):
-        return None
-    try:
-        return json.load(open(fp, "r", encoding="utf-8"))
-    except Exception:
-        return None
+    cf = None
+    if os.path.exists(fp):
+        try:
+            cf = json.load(open(fp, "r", encoding="utf-8"))
+        except Exception:
+            cf = None
+    amfp = os.path.join(CAPFLOW_DIR, f"allmonths_{code}.json")
+    if os.path.exists(amfp):
+        try:
+            am = json.load(open(amfp, "r", encoding="utf-8"))
+            if am.get("data") and am.get("totals", {}).get("series"):
+                return apply_all_months(cf or {}, am, kline)
+        except Exception:
+            pass
+    return cf
 
 # ---------------------------------------------------------------------------
 # 品种注册表（与 app/config/products.json 对应；前20/仓单/厂库统一由 NeoData 接入）
@@ -650,7 +712,7 @@ def build_product(cfg):
                "web_opinions_as_of": (web_views[0].get("as_of") if web_views and web_views[0].get("as_of") else None)}
 
 
-    capital_flow = load_capflow(cfg["code"])
+    capital_flow = load_capflow(cfg["code"], kline)
 
     snap = {"product": cfg["code"], "name": cfg["name"], "category": cfg["cat"], "variety_code": cfg["var"],
             "exchange": cfg["exch"], "main_contract": cfg.get("main") or kline_contract, "as_of": SNAP_DATE,

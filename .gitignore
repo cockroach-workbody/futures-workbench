@@ -17,6 +17,13 @@ collect/raw/
 collect/raw_capflow/*
 !collect/raw_capflow/hist_*.json
 !collect/raw_capflow/scoreinput_*.json
+# 全月份数据源：产物 + 月份日线 + 逐日三榜缓存，均为幂等可复用缓存，纳入版本库，
+# 避免云端 CI 首次运行时重抓 41 品种 × 22 交易日 × 多个月份三榜。
+!collect/raw_capflow/allmonths_*.json
+!collect/raw_capflow/amdaily/
+!collect/raw_capflow/amdaily/**
+!collect/raw_capflow/amrank/
+!collect/raw_capflow/amrank/**
 collect/_websearch_partial_*.json
 collect/_run_report_*.md
 collect/_t20_dates.json

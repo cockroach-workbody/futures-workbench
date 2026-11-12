@@ -21,9 +21,11 @@
   4) 运行 build_all.py 生成 data/<板块>/<CODE>/<SNAP_DATE>.json（首遍，生成 main_contract）
   4.5) AKShare 资金流采集 akshare_capital_flow.py（读取快照 main_contract，产出 raw_capflow；
        含 --with-history 历史回溯；最佳努力，失败则第7部分回退前20）
-  4.55) 三榜合一近一月合计净持仓曲线 capflow_net_history.py（逐日缓存增量补采，
-       写入 capflow 的 net_history；必须在 4.6 二次 build_all 之前）
-  4.56) 近一月 L4 四维共振读数曲线 capflow_score_history.py（逐日重抓三榜明细，
+  4.52) 品种全部月份数据源 capflow_all_months.py（逐月合约日线 + 逐日三榜跨月合并；
+       依赖 4.5 的 main_contract，必须早于 4.55/4.56；每日只增量补当天，缓存可断点续传）
+  4.55) 三榜合一近一月合计净持仓曲线 capflow_net_history.py（全月份口径下直接读 4.52 产物，
+       不再联网重抓；写入 net_history；必须在 4.6 二次 build_all 之前）
+  4.56) 近一月 L4 四维共振读数曲线 capflow_score_history.py（逐日截面取自 4.52 产物，
        经 Node 桥接复用前端 capFlowAnalytics 打分；依赖 4.55 的交易日窗口）
   4.6) 二次 build_all.py 把 capital_flow（含 net_history / score_history）注入快照（供第7部分渲染）
   5) 运行 build_web.py 生成 web/（线上部署源）+ dist/ 单文件
@@ -309,6 +311,27 @@ def main():
         except Exception as e:  # noqa
             cf_ok = False
             log(f"[警告] AKShare 资金流采集运行异常(已跳过，第7部分回退前20): {e}")
+
+    # 4.52) 品种全部月份数据源：逐月合约日线 + 逐日三榜跨月合并。
+    #       必须在 4.5 之后（读 main_contract）、4.55/4.56 之前（它们从 allmonths 产物读截面）。
+    #       日常只增量抓当日（41 品种 × 1 天），历史 22 天由 amrank 缓存复用。
+    if not args.no_capflow and cf_ok:
+        log("品种全部月份数据源采集（41 品种 · 每日增量） ...")
+        try:
+            r_am = subprocess.run(
+                [sys.executable, os.path.join(COLLECT_DIR, "capflow_all_months.py"),
+                 "--days", "22", "--workers", "8"],
+                cwd=BASE, capture_output=True, text=True,
+                env=dict(os.environ, WB_SNAP_DATE=sd), timeout=1800)
+            tail = (r_am.stdout or "")[-1200:]
+            if r_am.returncode != 0:
+                log(f"[警告] 全月份数据源采集异常(rc={r_am.returncode}):\n{tail}")
+            else:
+                log(f"全月份数据源采集完成:\n{tail}")
+        except Exception as e:  # noqa
+            log(f"[警告] 全月份数据源采集运行异常(已跳过，沿用上次全月份产物): {e}")
+    else:
+        log("全月份数据源采集：跳过（--no-capflow 或资金流采集失败）")
 
     # 4.55) 三榜合一近一月合计净持仓曲线：写入 net_history（逐日缓存，仅补新增交易日）
     #       口径与「三榜合一总持仓占比」一致；必须在 4.6 二次 build_all 之前，

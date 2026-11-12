@@ -996,16 +996,13 @@
   }
 
   // 三榜合一总持仓占比（席位口径，与 ⑦「前5席位 / 其余席位」同源同日）
-  // 「三榜合一」指席位集合：多单榜 / 空单榜 / 成交量榜各 20 名按会员简称合并去重（通常 27~37 席）。
+  // 「三榜合一」指席位集合：全部有榜单月份的多单榜 / 空单榜 / 成交量榜按会员简称跨月累加合并去重。
   // 分子并不是三榜持仓量相加：long 只来自多单榜、short 只来自空单榜；只在成交量榜出现的席位
-  // long/short 记 0，所以并集对分子零增量 —— 分子恒等于「多单榜前20持买 + 空单榜前20持卖」。
-  // 分母是主连总持仓；多空两侧分别相除取均值 = (持买+持卖)/(2×总持仓)。
-  // 分子：多单 / 空单 / 成交量三榜按会员简称合并去重后的「全部席位」持买 / 持卖合计
-  //       = capital_flow.institutional_vs_retail 两组 long / short 之和（两组覆盖全部 member_count 席位，
-  //         不再是旧口径的「前20会员」榜单合计，后者来自另一路 NeoData 数据、与资金结构不同源）。
-  // 分母：capital_flow.total_position.latest（主连单边总持仓）。
-  // 多空两侧分别相除后取均值 = (持买+持卖)/(2×总持仓)，衡量三榜席位对全市场持仓的覆盖率 / 集中度。
-  // 榜单为主力合约、总持仓为主连口径，合约换月时可能错位（>100%），故仅作集中度参考。
+  // long/short 记 0，所以并集对分子零增量 —— 分子恒等于「三榜持买合计 + 三榜持卖合计」。
+  // 分母：capital_flow.total_position.latest = 当日全部挂牌月份合计持仓（单边），已消除主力换月跳变。
+  // 分子：institutional_vs_retail 两组 long / short 之和（覆盖全部 member_count 席位）。
+  // 多空两侧分别相除后取均值 = (持买+持卖)/(2×总持仓)，衡量榜单可观测持仓对全品种总持仓的覆盖率。
+  // 交易所仅对部分活跃月份公布会员排名，故该占比是相对全品种总持仓的下限；分子分母严格同日。
   function calcSeatShare(s, cf) {
     const tp = (cf && cf.total_position) || {};
     const n = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
@@ -1145,7 +1142,7 @@
       { no: "①", label: "总持仓变动", sub: "钱在不在", tone: cls(s5),
         metric: `${fmt(latest)} 手｜1日 ${cv(d1)} · 5日 ${cv(d5)}（${pct(p5)}）` +
           (seat && seat.valid
-            ? `<span class="seat-hl${seat.stale ? " stale" : ""}" title="${seat.basis === "三榜合一" ? "三榜合一总持仓占比" : "前20榜单总持仓占比"} ${seat.pct.toFixed(2)}%｜多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%｜${seat.basis} ${seat.count} 席｜分子＝多单榜前20持买 + 空单榜前20持卖，分母＝当日主连总持仓${seat.stale ? "｜⚠ 静态历史快照，非当日数据，不可与三榜口径比较" : `｜分子分母同为 ${fmtDate(cf.as_of)} 当日`}">${seat.basis === "三榜合一" ? "三榜合一占总持仓" : "前20榜单占总持仓"} <b>${seat.pct.toFixed(2)}%</b>${seat.stale ? " <b>⚠静态</b>" : ""}<span class="seat-hl-split">多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%</span></span>`
+            ? `<span class="seat-hl${seat.stale ? " stale" : ""}" title="${seat.basis === "三榜合一" ? "三榜合一总持仓占比" : "前20榜单总持仓占比"} ${seat.pct.toFixed(2)}%｜多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%｜${seat.basis} ${seat.count} 席｜分子＝全部有榜单月份的三榜持买 + 持卖，分母＝当日${cf.scope === "all_months" ? "全月份合计总持仓" : "主连总持仓"}${seat.stale ? "｜⚠ 静态历史快照，非当日数据，不可与三榜口径比较" : `｜分子分母同为 ${fmtDate(cf.as_of)} 当日`}">${seat.basis === "三榜合一" ? "三榜合一占总持仓" : "前20榜单占总持仓"} <b>${seat.pct.toFixed(2)}%</b>${seat.stale ? " <b>⚠静态</b>" : ""}<span class="seat-hl-split">多 ${seat.longPct.toFixed(2)}% · 空 ${seat.shortPct.toFixed(2)}%</span></span>`
             : ""),
         note: moneyNote },
       { no: "②", label: "净持仓分布", sub: "谁在动 · 分档", tone: cls(mover ? mC : 0),
@@ -1167,13 +1164,25 @@
 
   // ⑦ 资金动向（AKShare·持仓结构·主力追踪）—— 由 capital_flow 数据驱动；缺失时回退原前20会员
   function renderCapFlow(s, cf) {
+    // 全月份口径：第⑦部分专用「合成日线」（价格=主力/主连，量仓=全部月份合计）。
+    // 只在第⑦部分替换 kline，不影响其它板块共用的全局 s.kline。
+    const amRows = (cf.all_months_rows || []).length ? cf.all_months_rows : null;
+    const s7 = amRows ? Object.assign({}, s, { kline: Object.assign({}, s.kline || {}, { rows: amRows }) }) : s;
+    const isAllMonths = cf.scope === "all_months";
+    // 本函数内独立定义（capFlowRead / renderMarketDivergence 各有自己的局部 esc）
+    const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g,
+      c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const oiBasis = isAllMonths ? "当日全部挂牌月份合计持仓（单边）" : "当日主连总持仓（单边）";
+    const scopeNote = isAllMonths
+      ? "数据源为该品种全部挂牌月份：分子为全部有榜单月份的三榜持买 / 持卖合计，分母为全部月份合计持仓，两者严格同日；已消除主力换月造成的持仓跳变。交易所仅对部分活跃月份公布会员排名，故占比是相对全品种总持仓的下限。不同月份价格不可加总，价格仍取主力 / 主连收盘价。"
+      : "榜单为主力合约、总持仓为主连口径，换月时或有偏差。";
     const tp = cf.total_position || {};
     const seat = calcSeatShare(s, cf);   // 三榜合一总持仓占比（数据层，只读，与席位结构同源）
     const tiers = cf.tiers || [];
     const iv = cf.institutional_vs_retail || {};
     const lo = cf.large_orders || {};
     const inst = iv.institutional || {}, ret = iv.retail || {};
-    const NOISE = capFlowNoise((s && s.kline && s.kline.rows) || []);
+    const NOISE = capFlowNoise((s7 && s7.kline && s7.kline.rows) || []);
     const sign = (n) => (n > 0 ? "+" : "") + fmt(n);
     const kpi = (label, val, c, sub, hero) =>
       `<div class="netchg-card ${hero ? "hero" : ""}"><div class="k">${label}</div>
@@ -1181,7 +1190,7 @@
 
     const seatName = seat.basis === "三榜合一" ? "三榜合一总持仓占比" : "前20榜单总持仓占比";
     const seatTip = seat.basis === "三榜合一"
-      ? `口径：分子 = 当日多单榜前 20 名持买合计 + 空单榜前 20 名持卖合计；分母 = 当日主连总持仓（单边），多空分别相除取均值，即 (持买+持卖)/(2×总持仓)。分子与分母同为 ${fmtDate(cf.as_of)} 当日数据。\n「三榜合一」是席位集合口径，不是持仓量相加：三张榜各 20 名按会员简称去重后共 ${seat.count} 席，用于 ⑦「前5席位 / 其余席位」分组；long 只来自多单榜、short 只来自空单榜，只在成交量榜出现的席位 long/short 记 0，并集对分子零增量。故该值是「榜单可观测持仓覆盖率」，不是席位持仓总额。\n旧版「前20榜单总持仓占比」取自一次性导入的静态历史快照，交易日早于当前、当时持仓更高；拿旧分子除当日分母会虚高。两者日期不同，数值不可直接比较；按各自当日分母计算，新口径并不低于旧口径。\n榜单为主力合约、总持仓为主连口径，换月时或有偏差。`
+      ? `口径：分子 = 当日全部有榜单月份的多单榜持买合计 + 空单榜持卖合计；分母 = ${oiBasis}，多空分别相除取均值，即 (持买+持卖)/(2×总持仓)。分子与分母同为 ${fmtDate(cf.as_of)} 当日数据。\n「三榜合一」是席位集合口径，不是持仓量相加：三张榜按会员简称跨月累加合并去重后共 ${seat.count} 席，用于 ⑦「前5席位 / 其余席位」分组；long 只来自多单榜、short 只来自空单榜，只在成交量榜出现的席位 long/short 记 0，并集对分子零增量。故该值是「榜单可观测持仓覆盖率」，不是席位持仓总额。\n旧版「前20榜单总持仓占比」取自一次性导入的静态历史快照，交易日早于当前、当时持仓更高；拿旧分子除当日分母会虚高。两者日期不同，数值不可直接比较；按各自当日分母计算，新口径并不低于旧口径。\n${scopeNote}`
       : `口径：旧快照缺三榜合一席位数据，回退前20会员榜单持买/持卖合计 ÷ 当日主连总持仓（单边），多空两侧分别相除后取均值。\n⚠ 该榜单是一次性导入的静态历史快照，交易日早于当前、持仓水平不同；分子与分母不同日，结果仅供兜底展示，不可与三榜合一新口径或历史数值比较。`;
     const seatKpi = seat.valid ? `<div class="netchg-card hero seat-kpi${seat.stale ? " stale" : ""}">
         <div class="k">${seatName} <span class="cf-i" title="${seatTip}">ⓘ</span></div>
@@ -1190,7 +1199,7 @@
       </div>` : "";
     const seatNote = seat.valid
       ? seat.basis === "三榜合一"
-        ? `${seatName} =（当日多单榜前 20 持买 + 空单榜前 20 持卖）÷（2 × 当日主连总持仓），多空分别相除取均值；本品种三榜合并去重 ${seat.count} 席用于分组，只在成交量榜出现的席位不贡献分子，故「三榜合一」指席位集合而非持仓量相加。与「前5席位 / 其余席位」同源同日，衡量榜单可观测持仓对全市场的覆盖率；榜单为主力合约、总持仓为主连，换月时口径可能错位。旧版「前20榜单」为静态历史快照，分子分母不同日，不可与当日值直接比较。`
+        ? `${seatName} =（当日全部有榜单月份的多单榜持买 + 空单榜持卖）÷（2 × ${oiBasis}），多空分别相除取均值；本品种三榜跨月合并去重 ${seat.count} 席用于分组，只在成交量榜出现的席位不贡献分子，故「三榜合一」指席位集合而非持仓量相加。与「前5席位 / 其余席位」同源同日，衡量榜单可观测持仓对全品种总持仓的覆盖率。${scopeNote} 旧版「前20榜单」为静态历史快照，分子分母不同日，不可与当日值直接比较。`
         : `⚠ ${seatName} 回退自静态历史快照，交易日早于当前、分子分母不同日，仅供兜底展示，不可与三榜合一当日口径或历史数值比较。`
       : "暂无榜单席位持仓数据，占比不展示。";
 
@@ -1239,7 +1248,7 @@
     </div>`;
 
     // ===== 专业资金分析决策面板（L1→L4）=====
-    const A = capFlowAnalytics(s, cf, NOISE);
+    const A = capFlowAnalytics(s7, cf, NOISE);
     const q = A.pv.quad;
     const NZ = A.noise, NB = NZ.band;
     const barColor = A.score.tone === "up" ? "var(--red)" : A.score.tone === "down" ? "var(--green)" : "var(--amber)";
@@ -1311,7 +1320,7 @@
       <div class="t20-hist-head"><span class="t">${hasPx ? "四维共振读数 × 主连收盘价 · 近1月对照" : "四维共振读数 · 近1月逐日回溯（0~100）"}</span></div>
       <div id="chCapFlowScoreHist" class="chart" style="height:230px"></div>
       <div id="capFlowScoreHistVerdict" class="verdict" style="margin-top:4px">${shVerdict}${pxVerdict}${rollVerdict}</div>
-      <div class="cf-foot">注：逐日按当日三榜明细复原四档 / 前5席位 / 大单动向，并取截止该交易日的主连行情计算价量仓、量能与自适应噪音带；分数由页面同一份 L4 公式计算，与当日读数完全同口径、不使用未来数据。50 中性，≥58 偏多、≤42 偏空；红点偏多、绿点偏空、琥珀点中性。启发式读数仅供横向比较与自身历史对照，不构成交易信号；合约按当前主力回溯，换月前后读数可能跳变。${hasPx ? "紫色虚线为同一交易日主连收盘价（右轴，独立价格刻度、不做归一化），只作对照、不参与打分；悬停可看当日涨跌及相对前一日的读数/价格同向或背向。逐日同向天数只是方向一致性观察，不代表预测准确率。" : ""}${hasRoll ? "淡紫竖带为临近交割移仓窗口：距交割月 ≤45 天、近5日总持仓连续下降 ≥3 天且降幅 ≥3%，多空席位双边同步减仓则确认为自然减仓。青色点线为「移仓校正读数」，仅把该区间的原读数按识别强度向中性 50 收敛，表示方向信号可信度下降，不代表校正后方向即真实方向；为保持历史可比，原始读数与四维打分公式均未改动。窗口按合约代码推算交割月、以交割月 15 日作近似最后交易日，各交易所规则不同，仅供降权参考。" : ""}</div>
+      <div class="cf-foot">注：逐日按当日全部有榜单月份的三榜明细跨月合并，复原四档 / 前5席位 / 大单动向，并取截止该交易日的合成行情（价格为主力/主连、量仓为全月份合计）计算价量仓、量能与自适应噪音带；分数由页面同一份 L4 公式计算，与当日读数完全同口径、不使用未来数据。50 中性，≥58 偏多、≤42 偏空；红点偏多、绿点偏空、琥珀点中性。启发式读数仅供横向比较与自身历史对照，不构成交易信号；数据源已覆盖全部挂牌月份，读数不再受主力换月跳变影响，但交易所仅对部分活跃月份公布会员排名，榜单覆盖月份数因品种而异。${hasPx ? "紫色虚线为同一交易日主连收盘价（右轴，独立价格刻度、不做归一化），只作对照、不参与打分；悬停可看当日涨跌及相对前一日的读数/价格同向或背向。逐日同向天数只是方向一致性观察，不代表预测准确率。" : ""}${hasRoll ? "淡紫竖带为临近交割移仓窗口：距交割月 ≤45 天、近5日全月份合计总持仓连续下降 ≥3 天且降幅 ≥3%，多空席位双边同步减仓则确认为自然减仓。青色点线为「移仓校正读数」，仅把该区间的原读数按识别强度向中性 50 收敛，表示方向信号可信度下降，不代表校正后方向即真实方向；为保持历史可比，原始读数与四维打分公式均未改动。窗口按合约代码推算交割月、以交割月 15 日作近似最后交易日，各交易所规则不同，仅供降权参考。" : ""}</div>
     </div>`;
     }
 
@@ -1351,7 +1360,7 @@
       ${VP.divergence ? `<div class="v-warn">⚠ ${VP.divergence}</div>` : ""}
     </div>`;
     const NP = NZ.profile;
-    const noiseTip = `农产品波动小、有色/化工波动大，统一阈值会让低波品种把噪音当信号、高波品种把真信号磨平。\n算法：近 60 日主连「日收益率 / 日持仓变化率」的稳健波动率（MAD×1.4826，抗涨跌停与移仓跳空）÷ 全市场基准波动率（价 ${NOISE_REF.px.toFixed(2)}%/日、仓 ${NOISE_REF.oi.toFixed(2)}%/日）得到倍数，裁剪到 ${NOISE_REF.min}~${NOISE_REF.max} 倍；\n噪音带 = 基准（近5日 价 ±0.35% / 仓 ±0.8%）× 倍数 × √(观察周期/5)。\n只有变化超过噪音带才判定「价涨/价跌、仓增/仓减」，否则记为「平」。σ = 当前变化 ÷ 本品种同期波动标准差，绝对值越大信号越强。`;
+    const noiseTip = `农产品波动小、有色/化工波动大，统一阈值会让低波品种把噪音当信号、高波品种把真信号磨平。\n算法：近 60 日合成行情（价格取主力/主连、持仓取全部月份合计）「日收益率 / 日持仓变化率」的稳健波动率（MAD×1.4826，抗涨跌停与移仓跳空）÷ 全市场基准波动率（价 ${NOISE_REF.px.toFixed(2)}%/日、仓 ${NOISE_REF.oi.toFixed(2)}%/日）得到倍数，裁剪到 ${NOISE_REF.min}~${NOISE_REF.max} 倍；\n噪音带 = 基准（近5日 价 ±0.35% / 仓 ±0.8%）× 倍数 × √(观察周期/5)。\n只有变化超过噪音带才判定「价涨/价跌、仓增/仓减」，否则记为「平」。σ = 当前变化 ÷ 本品种同期波动标准差，绝对值越大信号越强。`;
     const noiseHtml = `<div class="cf-noise">
       <div class="cf-noise-h">波动率自适应噪音带<span class="cf-i" title="${noiseTip}">ⓘ</span>
         <span class="cf-nchip ${NP.regime === "低波" ? "low" : NP.regime === "高波" ? "high" : "mid"}">${NP.regime}品种</span>
@@ -1451,6 +1460,41 @@
       ${footHtml}
     </div>`;
 
+    // ===== 全月份资金全景：各月持仓分布 + 移仓实测（真实观测，不再靠交割月推断）=====
+    let amHtml = "";
+    if (isAllMonths && (cf.months || []).length) {
+      const nv = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
+      const ms = cf.months.slice(0, 14);
+      const mx = Math.max.apply(null, ms.map(x => nv(x.hold)).concat([1]));
+      const bars = ms.map(x => {
+        const w = Math.max(1.5, nv(x.hold) / mx * 100);
+        return `<div class="am-row">
+          <span class="am-ct">${esc(x.contract)}${x.is_main ? '<i class="am-main">主力</i>' : ""}</span>
+          <span class="am-bar"><b class="${x.is_main ? "main" : ""}" style="width:${w.toFixed(1)}%"></b></span>
+          <span class="am-v">${fmt(nv(x.hold))} 手${x.rank_available ? "" : '<i class="am-norank">无榜单</i>'}</span>
+        </div>`;
+      }).join("");
+      const rd = cf.rollover_daily || [];
+      const lastD = rd[rd.length - 1] || {};
+      const mainChg = nv(lastD.main_chg), othChg = nv(lastD.other_chg);
+      const sumChg = mainChg + othChg;
+      const capPct = nv(lastD.rollover_capture) * 100;
+      const d5 = rd.slice(-6);
+      const main5 = d5.length > 1 ? nv(d5[d5.length - 1].main_hold) - nv(d5[0].main_hold) : 0;
+      const all5 = d5.length > 1 ? nv(d5[d5.length - 1].total_hold) - nv(d5[0].total_hold) : 0;
+      const oth5 = all5 - main5;
+      const judge = mainChg < 0 && othChg > 0
+        ? `主力减仓中约 <b>${capPct.toFixed(1)}%</b> 被其他月份增仓承接，属部分移仓换月；其余为资金净离场。`
+        : (mainChg < 0 ? "主力与其他月份同步减仓，未见远月承接，更接近资金整体离场。"
+          : "主力未减仓，无移仓特征。");
+      amHtml = `<div class="cf-block am-block">
+        <div class="cf-sec"><span class="no">全月</span>品种全部月份持仓分布与移仓实测<em>${(cf.months || []).length} 个月份 · ${(cf.month_stats || {}).rank_month_count || 0} 个月份有会员排名</em></div>
+        <div class="am-bars">${bars}</div>
+        <div class="verdict" style="margin-top:8px">当日：主力 <b>${esc(lastD.main_contract || cf.contract || "")}</b> <b class="${cls(mainChg)}">${sign(mainChg)}</b> 手，其他 ${Math.max(0, (cf.months || []).length - 1)} 个月份合计 <b class="${cls(othChg)}">${sign(othChg)}</b> 手，全品种合计 <b class="${cls(sumChg)}">${sign(sumChg)}</b> 手。近5日：主力 <b class="${cls(main5)}">${sign(main5)}</b> 手 / 其他月份 <b class="${cls(oth5)}">${sign(oth5)}</b> 手 / 合计 <b class="${cls(all5)}">${sign(all5)}</b> 手。${judge}</div>
+        <div class="cf-foot">注：持仓 / 成交按全部挂牌月份合计，分母不再受主力换月跳变影响；「其他月份」= 全部月份 − 主力合约。承接比例仅在「主力减仓且其他月份增仓」时计算，表示主力减仓中被远月增仓抵消的份额，不是资金流向预测。标「无榜单」的月份仍计入合计持仓，但交易所未公布其会员排名，故不进入席位三榜。各月价格不同、不可加总，价格一律取主力 / 主连收盘价。</div>
+      </div>`;
+    }
+
     const panelHtml = `<div class="cf-panel">
       <div class="cf-panel-h"><span class="ttl">专业资金分析框架</span><span class="sub">四维交叉验证 · 变化优先于绝对量 · 历史回溯</span></div>
       ${scoreHtml}${scoreHistHtml}${quadHtml}${matrixHtml}${momentumHtml}${verdictHtml}
@@ -1458,6 +1502,7 @@
 
     const body = `${capread}
       ${panelHtml}
+      ${amHtml}
       ${kpis}
       <div class="verdict">${summaryText}</div>
       <div class="flex">
@@ -1494,13 +1539,13 @@
           <div class="t20-hist-head"><span class="t">三榜合一近1月：合计净持仓 + 占总持仓占比（左轴手数 · 右轴占比）</span></div>
           <div id="chCapFlowT20Hist" class="chart" style="height:260px"></div>
           <div id="capFlowT20Verdict" class="verdict" style="margin-top:4px"></div>
-          <div class="note" style="margin-top:4px">口径：席位集合 = 多单 / 空单 / 成交量三榜合并去重；合计净持仓 = 多单榜前20持买合计 − 空单榜前20持卖合计（只在成交量榜出现的席位不计持仓，对分子零增量）。左轴为合计净持仓（手）；右轴两条占比共用：① <b>三榜合一占总持仓</b> =（持买 + 持卖）/（2 × 当日主连总持仓），即速读卡「三榜合一总持仓占比」的逐日展开，衡量三榜席位对全市场持仓的覆盖率；② <b>净持仓占总持仓</b> = 合计净持仓 / 当日主连总持仓，正负表示三榜席位整体净多 / 净空，剔除合约规模与换月带来的量级变化，跨日可比。两条占比的分子分母严格同日（分母取主连日线当日 hold），换月错位时占比可能 &gt;100%，仅作参考。曲线覆盖全部当日有资金数据的品种（PD / PT 无资金数据；当日榜单源缺失的品种会显式回退旧口径）。</div>
+          <div class="note" style="margin-top:4px">口径：席位集合 = 全部有榜单月份的多单 / 空单 / 成交量三榜按会员跨月累加合并去重；合计净持仓 = 三榜持买合计 − 持卖合计（只在成交量榜出现的席位不计持仓，对分子零增量）。左轴为合计净持仓（手）；右轴两条占比共用：① <b>三榜合一占总持仓</b> =（持买 + 持卖）/（2 × ${oiBasis}），即速读卡「三榜合一总持仓占比」的逐日展开；② <b>净持仓占总持仓</b> = 合计净持仓 / ${oiBasis}，正负表示三榜席位整体净多 / 净空。两条占比的分子分母严格同日；${isAllMonths ? "分母为全部挂牌月份合计持仓，已消除主力换月跳变；交易所仅对部分活跃月份公布会员排名，占比为相对全品种总持仓的下限。" : "分母取主连日线当日 hold，换月错位时占比可能 &gt;100%，仅作参考。"}曲线覆盖全部当日有资金数据的品种（PD / PT 无资金数据；当日榜单源缺失的品种会显式回退旧口径）。</div>
         </div>
       </div>
-      <div class="note" style="margin-top:8px">数据来源：${cf.source}。${PROXY_NOTE} 主力合约 ${cf.main_contract || cf.contract}；数据交易日 ${cf.as_of}。总持仓为主连口径，合约换月时或有跳变。${seatNote}</div>`;
+      <div class="note" style="margin-top:8px">数据来源：${cf.source}。${PROXY_NOTE} ${isAllMonths ? `数据源为<b>品种全部挂牌月份合约</b>：共 ${(cf.months || []).length} 个月份，其中 ${(cf.month_stats || {}).rank_month_count || 0} 个月份有会员排名；持仓 / 成交按全部月份合计，价格仍取主力 / 主连收盘价（不同月份价格不可加总），已消除主力换月造成的持仓跳变。` : `主力合约 ${cf.main_contract || cf.contract}；总持仓为主连口径，合约换月时或有跳变。`} 数据交易日 ${cf.as_of}。${seatNote}</div>`;
 
     const tone = inst.net_chg > 0 ? "前5席位净多增仓" : (inst.net_chg < 0 ? "前5席位净空增仓" : "中性");
-    return card("⑦ 资金动向", "AKShare·持仓结构·主力追踪", "span12", body, tone);
+    return card("⑦ 资金动向", isAllMonths ? "全月份持仓结构 · 席位追踪" : "AKShare·持仓结构·主力追踪", "span12", body, tone);
   }
 
   // ⑦ 前20会员多空对比（重点突出：净持仓 + 当日净持仓变化量）
@@ -1743,9 +1788,12 @@
     if (s.capital_flow && s.capital_flow.available) {
       // 专业框架 L1：价 · 量 · 仓 三联图（上格价×仓，下格成交量与均量线）
       // 背离日标记沿用 L1 四象限的同一条「波动率自适应噪音带」
-      if (s.kline && s.kline.rows && s.kline.rows.length > 5) {
-        const nb = capFlowNoise(s.kline.rows).eps(5, 0.35, 0.8);
-        Charts.priceVolumeOi($("#chCapFlowPriceOi"), s.kline.rows,
+      // L1 的量 / 仓改用全月份合计（价格仍是主力/主连），与第⑦部分其它读数同口径
+      const l1rows = (s.capital_flow.all_months_rows || []).length
+        ? s.capital_flow.all_months_rows : ((s.kline && s.kline.rows) || []);
+      if (l1rows.length > 5) {
+        const nb = capFlowNoise(l1rows).eps(5, 0.35, 0.8);
+        Charts.priceVolumeOi($("#chCapFlowPriceOi"), l1rows,
           { pxEps: nb.px, oiEps: nb.oi });
       }
       // 专业框架 L4：近1月综合读数逐日回溯（无 score_history 时整块已在 HTML 中隐藏）

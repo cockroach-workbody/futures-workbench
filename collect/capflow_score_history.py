@@ -86,17 +86,33 @@ def resolve_snap_date():
 
 
 def load_kline_rows(code, snap_date):
-    """主连日线（含 date/close/oi/volume/oi_chg），按 8 位日期归一。"""
+    """第⑦部分行情窗口。全月份口径下：价格取主力/主连（不同月份价格不可加总），
+    量 / 仓取全部月份合计；严格按同一交易日 join，无同日数据即跳过，绝不跨日兜底。
+    与 build_all.all_months_rows 生成的是同一份序列。"""
     hits = glob.glob(os.path.join(BASE, "data", "*", code, snap_date + ".json"))
     if not hits:
         return []
     d = load_json(hits[0], {}) or {}
     rows = ((d.get("kline") or {}).get("rows")) or []
+    am = load_json(os.path.join(CF_DIR, f"allmonths_{code}.json"))
+    series = {}
+    if am and (am.get("totals") or {}).get("series"):
+        series = {_norm(p.get("date")): p for p in am["totals"]["series"]}
     out = []
     for r in rows:
         if not isinstance(r, dict) or not r.get("date"):
             continue
-        out.append(dict(r, date=_norm(r["date"])))
+        dt = _norm(r["date"])
+        rec = dict(r, date=dt)
+        s = series.get(dt)
+        if s:
+            rec["oi"] = s.get("hold")
+            rec["oi_chg"] = s.get("chg")
+            if s.get("volume") is not None:
+                rec["volume"] = s["volume"]
+        elif series:
+            continue
+        out.append(rec)
     return out
 
 
@@ -146,7 +162,23 @@ def fetch_day_inputs(contract, date):
 
 
 def collect_inputs(code, cf, dates, force, delay):
-    """逐日抓取并缓存打分输入，返回 (data 字典, 新增点数)。"""
+    """逐日抓取并缓存打分输入，返回 (data 字典, 新增点数)。
+    全月份口径下逐日截面已在 allmonths_<CODE>.json 落盘，直接复用、不再联网重抓。"""
+    am = load_json(os.path.join(CF_DIR, f"allmonths_{code}.json"))
+    if am and am.get("data"):
+        data = {}
+        for d in dates:
+            sec = (am["data"] or {}).get(d)
+            if not sec:
+                continue
+            data[d] = {k: sec.get(k) for k in
+                       ("date", "contract", "member_count", "tiers",
+                        "institutional_vs_retail", "large_orders", "top_members")}
+        cache = {"code": code, "data": dict(sorted(data.items())),
+                 "contract": am.get("main_contract"), "as_of": am.get("as_of"),
+                 "scope": "all_months"}
+        dump_json(cache_path(code), cache)
+        return cache["data"], 0
     cache = load_json(cache_path(code), {"code": code, "data": {}}) or {"code": code, "data": {}}
     data = cache.setdefault("data", {})
     contract = cf.get("contract")
@@ -273,15 +305,19 @@ def main():
 
     # 3) 写回 capflow_<CODE>.json
     note = (
-        "近1月 L4「四维共振读数」逐日回溯：每个交易日按当前主力合约重抓多单/空单/成交量三榜明细，"
-        "复原当日四档 tiers / 前5席位 / 大单动向，并取截止该交易日的主连行情计算价量仓、量能与自适应噪音带；"
+        "近1月 L4「四维共振读数」逐日回溯：数据源为品种全部挂牌月份合约，"
+        "每个交易日把全部有榜单月份的多单/空单/成交量三榜按会员跨月累加合并，"
+        "复原当日四档 tiers / 前5席位 / 大单动向；并取截止该交易日的合成行情"
+        "（价格为主力/主连收盘价，量仓为全月份合计）计算价量仓、量能与自适应噪音带；"
         "分数由页面同一份 capFlowAnalytics 公式计算（Node 桥接），与当日读数口径完全一致，不使用未来数据。"
         "权重：价·量·仓配合 35% / 前5席位净变化 25% / 分层一致性 20% / 大单动向 20%；"
         "50 中性，≥58 偏多、≤42 偏空。每个点同时附上同一交易日主连收盘价与当日涨跌幅，仅作价格对照（右轴、独立刻度），不参与打分。"
         "临近交割移仓窗口按「距交割月 ≤45 天 + 近5日总持仓连续下降 ≥3 天且降幅 ≥3% + 多空席位双边同步减仓」识别，"
         "落盘 rollover（距交割月天数 / 近5日持仓变化 / 连续下降天数 / 双边减仓）与 score_adj 校正参考读数；"
         "校正仅按 fade 向中性 50 收敛，不改原四维打分公式，历史读数口径保持稳定。"
-        "合约为当前主力，换月前后规模或有跳变；读数仅供横向比较，非交易信号。")
+        "分母已覆盖全部月份，读数不再受主力换月跳变影响；交易所仅对部分活跃月份公布会员排名，"
+        "榜单覆盖月份数因品种而异；不同月份价格不可加总，价格对照曲线仍取主力/主连收盘价。"
+        "读数仅供横向比较，非交易信号。")
     ok, bad = [], []
     for code in all_codes:
         rs = results.get(code) or {}

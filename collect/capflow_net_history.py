@@ -176,7 +176,65 @@ def fetch_day(contract, date):
     }
 
 
+def allmonths_path(code):
+    return os.path.join(CF_DIR, f"allmonths_{code}.json")
+
+
+def run_from_all_months(code, days, am):
+    """数据源 = 品种全部月份合约：逐日全月份三榜合并截面已落盘，直接生成曲线，无需重抓。
+    分母取全月份合计持仓，分子取全部有榜单月份的三榜持买/持卖，严格同日。"""
+    cf = load_json(cf_path(code)) or {}
+    data = am.get("data") or {}
+    keys = sorted(data)
+    dates = keys[-days:] if days > 0 else keys
+    if len(dates) < 2:
+        return {"code": code, "ok": False, "msg": f"only {len(dates)} all-months point(s)"}
+    raw = []
+    for d in dates:
+        sec = data[d]
+        L = float(sec.get("long_total") or 0)
+        S = float(sec.get("short_total") or 0)
+        lchg = sum(float(m.get("long_chg") or 0) for m in sec.get("top_members") or [])
+        schg = sum(float(m.get("short_chg") or 0) for m in sec.get("top_members") or [])
+        raw.append({
+            "date": d, "net": int(round(L - S)),
+            "long_total": int(round(L)), "short_total": int(round(S)),
+            "long_chg": int(round(lchg)), "short_chg": int(round(schg)),
+            "net_chg": int(round(lchg - schg)),
+            "seat_count": sec.get("member_count"),
+            "contract": sec.get("contract") or am.get("main_contract"),
+            "months_with_rank": sec.get("months_with_rank") or [],
+        })
+    hist = enrich(raw, {"total_position": {"series": am.get("totals", {}).get("series") or []}})
+    dump_json(hist_path(code), {
+        "code": code, "data": {r["date"]: r for r in raw},
+        "as_of": am.get("as_of"), "contract": am.get("main_contract"),
+        "scope": "all_months",
+    })
+    cf["net_history"] = hist
+    cf["net_history_note"] = (
+        "数据源为品种全部挂牌月份合约：合计净持仓 = 全部有榜单月份的多单榜持买合计 − 空单榜持卖合计，"
+        "会员席位按三榜跨月同名累加合并后去重。占总持仓占比 = (持买+持卖)/(2×当日全月份合计持仓)，"
+        "净持仓占比 = 合计净持仓/当日全月份合计持仓；两条占比分子分母严格同日。"
+        "分母已覆盖全部月份，故不再有主力换月造成的持仓跳变；交易所仅对部分活跃合约公布会员排名，"
+        "占比为相对全品种总持仓的下限。价格不可加总，价格对照曲线仍取主力/主连收盘价。")
+    dump_json(cf_path(code), cf, compact=False)
+
+    last = hist[-1]
+    sec = data[dates[-1]]
+    member_net = round(sum(float(m.get("net") or 0) for m in sec.get("top_members") or []))
+    return {"code": code, "ok": True, "added": 0, "points": len(hist),
+            "first": hist[0]["date"], "last": last["date"],
+            "last_net": last["net"], "cf_net": member_net,
+            "diff": int(last["net"] - member_net), "seats": last.get("seat_count"),
+            "oi_points": sum(1 for p in hist if p.get("total_oi")),
+            "seat_share": last.get("seat_share"), "net_share": last.get("net_share")}
+
+
 def run_one(code, days, force, delay):
+    am = load_json(allmonths_path(code))
+    if am and am.get("data") and (am.get("totals") or {}).get("series"):
+        return run_from_all_months(code, days, am)
     cf = load_json(cf_path(code))
     if not cf or not cf.get("available"):
         return {"code": code, "ok": False, "msg": "no capital_flow data"}

@@ -551,3 +551,19 @@ tbody tr:hover{background:var(--panel2)}
   .list li.pick:active{background:#22303f;outline:1px solid var(--accent)}
   .catnav button:active{color:var(--text)}
 }
+
+/* ⑦ 全月份资金全景：各月份持仓分布 + 移仓实测 */
+.am-bars{display:flex;flex-direction:column;gap:5px;margin-top:9px}
+.am-row{display:grid;grid-template-columns:112px 1fr 156px;align-items:center;gap:9px;font-size:11px}
+.am-ct{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.am-main{display:inline-block;margin-left:5px;padding:0 4px;border-radius:3px;font-style:normal;
+  font-size:10px;background:rgba(224,168,58,.16);color:var(--amber)}
+.am-bar{display:block;height:10px;border-radius:5px;background:rgba(143,167,196,.13);overflow:hidden}
+.am-bar b{display:block;height:100%;border-radius:5px;background:rgba(143,167,196,.62)}
+.am-bar b.main{background:var(--amber)}
+.am-v{text-align:right;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.am-norank{margin-left:5px;font-style:normal;font-size:10px;opacity:.6}
+@media (max-width:768px){
+  .am-row{grid-template-columns:92px 1fr;row-gap:2px}
+  .am-v{grid-column:2;text-align:left}
+}
