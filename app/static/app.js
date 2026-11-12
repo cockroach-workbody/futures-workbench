@@ -926,6 +926,43 @@
     pLo.tip = `【大单动向 · 权重 20%】\n取「头部净多增 TOP」与「头部净空增 TOP」两组当日净变化合计，按两组绝对额之和的 55% 归一化到 ±1，衡量头部席位调仓合力。\n与前5席位净变化可能重叠，用于交叉验证而非独立信号。\n本品种贡献 ${contrib(pLo)}。`;
     const raw = parts.reduce((x, p) => x + p.v * p.w, 0);
     const score = Math.round(Math.max(0, Math.min(100, 50 + 50 * raw)));
+
+    // ---- 临近交割「自然减仓 / 移仓」识别 + 读数校正（只做对照，不改原公式）----
+    // 主力合约进入交割月前约 1.5 个月，持仓会因移仓换月自然下降，这不是方向性资金离场。
+    // 若仍按「仓减 = 平仓 / 回补」解读，L1 价仓象限与席位净变化都会失真。
+    // 三个客观条件：① 距交割月近；② 近5日总持仓连续下降且降幅明显；③ 多空席位双边同步减仓。
+    // 交割月 15 日只是「近似最后交易日」，各交易所规则不同，仅用于窗口判断，不是精确到期日。
+    const rollover = (() => {
+      const last = rows.length ? rows[rows.length - 1] : null;
+      const ds = String((last && last.date) || "");
+      const contract = String(cf.contract || "");
+      const cm = /(\d{2})(\d{2})(?:\D|$)/.exec(contract);
+      const ymd = /^(\d{4})-?(\d{2})-?(\d{2})$/.exec(ds);
+      if (!cm || !ymd) return { level: "none", fade: 0 };
+      const yy = 2000 + parseInt(cm[1], 10), mm = parseInt(cm[2], 10);
+      if (mm < 1 || mm > 12) return { level: "none", fade: 0 };
+      const days = Math.round((Date.UTC(yy, mm - 1, 15) -
+        Date.UTC(+ymd[1], +ymd[2] - 1, +ymd[3])) / 86400000);
+      const oiSeq = rows.slice(-6).map(r => num(r.oi));
+      const oi5 = oiSeq.length >= 6 && oiSeq[0] > 0 ? (oiSeq[5] / oiSeq[0] - 1) * 100 : 0;
+      let decDays = 0;
+      for (let i = 1; i < oiSeq.length; i++)
+        if (oiSeq[i] > 0 && oiSeq[i - 1] > 0 && oiSeq[i] < oiSeq[i - 1]) decDays++;
+      const L = tiers.reduce((x, t) => x + num(t.long_chg), 0);
+      const S = tiers.reduce((x, t) => x + num(t.short_chg), 0);
+      const dual = L < 0 && S < 0;   // 双边同步减仓 = 移仓特征；单边减仓更可能是真实方向性平仓
+      const near = days >= -10 && days <= 45;
+      const base = { days, oi5, decDays, dual, contract,
+        delivery: `${yy}-${String(mm).padStart(2, "0")}` };
+      if (!near || oi5 >= -3 || decDays < 3) return Object.assign({ level: "none", fade: 0 }, base);
+      let fade = Math.min(0.55, Math.abs(oi5) / 40 * 0.55);  // -40% 减仓 → 0.55 上限
+      if (decDays < 4) fade *= 0.7;
+      fade = dual ? Math.min(0.60, fade + 0.10) : fade * 0.5;
+      fade = Math.round(fade * 100) / 100;
+      return Object.assign({ level: dual ? "confirmed" : "watch", fade }, base);
+    })();
+    // 校正参考值：把窗口内方向信号按 fade 向中性 50 收敛（可信度下降），不是反方向预测
+    const adjScore = Math.round(Math.max(0, Math.min(100, 50 + (score - 50) * (1 - rollover.fade))));
     const sameSign = sgn(raw) === 0 ? 0 : parts.filter(p => sgn(p.v) === sgn(raw)).length;
     const label = score >= 70 ? "强偏多" : score >= 58 ? "偏多" : score > 42 ? "中性" : score > 30 ? "偏空" : "强偏空";
     const tone = score >= 58 ? "up" : score <= 42 ? "down" : "muted";
@@ -942,6 +979,10 @@
     if (chgDivergence) risks.push("当日前5与其余席位净持仓变化方向相反，短线博弈加剧。");
     if (concentration > 45) risks.push(`头部资金层持仓占比 ${concentration.toFixed(1)}%，集中度高，少数席位调仓即可放大波动。`);
     if (pv5 && pv5.volRatio > 1.8 && VP.ratio <= 1.8) risks.push(`最新成交量约为近 ${pv5.days} 日均量的 ${pv5.volRatio.toFixed(1)} 倍，放量日需防换月或突发事件扰动。`);
+    if (rollover.fade > 0) risks.push(
+      `临近交割移仓窗口（${rollover.contract}，距交割月约 ${rollover.days} 天）：近5日总持仓 ${rollover.oi5.toFixed(1)}%、${rollover.decDays}/5 日连续下降` +
+      `${rollover.dual ? "，且多空席位双边同步减仓" : ""}，属自然减仓而非方向性资金离场；` +
+      `窗口内价仓与席位信号请降权解读，校正参考读数 ${adjScore}（原 ${score}）。`);
     if (!risks.length) risks.push("各维度未出现显著背离，但仍需结合基本面与价格结构确认；前5 / 其余席位为按净持仓规模推断的代理口径，交易所不披露终端客户属性。");
 
     return { pv: { pv1, pv5, pv20, base, quad, rows: rows.slice(-60) },
@@ -950,7 +991,8 @@
       momentum: { all: memRows, leaders, laggards },
       divergence: { position: posDivergence, change: chgDivergence, widening, instChg, retChg },
       noise: { profile: NZ, band: NB, horizon, z: zNow },
-      score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts, evidence, risks, rule: scoreRule } };
+      score: { value: score, label, tone, confirm: sameSign, total: parts.length, parts,
+        evidence, risks, rule: scoreRule, rollover, adjusted: adjScore } };
   }
 
   // 三榜合一总持仓占比（席位口径，与 ⑦「前5席位 / 其余席位」同源同日）
@@ -1250,12 +1292,26 @@
         pxVerdict = `；同期主连收盘 <b>${fmt(p0, 2)} → ${fmt(p1, 2)}</b>（<b class="${cls(pxChg)}">${pct(pxChg)}</b>），` +
           `读数与价格逐日同向 <b>${sameN}/${cmpN}</b> 日`;
       }
+      // 临近交割移仓窗口：自然减仓会让「仓减」被误读成方向性平仓，单独给出校正对照
+      const rollPts = shRaw.filter(x => x.rollover && x.rollover.fade > 0);
+      const hasRoll = rollPts.length > 0;
+      let rollVerdict = "";
+      if (hasRoll) {
+        const avgFade = rollPts.reduce((a, x) => a + x.rollover.fade, 0) / rollPts.length;
+        const minOi5 = Math.min.apply(null, rollPts.map(x => x.rollover.oi5 || 0));
+        const lastR = shRaw[shRaw.length - 1];
+        rollVerdict = `；其中 <b>${rollPts.length}</b> 日处于临近交割移仓窗口` +
+          `（近5日持仓最低 <b class="down">${minOi5.toFixed(1)}%</b>，平均校正强度 <b>${(avgFade * 100).toFixed(0)}%</b>）` +
+          (lastR.rollover && lastR.rollover.fade > 0
+            ? `，末日原读数 <b>${lastV}</b> → 校正参考 <b>${lastR.score_adj}</b>`
+            : "，当前已移出窗口");
+      }
       scoreHistHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L4</span>近1月综合读数曲线<em>逐日按当日截面复算</em></div>
       <div class="t20-hist-head"><span class="t">${hasPx ? "四维共振读数 × 主连收盘价 · 近1月对照" : "四维共振读数 · 近1月逐日回溯（0~100）"}</span></div>
       <div id="chCapFlowScoreHist" class="chart" style="height:230px"></div>
-      <div id="capFlowScoreHistVerdict" class="verdict" style="margin-top:4px">${shVerdict}${pxVerdict}</div>
-      <div class="cf-foot">注：逐日按当日三榜明细复原四档 / 前5席位 / 大单动向，并取截止该交易日的主连行情计算价量仓、量能与自适应噪音带；分数由页面同一份 L4 公式计算，与当日读数完全同口径、不使用未来数据。50 中性，≥58 偏多、≤42 偏空；红点偏多、绿点偏空、琥珀点中性。启发式读数仅供横向比较与自身历史对照，不构成交易信号；合约按当前主力回溯，换月前后读数可能跳变。${hasPx ? "紫色虚线为同一交易日主连收盘价（右轴，独立价格刻度、不做归一化），只作对照、不参与打分；悬停可看当日涨跌及相对前一日的读数/价格同向或背向。逐日同向天数只是方向一致性观察，不代表预测准确率。" : ""}</div>
+      <div id="capFlowScoreHistVerdict" class="verdict" style="margin-top:4px">${shVerdict}${pxVerdict}${rollVerdict}</div>
+      <div class="cf-foot">注：逐日按当日三榜明细复原四档 / 前5席位 / 大单动向，并取截止该交易日的主连行情计算价量仓、量能与自适应噪音带；分数由页面同一份 L4 公式计算，与当日读数完全同口径、不使用未来数据。50 中性，≥58 偏多、≤42 偏空；红点偏多、绿点偏空、琥珀点中性。启发式读数仅供横向比较与自身历史对照，不构成交易信号；合约按当前主力回溯，换月前后读数可能跳变。${hasPx ? "紫色虚线为同一交易日主连收盘价（右轴，独立价格刻度、不做归一化），只作对照、不参与打分；悬停可看当日涨跌及相对前一日的读数/价格同向或背向。逐日同向天数只是方向一致性观察，不代表预测准确率。" : ""}${hasRoll ? "淡紫竖带为临近交割移仓窗口：距交割月 ≤45 天、近5日总持仓连续下降 ≥3 天且降幅 ≥3%，多空席位双边同步减仓则确认为自然减仓。青色点线为「移仓校正读数」，仅把该区间的原读数按识别强度向中性 50 收敛，表示方向信号可信度下降，不代表校正后方向即真实方向；为保持历史可比，原始读数与四维打分公式均未改动。窗口按合约代码推算交割月、以交割月 15 日作近似最后交易日，各交易所规则不同，仅供降权参考。" : ""}</div>
     </div>`;
     }
 

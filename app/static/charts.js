@@ -520,6 +520,23 @@
     const pMax = hasPrice ? Math.max.apply(null, pv) : 1;
     // 右轴留出边距，避免价格线贴顶贴底；与左轴 0~100 独立，不做归一化
     const pad = hasPrice ? Math.max((pMax - pMin) * 0.15, pMax * 0.003, 0.01) : 0;
+    const ADJ_COL = "#54c7df";
+    // 移仓校正读数：非窗口点与原读数重合，窗口点向中性 50 收敛，视觉上自然分离
+    const hasAdj = pts.some(p => p.rollover && p.rollover.fade > 0);
+    const adjLine = pts.map(p => (typeof p.score_adj === "number" && isFinite(p.score_adj)
+      ? p.score_adj : p.score));
+    // 连续的移仓窗口交易日合并成一条竖向背景带
+    const rollAreas = [];
+    let seg = null;
+    for (let i = 0; i <= pts.length; i++) {
+      const on = i < pts.length && pts[i].rollover && pts[i].rollover.fade > 0;
+      if (on && seg === null) seg = i;
+      if (!on && seg !== null) {
+        rollAreas.push([{ xAxis: labels[seg], itemStyle: { color: "rgba(167,139,250,.14)" } },
+                        { xAxis: labels[i - 1] }]);
+        seg = null;
+      }
+    }
     const toneOf = (v) => v >= 58 ? { col: RED, txt: "偏多" } : v <= 42 ? { col: GREEN, txt: "偏空" }
       : { col: AMBER, txt: "中性" };
     const data = pts.map(p => {
@@ -546,6 +563,12 @@
           label: { show: true, position: "insideEndBottom", color: GREEN, fontSize: 10, formatter: "偏空 42" } },
       ] },
     }];
+    if (hasAdj) series.push({
+      name: "移仓校正读数", type: "line", yAxisIndex: 0, data: adjLine,
+      smooth: true, showSymbol: false, connectNulls: true, z: 4,
+      itemStyle: { color: ADJ_COL }, lineStyle: { width: 2, color: ADJ_COL, type: "dotted" },
+    });
+    if (rollAreas.length) series[0].markArea.data.push(...rollAreas);
     if (hasPrice) series.push({
       name: "主连收盘价(右轴)", type: "line", yAxisIndex: 1, data: priceLine,
       smooth: true, showSymbol: false, connectNulls: true, z: 5,
@@ -561,11 +584,15 @@
     });
     const opt = {
       backgroundColor: "transparent",
-      legend: hasPrice ? {
-        data: ["L4 综合读数", "主连收盘价(右轴)"],
-        top: 2, left: 0, itemWidth: 14, itemHeight: 8, itemGap: 12,
-        textStyle: { color: TX, fontSize: 10 },
-      } : { show: false },
+      legend: (() => {
+        const names = ["L4 综合读数"];
+        if (hasAdj) names.push("移仓校正读数");
+        if (hasPrice) names.push("主连收盘价(右轴)");
+        return names.length > 1
+          ? { data: names, top: 2, left: 0, itemWidth: 14, itemHeight: 8, itemGap: 12,
+              textStyle: { color: TX, fontSize: 10 } }
+          : { show: false };
+      })(),
       tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX,
         textStyle: { color: TXT }, formatter: (p) => {
           const x = pts[p[0].dataIndex];
@@ -587,6 +614,14 @@
                 ` · <b style="color:${a && a === b ? PRICE_COL : TX}">${tag}</b>`;
             }
           }
+          const ro = x.rollover;
+          if (ro && ro.fade > 0) {
+            h += `<br/><span style="color:${ADJ_COL}">●</span> 移仓校正读数 <b>${x.score_adj}</b>（原 ${x.score}）` +
+              `<br/><span style="color:${AMBER}">临近交割移仓窗口</span>：${ro.contract || ""} · 距交割月约 ${ro.days} 天` +
+              `<br/>近5日总持仓 <b>${Number(ro.oi5 || 0).toFixed(1)}%</b> · ${ro.decDays}/5 日连续下降` +
+              (ro.dual ? " · 多空席位双边同步减仓" : "") +
+              `<br/>自然减仓非方向性离场，方向信号按 ${(ro.fade * 100).toFixed(0)}% 向中性 50 收敛`;
+          }
           if (x.parts && x.parts.length) {
             h += `<br/><span style="color:${TX}">四维贡献（归一化 × 权重）</span>`;
             x.parts.forEach(pt => {
@@ -601,7 +636,7 @@
           if (x.contract) h += `<br/>合约 ${x.contract}`;
           return h;
         } },
-      grid: { left: 52, right: hasPrice ? 62 : 24, top: hasPrice ? 44 : 20, bottom: 40 },
+      grid: { left: 52, right: hasPrice ? 62 : 24, top: (hasPrice || hasAdj) ? 44 : 20, bottom: 40 },
       xAxis: { type: "category", data: labels, boundaryGap: false, ...axisCommon(),
         axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(labels.length / 8)) } },
       yAxis,

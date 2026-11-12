@@ -177,8 +177,12 @@ def run_bridge(tasks):
     return json.loads(p.stdout)["results"]
 
 
-def build_tasks(code, day_inputs, rows):
-    """截止每个交易日的行情窗口 + 当日榜单截面。"""
+def build_tasks(code, day_inputs, rows, default_contract=""):
+    """截止每个交易日的行情窗口 + 当日榜单截面。
+
+    contract 必须传入：L4 移仓识别需要按合约代码推算交割月，
+    页面快照的 capital_flow 自带该字段，历史回溯则取逐日缓存里的合约。
+    """
     tasks = []
     for d, sec in day_inputs.items():
         upto = [r for r in rows if r["date"] <= d][-ROWS_WINDOW:]
@@ -190,7 +194,8 @@ def build_tasks(code, day_inputs, rows):
             "cf": {"tiers": sec.get("tiers") or [],
                    "institutional_vs_retail": sec.get("institutional_vs_retail") or {},
                    "large_orders": sec.get("large_orders") or {},
-                   "top_members": sec.get("top_members") or []},
+                   "top_members": sec.get("top_members") or [],
+                   "contract": sec.get("contract") or default_contract},
         })
     return tasks
 
@@ -252,7 +257,8 @@ def main():
         batch = all_codes[i:i + args.batch]
         tasks = []
         for code in batch:
-            tasks.extend(build_tasks(code, prepared[code]["inputs"], prepared[code]["rows"]))
+            tasks.extend(build_tasks(code, prepared[code]["inputs"], prepared[code]["rows"],
+                                     (prepared[code]["cf"] or {}).get("contract") or ""))
         try:
             out = run_bridge(tasks)
         except Exception as e:
@@ -272,6 +278,9 @@ def main():
         "分数由页面同一份 capFlowAnalytics 公式计算（Node 桥接），与当日读数口径完全一致，不使用未来数据。"
         "权重：价·量·仓配合 35% / 前5席位净变化 25% / 分层一致性 20% / 大单动向 20%；"
         "50 中性，≥58 偏多、≤42 偏空。每个点同时附上同一交易日主连收盘价与当日涨跌幅，仅作价格对照（右轴、独立刻度），不参与打分。"
+        "临近交割移仓窗口按「距交割月 ≤45 天 + 近5日总持仓连续下降 ≥3 天且降幅 ≥3% + 多空席位双边同步减仓」识别，"
+        "落盘 rollover（距交割月天数 / 近5日持仓变化 / 连续下降天数 / 双边减仓）与 score_adj 校正参考读数；"
+        "校正仅按 fade 向中性 50 收敛，不改原四维打分公式，历史读数口径保持稳定。"
         "合约为当前主力，换月前后规模或有跳变；读数仅供横向比较，非交易信号。")
     ok, bad = [], []
     for code in all_codes:
@@ -293,12 +302,14 @@ def main():
         ok.append((code, len(hist), hist[-1]["score"], hist[-1]["label"]))
 
     print(f"\n[汇总] 写入 {len(ok)}/{len(all_codes)} 品种；失败 {bad}", flush=True)
-    px_hit = px_all = 0
+    px_hit = px_all = roll_days = 0
     for code, n, _, _ in ok:
         hist = (load_json(cf_path(code), {}) or {}).get("score_history") or []
         px_all += len(hist)
         px_hit += sum(1 for r in hist if isinstance(r.get("close"), (int, float)))
+        roll_days += sum(1 for r in hist if r.get("rollover"))
     print(f"[价格对照] {px_hit}/{px_all} 个交易日已按同日主连收盘价对齐", flush=True)
+    print(f"[移仓识别] {roll_days}/{px_all} 个交易日落在临近交割自然减仓窗口", flush=True)
     for code, n, sc, label in ok[:8]:
         print(f"  {code:4} {n:2} 点  末日读数 {sc:3} {label}", flush=True)
     if len(ok) > 8:

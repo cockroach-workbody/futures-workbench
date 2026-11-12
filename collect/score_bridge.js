@@ -10,7 +10,8 @@
  * 用法： node collect/score_bridge.js < tasks.json > results.json
  * 输入： {"tasks":[{"code","date","s":{"kline":{"rows":[...]}},"cf":{...}}]}
  * 输出： {"results":[{"code","date","score","label","tone","confirm",
- *                     "parts":[{"k","v","w","contrib"}],"quad","band","volTag"}]}
+ *                     "parts":[{"k","v","w","contrib"}],"quad","band","volTag",
+ *                     "rollover","score_adj"}]}
  */
 const fs = require('fs');
 const vm = require('vm');
@@ -81,6 +82,14 @@ for (const t of (input.tasks || [])) {
       band: A.noise && A.noise.band ? { px: A.noise.band.px, oi: A.noise.band.oi } : null,
       volTag: A.volume && A.volume.verdict ? A.volume.verdict.tag : '',
       horizon: A.noise ? A.noise.horizon : null,
+      // 临近交割自然减仓（移仓）识别：仅在确认窗口时落盘，供曲线标注与校正参考值
+      rollover: sc.rollover && sc.rollover.fade > 0 ? {
+        level: sc.rollover.level, fade: sc.rollover.fade, days: sc.rollover.days,
+        oi5: Math.round((sc.rollover.oi5 || 0) * 100) / 100,
+        decDays: sc.rollover.decDays, dual: sc.rollover.dual,
+        contract: sc.rollover.contract || '', delivery: sc.rollover.delivery || '',
+      } : null,
+      score_adj: sc.adjusted,
     });
   } catch (e) {
     results.push({ code: t.code, date: t.date, error: String(e && e.message || e) });
