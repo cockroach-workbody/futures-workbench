@@ -145,6 +145,14 @@
 "short_total": 2764015,
 "long_chg": -7823,
 "short_chg": -8587
+},
+"20261112": {
+"date": "20261112",
+"net": 3111,
+"long_total": 238875,
+"short_total": 235764,
+"long_chg": 1414,
+"short_chg": -2038
 }
 }
 }
