@@ -25,6 +25,7 @@
   30 18 * * *   cd /opt/futures-workbench && python cloud_cron.py both   >> cron.log 2>&1
 """
 import datetime
+import glob
 import json
 import os
 import subprocess
@@ -150,8 +151,26 @@ def mode_data():
     return rc == 0
 
 
+def _has_snapshot():
+    """是否存在本地快照 data/<板块>/<CODE>/<日期>.json。
+
+    data/ 不纳入 git（.gitignore），GitHub Actions 每次是干净检出、该目录为空；
+    常驻服务器 / 本机跑过一轮后则会保留。用于 opinion 模式判断能否轻量重建。
+    """
+    return bool(glob.glob(os.path.join(BASE, "data", "*", "*", "*.json")))
+
+
 def mode_opinion():
-    """机构观点轻量重建（不重抓K线）：qhkch 直抓 + 动态门户观点合并 + 重建。"""
+    """机构观点轻量重建（不重抓K线）：qhkch 直抓 + 动态门户观点合并 + 重建。
+
+    云端 CI 每次全新 checkout 且 data/ 不入库，若只做轻量重建会产出空快照、
+    让 GitHub Pages 变成空白页。故无快照时自动降级为一次完整数据主跑，
+    mode_data() 内部已含 build_web.py，直接返回避免重复重建。
+    本地 / 常驻服务器有 data/ 时仍保持原来的轻量行为（约 1 分钟）。
+    """
+    if not _has_snapshot():
+        log("[opinion] 未发现本地快照（云端干净检出），自动升级为完整数据主跑")
+        return bool(mode_data())
     # 1) qhkch 每日直抓（最佳努力）
     rc1, _, _ = run("refresh_opinions_daily.py")
     # 2) 动态门户观点合并（WebSearch全网 / 金十期货 / 东方财富期货资讯）：
