@@ -181,6 +181,60 @@
 "long_chg": -39804,
 "short_chg": -46606,
 "contract": "CF2701.ZCE"
+},
+"20261105": {
+"date": "20261105",
+"net": 202016,
+"long_total": 4065240,
+"short_total": 3863224,
+"long_chg": -35099,
+"short_chg": 6102,
+"contract": "CF2701.ZCE"
+},
+"20261106": {
+"date": "20261106",
+"net": 195084,
+"long_total": 4034142,
+"short_total": 3839058,
+"long_chg": -9054,
+"short_chg": -25120,
+"contract": "CF2701.ZCE"
+},
+"20261109": {
+"date": "20261109",
+"net": 157480,
+"long_total": 4017402,
+"short_total": 3859922,
+"long_chg": -5464,
+"short_chg": 25576,
+"contract": "CF2701.ZCE"
+},
+"20261110": {
+"date": "20261110",
+"net": 196268,
+"long_total": 4056149,
+"short_total": 3859881,
+"long_chg": 40739,
+"short_chg": -12755,
+"contract": "CF2701.ZCE"
+},
+"20261111": {
+"date": "20261111",
+"net": 266604,
+"long_total": 4065229,
+"short_total": 3798625,
+"long_chg": -17317,
+"short_chg": -46317,
+"contract": "CF2701.ZCE"
+},
+"20261112": {
+"date": "20261112",
+"net": 255283,
+"long_total": 4053692,
+"short_total": 3798409,
+"long_chg": 23160,
+"short_chg": 30838,
+"contract": "CF2701.ZCE"
 }
 }
 }
