@@ -235,6 +235,15 @@
 "long_chg": 52591,
 "short_chg": 125560,
 "contract": "SR2701.ZCE"
+},
+"20261113": {
+"date": "20261113",
+"net": -954311,
+"long_total": 4054789,
+"short_total": 5009100,
+"long_chg": 115074,
+"short_chg": 145616,
+"contract": "SR2701.ZCE"
 }
 }
 }
