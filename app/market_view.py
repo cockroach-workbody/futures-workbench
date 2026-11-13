@@ -13,8 +13,12 @@
 关键口径：净持仓是当日榜单存量，不是当日资金流向；无分歧 ≠ 预期一致 ≠ 趋势行情。
 一致偏多也可能是多头拥挤（增量买盘枯竭），必须用价格与持仓确认。
 
+量仓口径：持仓 / 成交量取「品种全部挂牌月份合计」（消除主力换月跳变），价格取主力 / 主连
+（不同月份价格不可加总）；无全月份榜单的品种回退主连量仓并逐行标注。REF_OI_SIGMA 基准
+按全月份口径校准，旧主连基准 3.60 不再适用。
+
 噪音阈值按品种波动率自适应：农产品日内波动小、有色 / 化工大，统一的 ±0.35% / ±0.8%
-会让低波品种把噪音当信号、高波品种把真信号磨平。用近 60 日主连「日收益 / 日持仓变化」
+会让低波品种把噪音当信号、高波品种把真信号磨平。用近 60 日「日收益 / 日持仓变化」
 的稳健标准差（MAD×1.4826）相对全市场基准的倍数放缩基准噪音带，再按 √(周期/5) 调周期。
 """
 
@@ -45,8 +49,10 @@ OI_EPS = 1.0
 
 # ---- 波动率自适应噪音带 ----
 VOL_WINDOW = 60          # 估计日波动率所用交易日数
-REF_PX_SIGMA = 1.30      # 全市场主连「日收益率」稳健波动率中位数（%/日）
-REF_OI_SIGMA = 3.60      # 全市场主连「日持仓变化率」稳健波动率中位数（%/日）
+REF_PX_SIGMA = 1.30      # 全市场「日收益率」稳健波动率中位数（%/日）；价格序列=主力/主连，两种口径相同
+REF_OI_SIGMA = 2.00      # 全市场「全月份合计持仓日变化率」稳健波动率中位数（%/日，2026-11-12 实测 2.005）
+                         # 旧值 3.60 是主连口径（实测 3.477）；量仓切到全月份后持仓更平滑，基准须同步下调，
+                         # 否则所有品种 ratio_oi 被裁到 0.55 下限，波动率自适应会失效。
 RATIO_MIN, RATIO_MAX = 0.55, 2.20   # 倍数裁剪：防止极端波动 / 数据异常把阈值推到失真
 MIN_PX_SIGMA, MIN_OI_SIGMA = 0.05, 0.30
 
@@ -80,9 +86,23 @@ def _clamp(v, lo, hi):
     return max(lo, min(hi, v))
 
 
+def _po_rows(snap):
+    """价 · 量 · 仓序列及其口径。
+
+    优先取第⑦部分「全月份合成日线」：量 / 仓 = 全部挂牌月份合计，价格 = 主力 / 主连
+    （不同月份价格不可加总）。缺该字段或品种无全月份榜单时回退主连 K 线，并在返回值里
+    标明 scope，供前端显式标注，避免两种口径被混读。
+    """
+    cf = (snap or {}).get("capital_flow") or {}
+    am = cf.get("all_months_rows") or []
+    if cf.get("scope") == "all_months" and len(am) >= 25:
+        return am, "all_months"
+    return ((snap or {}).get("kline") or {}).get("rows") or [], "main"
+
+
 def volatility_profile(snap):
     """本品种波动率画像：稳健日波动率、相对全市场基准倍数、波动档位。"""
-    rows = ((snap or {}).get("kline") or {}).get("rows") or []
+    rows, _scope = _po_rows(snap)
     rows = rows[-(VOL_WINDOW + 1):]
     sp = _robust_sigma(_daily_returns(rows, "close"), MIN_PX_SIGMA)
     so = _robust_sigma(_daily_returns(rows, "oi"), MIN_OI_SIGMA)
@@ -106,8 +126,13 @@ def noise_band(profile, horizon=5, base_px=PX_EPS, base_oi=OI_EPS):
 
 
 def price_oi(snap):
-    """近 5 日价、量、仓读数（只用连续主连 K 线序列，换月前后不与分层历史混用）。"""
-    rows = ((snap or {}).get("kline") or {}).get("rows") or []
+    """近 5 日价、量、仓读数。
+
+    量 / 仓优先用全月份合计序列（消除主力换月跳变），价格仍为主力 / 主连收盘价；
+    无全月份数据时回退主连 K 线。口径由 _po_rows 统一决定，保证波动率画像、噪音带、
+    5 日价仓变化与清单里的总持仓变动同源。
+    """
+    rows, _scope = _po_rows(snap)
     if not rows:
         return {}
     last = rows[-1]
@@ -278,6 +303,10 @@ def compute_market_view(items, default_as_of=""):
         prof = volatility_profile(snap)
         band = noise_band(prof, 5, PX_EPS, OI_EPS)
         pq, flag, risk, note = price_oi_signal(po, stance, band)
+        oi_scope = _po_rows(snap)[1]
+        scope_txt = ("量 / 仓＝全部挂牌月份合计，价格＝主力 / 主连"
+                     if oi_scope == "all_months" else
+                     "该品种无全月份榜单数据，量 / 仓已回退主连口径")
         # 以「本品种 5 日波动 σ」为单位看当前变化强度，便于跨品种比较
         sig5 = math.sqrt(5)
         z_px = round(po.get("px_5d", 0.0) / (prof["sigma_px"] * sig5), 2) if prof else 0.0
@@ -285,6 +314,7 @@ def compute_market_view(items, default_as_of=""):
         band_txt = (f"自适应噪音带：价 ±{band['px_eps']:.2f}% / 仓 ±{band['oi_eps']:.2f}%"
                     f"（{prof['regime']}品种，日波动 价 {prof['sigma_px']:.2f}% / 仓 {prof['sigma_oi']:.2f}%）"
                     if prof else "波动率样本不足，已退回固定噪音阈值")
+        band_txt += f"｜{scope_txt}"
         tp = cf.get("total_position") or {}
         row = {
             "code": it["code"], "name": it.get("name", ""), "category": it.get("category", ""),
@@ -297,6 +327,7 @@ def compute_market_view(items, default_as_of=""):
             "magnitude": magnitude,
             "total_position": _i(tp.get("latest")) or po.get("oi", 0),
             "chg_5d": _i(tp.get("chg_5d")) or po.get("oi_5d", 0),
+            "oi_scope": oi_scope, "oi_basis": scope_txt,
             "pq": pq, "flag": flag, "note": note, "band": band_txt,
             "px_eps": band["px_eps"], "oi_eps": band["oi_eps"],
             "sigma_px": round(prof["sigma_px"], 2) if prof else 0.0,
@@ -321,6 +352,8 @@ def compute_market_view(items, default_as_of=""):
     out.sort(key=key)
 
     divergences = [r for r in out if r["stance"] == "divergence"]
+    scope_all = sum(1 for r in out if r["oi_scope"] == "all_months")
+    scope_main = len(out) - scope_all
     px_eps_all = [r["px_eps"] for r in out]
     oi_eps_all = [r["oi_eps"] for r in out]
     noise_meta = {
@@ -328,6 +361,8 @@ def compute_market_view(items, default_as_of=""):
         "ref_px": REF_PX_SIGMA, "ref_oi": REF_OI_SIGMA,
         "base_px": PX_EPS, "base_oi": OI_EPS,
         "ratio_min": RATIO_MIN, "ratio_max": RATIO_MAX,
+        "oi_basis": "持仓 / 成交量＝全部挂牌月份合计；价格＝主力 / 主连（不同月份价格不可加总）。"
+                    "持仓波动率基准 REF_OI_SIGMA 已按全月份口径校准，旧主连口径基准 3.60 不再适用。",
         "px_min": min(px_eps_all) if px_eps_all else PX_EPS,
         "px_max": max(px_eps_all) if px_eps_all else PX_EPS,
         "oi_min": min(oi_eps_all) if oi_eps_all else OI_EPS,
@@ -341,6 +376,9 @@ def compute_market_view(items, default_as_of=""):
     return {
         "as_of": as_of,
         "noise": noise_meta,
+        "oi_scope_counts": {"all_months": scope_all, "main": scope_main},
+        "oi_scope_note": ("量 / 仓＝全部挂牌月份合计，价格＝主力 / 主连；席位榜单仅覆盖有会员排名的月份，"
+                          "故榜单类占比是相对全品种总持仓的下限。无全月份榜单的品种回退主连量仓并逐行标注。"),
         "total": len(out),
         "covered": sum(1 for r in out if r["available"]),
         "count": len(divergences),                                   # 兼容旧字段

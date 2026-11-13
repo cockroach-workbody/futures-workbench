@@ -788,6 +788,11 @@
     const tiers = Object.keys(history[0] || {}).filter(k => k !== "date");
     const colors = [RED, AMBER, BLUE, GREEN, "#9b6dff"];
     const dates = history.map(h => h.date);
+    // 全月份口径下历史点由 4 个采样扩到近 22 个交易日，横轴改显 MM-DD，悬停仍给完整日期
+    const labels = dates.map(d => {
+      const s = String(d == null ? "" : d);
+      return s.length === 10 ? s.slice(5) : s.length === 8 ? s.slice(4, 6) + "-" + s.slice(6) : s;
+    });
     const series = tiers.map((t, i) => ({
       name: tierName(t), type: "line", data: history.map(h => h[t]), smooth: true, showSymbol: false, connectNulls: true,
       itemStyle: { color: colors[i % colors.length] }, lineStyle: { width: 2, color: colors[i % colors.length] },
@@ -796,11 +801,11 @@
     c.setOption({
       backgroundColor: "transparent",
       tooltip: { trigger: "axis", backgroundColor: "#1c2530", borderColor: AX, textStyle: { color: TXT },
-        formatter: (ps) => { let s = ps[0].axisValue + "<br/>"; ps.forEach(p => { s += `${p.seriesName} <b>${fmtN(p.value)}</b> 手<br/>`; }); return s; } },
+        formatter: (ps) => { let s = dates[ps[0].dataIndex] + "<br/>"; ps.forEach(p => { s += `${p.seriesName} <b>${fmtN(p.value)}</b> 手<br/>`; }); return s; } },
       legend: { data: tiers.map(tierName), textStyle: { color: TX }, top: 0, itemWidth: 12, itemHeight: 8 },
       grid: { left: 62, right: 16, top: 34, bottom: 36 },
-      xAxis: { type: "category", data: dates, boundaryGap: false, ...axisCommon(),
-        axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(dates.length / 6)) } },
+      xAxis: { type: "category", data: labels, boundaryGap: false, ...axisCommon(),
+        axisLabel: { color: TX, fontSize: 10, interval: Math.max(0, Math.floor(labels.length / 6)) } },
       yAxis: { type: "value", ...axisCommon(), name: "净持仓", nameTextStyle: { color: TX },
         axisLabel: { color: TX, formatter: (v) => (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
       series: series,

@@ -83,6 +83,43 @@ def all_months_rows(am, kline):
     return out
 
 
+def all_months_tier_history(am):
+    """从全月份逐日截面生成「四档净持仓历史」。
+
+    替代 akshare_capital_flow.py 里按主力合约回溯的 4 个采样点：口径与当日 tiers
+    柱状图、L1 量仓、L4 打分曲线完全一致（全部有榜单月份三榜跨月合并），且覆盖
+    近 22 个交易日而非稀疏采样。日期保留 YYYY-MM-DD，图表只显示 MM-DD。
+    """
+    out = []
+    for d in sorted((am.get("data") or {}).keys()):
+        tiers = ((am.get("data") or {}).get(d) or {}).get("tiers") or []
+        if not tiers:
+            continue
+        row = {"date": d if "-" in str(d) else
+               f"{str(d)[:4]}-{str(d)[4:6]}-{str(d)[6:8]}"}
+        for t in tiers:
+            row[t["tier"]] = t.get("net")
+        out.append(row)
+    return out
+
+
+def all_months_summary(am, sec):
+    """按全月份口径重算 summary，避免快照里残留主力合约的旧文案。"""
+    iv = sec.get("institutional_vs_retail") or {}
+    inst, ret = iv.get("institutional") or {}, iv.get("retail") or {}
+    if not inst or not ret:
+        return None
+    tone = lambda v: "净多" if v > 0 else "净空" if v < 0 else "均衡"
+    ci, cr = inst.get("net_chg") or 0, ret.get("net_chg") or 0
+    tail = ("两组席位同向增仓，方向相对一致。" if ci > 0 and cr > 0 else
+            "两组席位同向减仓，资金离场迹象。" if ci < 0 and cr < 0 else
+            "两组席位方向相反，分歧加大。")
+    return (f"截至{am.get('as_of')}，前5席位合计净持仓 {inst.get('net', 0):,} 手（{tone(inst.get('net') or 0)}），"
+            f"当日净持仓变化 {ci:+,} 手；其余 {ret.get('count', '—')} 个席位合计净持仓 "
+            f"{ret.get('net', 0):,} 手（{tone(ret.get('net') or 0)}），当日净持仓变化 {cr:+,} 手。"
+            f"净持仓变化 = 多头增仓 − 空头增仓；{tail}数据源：品种全部挂牌月份（有榜单月份三榜跨月合并）。")
+
+
 def apply_all_months(cf, am, kline):
     """把资金分析框架的数据源整体切到「品种全部月份合约」口径。
     字段名保持不变，前端占比 / 分层 / 速读卡无需改计算逻辑。"""
@@ -107,7 +144,19 @@ def apply_all_months(cf, am, kline):
         if k in sec:
             cf[k] = sec[k]
     cf["all_months_rows"] = all_months_rows(am, kline)
-    # contract / main_contract 保留主力合约代码：L4 移仓识别需要据其推算交割月
+    # 四档净持仓历史：改用全月份逐日截面（22 点），不再沿用主力合约的 4 个采样点
+    th = all_months_tier_history(am)
+    if th:
+        cf["tier_net_history"] = th
+        cf["tier_net_history_note"] = (
+            "数据源为品种全部挂牌月份：每个交易日把全部有榜单月份的多单 / 空单 / 成交量三榜"
+            "按会员跨月累加合并后重新分档，取各档净持仓；与当日四档 tiers、L1 量仓、L4 打分同口径。"
+            "交易所仅对部分活跃月份公布会员排名，故分档只反映有榜单月份。")
+    sm = all_months_summary(am, sec)
+    if sm:
+        cf["summary"] = sm
+    # contract / main_contract 保留主力合约代码：L4 移仓识别需要据其推算交割月；
+    # 价格同样只取主力 / 主连（不同月份价格不可加总）。
     return cf
 
 

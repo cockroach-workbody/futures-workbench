@@ -563,7 +563,7 @@
       <div class="div-h"><span class="no">全市场资金结构清单</span><em>全部品种 · 点击任意行跳转该品种资金动向</em></div>
       <div class="div-guide"><b>无分歧 ≠ 预期一致 ≠ 趋势行情</b>：净持仓是当日榜单存量，不是当日资金流向；同向也可能是「结构不明」或「多头拥挤」。须用<b>价 × 仓</b>确认 —— 价涨仓增＝增量资金推动（趋势确认）；<span class="risky">价涨仓减＝空头回补 / 存量离场驱动（需警惕回落）</span>；价跌仓增＝新空进场（跌势延续）；价跌仓减＝多头离场（跌势尾声）。</div>
       <div id="divListBox"><div class="note">清单加载中…</div></div>
-      <div class="cf-foot">口径：${PROXY_NOTE} 两组席位数随当日榜单变化（本品种 前5 ${n(inst.count) || 5} 席 / 其余 ${n(ret.count) || "—"} 席）；净占比低于 3% 判「方向不明」，不计入共识。价 / 仓为近 5 日主连序列，<b>噪音阈值按品种波动率自适应</b>（基准 ±0.8% / ±1.0%，按近 60 日稳健日波动率放缩 0.55~2.20 倍；农产品更严、有色/化工更宽，具体数值见清单上方噪音带与每行悬停；⑦ 单品种 L1 用更敏感的 ±0.35% / ±0.8%，但倍数相同）；5 日持仓变动超 15% 须先排除移仓换月。清单按「分歧加大 → 背离 → 需警惕回落 → 其它」排序，悬停任一行可看完整解读。</div>`;
+      <div class="cf-foot">口径：<b>量 / 仓＝品种全部挂牌月份合计</b>（总持仓、成交量、5 日持仓变化、量比与波动率噪音带均按此口径，已消除主力换月跳变）；<b>价格＝主力 / 主连收盘价</b>（不同月份价格不可加总）。席位榜单只覆盖有会员排名的月份，故榜单类占比是相对全品种总持仓的下限；无全月份榜单的品种回退主连量仓，并在清单行内标注。${PROXY_NOTE} 两组席位数随当日榜单变化（本品种 前5 ${n(inst.count) || 5} 席 / 其余 ${n(ret.count) || "—"} 席）；净占比低于 3% 判「方向不明」，不计入共识。<b>噪音阈值按品种波动率自适应</b>（基准 ±0.8% / ±1.0%，按近 60 日全月份合成行情的稳健日波动率放缩 0.55~2.20 倍；仓基准 2.00%/日为全月份口径实测中位数，旧主连基准 3.60% 已弃用；⑦ 单品种 L1 用更敏感的 ±0.35% / ±0.8%，但倍数相同）；5 日持仓变动超 15% 仍须结合移仓实测判断。清单按「分歧加大 → 背离 → 需警惕回落 → 其它」排序，悬停任一行可看完整解读。</div>`;
     return card("全市场资金背离预警", "Divergence · 全市场", "span12", body, null, "cardCapitalAlert");
   }
 
@@ -595,8 +595,9 @@
     const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g,
       c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
     const nb = div.noise;
-    const noiseLine = nb ? `<div class="div-noise" title="${esc(nb.method)}｜基准（近5日）价 ±${nb.base_px}% / 仓 ±${nb.base_oi}%，按品种近 ${nb.window} 日稳健日波动率相对全市场基准（价 ${nb.ref_px}%/日、仓 ${nb.ref_oi}%/日）放缩。农产品等低波品种阈值收紧、有色/化工高波品种放宽，避免统一阈值把噪音当信号或把真信号磨平。"><b>⚙ 波动率自适应噪音带</b>：全市场 价 ±${n(nb.px_min).toFixed(2)}%~±${n(nb.px_max).toFixed(2)}% · 仓 ±${n(nb.oi_min).toFixed(2)}%~±${n(nb.oi_max).toFixed(2)}%<span class="muted">（低波 ${n(nb.regimes && nb.regimes["低波"])} / 中波 ${n(nb.regimes && nb.regimes["中波"])} / 高波 ${n(nb.regimes && nb.regimes["高波"])} 个；悬停每行看该品种阈值）</span></div>` : "";
+    const noiseLine = nb ? `<div class="div-noise" title="${esc(nb.method)}｜基准（近5日）价 ±${nb.base_px}% / 仓 ±${nb.base_oi}%，按品种近 ${nb.window} 日稳健日波动率相对全市场基准（价 ${n(nb.ref_px).toFixed(2)}%/日、仓 ${n(nb.ref_oi).toFixed(2)}%/日，全月份口径）放缩。农产品等低波品种阈值收紧、有色/化工高波品种放宽，避免统一阈值把噪音当信号或把真信号磨平。"><b>⚙ 波动率自适应噪音带</b>：全市场 价 ±${n(nb.px_min).toFixed(2)}%~±${n(nb.px_max).toFixed(2)}% · 仓 ±${n(nb.oi_min).toFixed(2)}%~±${n(nb.oi_max).toFixed(2)}%<span class="muted">（低波 ${n(nb.regimes && nb.regimes["低波"])} / 中波 ${n(nb.regimes && nb.regimes["中波"])} / 高波 ${n(nb.regimes && nb.regimes["高波"])} 个；悬停每行看该品种阈值）</span></div>` : "";
     const noDiv = n(div.aligned_count) + n(div.neutral_count);
+    const scopeLine = `<div class="div-noise" title="${esc(div.oi_scope_note || "")}"><b>ⓘ 数据口径</b>：量 / 仓＝<b>品种全部挂牌月份合计</b> · 价格＝主力 / 主连收盘价（不同月份价格不可加总）<span class="muted">（全月份 ${n((div.oi_scope_counts || {}).all_months)} 个 / 无全月份榜单回退主连 ${n((div.oi_scope_counts || {}).main)} 个；席位榜单仅覆盖有会员排名的月份，占比为下限；悬停看完整口径）</span></div>`;
     const head = `<div class="div-summary">
       <span>全市场 <b>${n(div.total) || all.length}</b> 品种</span>
       <span>有资金数据 <b>${n(div.covered)}</b></span>
@@ -606,6 +607,7 @@
       <span>无分层 <b>${n(div.nodata_count)}</b></span>
       <span class="muted">数据截至 ${fmtDate(div.as_of)}</span></div>
       ${noiseLine}
+      ${scopeLine}
       <div class="div-filters">
         <button type="button" class="div-fbtn on" data-f="all">全部</button>
         <button type="button" class="div-fbtn" data-f="div">仅分歧</button>
@@ -629,12 +631,15 @@
       const bandTip = r.band ? "\n" + r.band : "";
       const nbCell = r.px_eps != null
         ? `<span class="c-nb" title="${esc(r.band || "")}">噪 价±${n(r.px_eps).toFixed(2)}% / 仓±${n(r.oi_eps).toFixed(2)}% · ${esc(r.vol_regime || "")}</span>` : "";
+      // 无全月份榜单的品种：量仓回退主连，必须在行内可见标注，不能只写在脚注
+      const scopeTag = r.oi_scope === "main"
+        ? `<span class="c-nb" style="color:#e0a83a" title="${esc(r.oi_basis || "无全月份榜单，量仓回退主连口径")}">主连量仓回退</span>` : "";
       return `<div class="divrow ${lvl}${cur}" data-code="${esc(r.code)}" data-group="${grp}" data-risk="${esc(risk)}" title="${esc((r.note || "") + bandTip)}">
         <div class="c-prod"><b>${esc(r.name)}</b><span class="c-code">${esc(r.code)}</span><span class="c-mc">${esc(r.main_contract)}</span></div>
         <div class="c-dir ${dirTone}">${esc(r.direction)}${dirChip}</div>
         <div class="c-num"><span class="${cls(n(r.inst_net))}">前5 ${sgn(n(r.inst_net))}</span><span class="muted"> ${n(r.inst_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.inst_chg))}</span></div>
         <div class="c-num"><span class="${cls(n(r.ret_net))}">其余 ${sgn(n(r.ret_net))}</span><span class="muted"> ${n(r.ret_ratio).toFixed(1)}%</span><br><span class="muted">Δ ${sgn(n(r.ret_chg))}</span></div>
-        <div class="c-pq"><b>${esc(r.pq || "—")}</b><br><span class="muted">5日价 <span class="${cls(n(r.px_5d))}">${pct(n(r.px_5d))}</span> · 仓 <span class="${cls(n(r.oi_5d_pct))}">${pct(n(r.oi_5d_pct))}</span></span>${nbCell}</div>
+        <div class="c-pq"><b>${esc(r.pq || "—")}</b><br><span class="muted">5日价 <span class="${cls(n(r.px_5d))}">${pct(n(r.px_5d))}</span> · 仓 <span class="${cls(n(r.oi_5d_pct))}">${pct(n(r.oi_5d_pct))}</span></span>${nbCell}${scopeTag}</div>
         <div class="c-flag"><span class="chip f-${esc(risk)}">${esc(r.flag || "—")}</span></div>
       </div>`;
     };
@@ -679,10 +684,14 @@
 
   // ===== 波动率自适应噪音带（⑥ 全市场清单 / ⑦ L1 与后端 market_view.py 同一口径）=====
   // 农产品日内波动小、有色 / 化工大：统一的 ±0.35% / ±0.8% 会让低波品种把噪音当信号、
-  // 高波品种把真信号磨平。取近 60 日主连「日收益 / 日持仓变化率」的稳健波动率
-  // (MAD × 1.4826，对涨跌停与移仓跳空不敏感)，以相对全市场基准波动率的倍数放缩
-  // 基准噪音带，倍数裁剪 0.55~2.20；不同观察周期再乘 √(周期/5)。
-  const NOISE_REF = { px: 1.30, oi: 3.60, min: 0.55, max: 2.20, window: 60 };
+  // 高波品种把真信号磨平。取近 60 日「合成行情」（价格 = 主力/主连、量仓 = 全部挂牌
+  // 月份合计）「日收益 / 日持仓变化率」的稳健波动率 (MAD × 1.4826，对涨跌停与
+  // 移仓跳空不敏感)，以相对全市场基准波动率的倍数放缩基准噪音带，倍数裁剪
+  // 0.55~2.20；不同观察周期再乘 √(周期/5)。
+  // 基准与后端 market_view.py 一致：价 1.30%/日（价格序列即主连）、仓 2.00%/日
+  // （全月份合计持仓实测中位数 2.005；旧主连基准 3.60 会让全月份 sigma_oi
+  //  被裁到 0.55 下限、自适应失效）。改动后历史 L4 打分须用同一公式重算。
+  const NOISE_REF = { px: 1.30, oi: 2.00, min: 0.55, max: 2.20, window: 60 };
   function capFlowNoise(rows) {
     const src = (rows || []).slice(-(NOISE_REF.window + 1));
     const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
@@ -1116,7 +1125,7 @@
       ? `${esc(inc[0].name)} 领增 ${sgn(num(inc[0].net_chg))}、${esc(dec[0].name)} 领减 ${sgn(num(dec[0].net_chg))}`
       : `头部席位${balance}`;
 
-    // ⑤ 历史回溯：只用连续的主连持仓序列做趋势确认
+    // ⑤ 历史回溯：用全月份合计持仓序列做趋势确认（回退旧口径时才为主连序列）
     // 分层历史采样是按「当前合约」回溯历史排名，换月前后席位规模不可比，故不展示数值对比。
     const sr = tp.series || [];
     const last20 = sr.slice(-20);
@@ -1209,7 +1218,7 @@
       : (cf.note || "暂无会员持仓排名数据。");
 
     const kpis = `<div class="netchg">
-      ${kpi("总持仓(主连)", (tp.latest != null ? fmt(tp.latest) : "—") + " 手", "", "近20日 " + (tp.chg_20d != null ? sign(tp.chg_20d) : "—"), true)}
+      ${kpi(isAllMonths ? "总持仓(全月份合计)" : "总持仓(主连)", (tp.latest != null ? fmt(tp.latest) : "—") + " 手", "", "近20日 " + (tp.chg_20d != null ? sign(tp.chg_20d) : "—"), true)}
       ${seatKpi}
       ${kpi("总持仓变化(1日)", (tp.chg_1d != null ? sign(tp.chg_1d) : "—") + " 手", cls(tp.chg_1d), tp.chg_1d > 0 ? "资金流入 ↑" : "资金流出 ↓")}
       ${kpi("总持仓变化(5日)", (tp.chg_5d != null ? sign(tp.chg_5d) : "—") + " 手", cls(tp.chg_5d), tp.chg_5d > 0 ? "5日净流入" : "5日净流出")}
@@ -1330,7 +1339,7 @@
     const VP = A.volume.profile, VV = A.volume.verdict;
     const volTip = `【量能卡片 · 四格数据口径】
 每格三行 = 指标名 / 当前值 / 基准或状态说明。
-① 当日成交量：最新交易日主连成交量（手）；小字「前20日均量」不含当日，是所有量比的共同基准。
+① 当日成交量：最新交易日「全部挂牌月份合计成交量」（手）；小字「前20日均量」不含当日，是所有量比的共同基准。价格不可加总，本卡片不涉及价格。
 ② 量比(20日) = 当日成交量 ÷ 前20日均量。≥1.5× 显著放量、≥1.2× 温和放量、0.8~1.2× 之间（不含端点）量能平稳、≤0.8× 温和缩量、≤0.6× 明显缩量。卡片标题由这一格决定。
 ③ 量能趋势 = 近5日均量 ÷ 前5日均量（前5日 = 再往前 5 天），衡量资金关注度：≥1.2× 升温、≤0.8× 降温，其余平稳。
 ④ 均量结构 VMA5/20 = 近5日均量 ÷ 近20日均量；>1 说明近期量能高于中期水平，小字标注 VMA5 走高 / 走低及绝对值。小字「走高/走低」是拿近5日与前5日比，和 VMA5/20（近20日）参照不同，出现「>1 但走低」并不矛盾。
@@ -1351,7 +1360,7 @@
         <span class="cf-tag ${VV.confirm > 0 ? "active" : VV.confirm < 0 ? "passive" : "dual"}">${VV.confirm > 0 ? "量能确认价仓信号" : VV.confirm < 0 ? "量能削弱价仓信号" : "量能中性"}</span></div>
       <div class="v-desc">${VV.desc}</div>
       <div class="v-grid">
-        <div title="最新交易日主连成交量（手）；下方小字为前 20 个交易日（不含当日）均量，是量比的分母"><div class="k">当日成交量</div><div class="v">${fmt(VP.last)} <small>手</small></div><div class="s">前20日均量 ${fmt(VP.base20)}</div></div>
+        <div title="最新交易日全部挂牌月份合计成交量（手）；下方小字为前 20 个交易日（不含当日）均量，是量比的分母"><div class="k">当日成交量</div><div class="v">${fmt(VP.last)} <small>手</small></div><div class="s">前20日均量 ${fmt(VP.base20)}</div></div>
         <div title="当日成交量 ÷ 前20日均量；0.8~1.2× 判「量能平稳」，≥1.2× 放量、≤0.8× 缩量"><div class="k">量比 (20日)</div><div class="v ${VP.ratio >= 1.2 ? "up" : VP.ratio <= 0.8 ? "down" : ""}">${VP.ratio.toFixed(2)}×</div><div class="s">${VP.state}</div></div>
         <div title="近5日均量 ÷ 前5日均量（再往前 5 天）；≥1.2× 关注度升温、≤0.8× 降温"><div class="k">量能趋势</div><div class="v">${VP.trend.toFixed(2)}×</div><div class="s">${VP.trendTag}</div></div>
         <div title="VMA5 ÷ VMA20；>1 表示近期量能高于中期水平，小字标注 VMA5 绝对值与方向"><div class="k">均量结构 VMA5/20</div><div class="v">${VP.ma20 ? (VP.ma5 / VP.ma20).toFixed(2) : "—"}×</div><div class="s">${VP.maTag} · VMA5 ${fmt(VP.ma5)}</div></div>
@@ -1375,6 +1384,9 @@
     </div>`;
     const quadHtml = `<div class="cf-block">
       <div class="cf-sec"><span class="no">L1</span>价 · 量 · 仓配合<em>资金是否真正在推动价格</em></div>
+      <div class="cf-hint" style="margin-bottom:6px"><b>口径</b>：${isAllMonths
+        ? "总持仓 / 成交量＝<b>品种全部挂牌月份合计</b>（已消除主力换月跳变）；收盘价 / 价格变化＝主力 / 主连收盘价（不同月份价格不可加总）。噪音带按全月份合成行情的稳健波动率自适应，仓基准 2.00%/日。"
+        : "本品种无全月份榜单数据，量 / 仓回退主连口径，价格仍为主力 / 主连。"}</div>
       <div class="cf-quad ${q.bias > 0 ? "pos" : q.bias < 0 ? "neg" : "neu"}">
         <div class="q-name">${q.name}</div><div class="q-desc">${q.desc}</div>
       </div>
@@ -1439,7 +1451,7 @@
         <div style="flex:1"><div class="cf-mini-h down">净空增加 TOP</div>${A.momentum.laggards.map(momRow).join("") || '<div class="note">—</div>'}</div>
       </div>
       <div id="chCapFlowMomentum" class="chart" style="height:230px;margin-top:8px"></div>
-      <div class="cf-hint" style="margin-top:4px"><b>双向对照</b>：下图同时取「净多增加 TOP6」与「净空增加 TOP6」，合计最多 12 席，按当日净变化从高到低排列；红＝净多增、绿＝净空增，实色＝主动进攻（多头增仓 / 空头增仓），半透明＝被动回补或平仓。全月份口径下席位可达数十个，图只显示两侧极值，不是全部席位；悬停可看多空拆解与变化性质。</div>
+      <div class="cf-hint" style="margin-top:4px"><b>双向对照</b>：下图同时取「净多增加 TOP6」与「净空增加 TOP6」，合计最多 12 席，按当日净变化从高到低排列；红＝净多增、绿＝净空增，实色＝主动进攻（多头增仓 / 空头增仓），半透明＝被动回补或平仓。全月份口径下席位为「全部有榜单月份」三榜按会员跨月累加合并去重（仅覆盖有会员排名的月份），可达数十席，图只显示两侧极值，不是全部席位；悬停可看多空拆解与变化性质。</div>
     </div>`;
 
     // 悬停/聚焦口径说明：属性内换行写成 &#10;，由 CSS white-space:pre-line 还原（tipAttr 已在上方定义）
@@ -1531,8 +1543,11 @@
           </div>
         </div>
         <div style="flex:1.2">
-          <div class="t20-hist-head"><span class="t">历史回溯 · 各名次分档净持仓变化</span></div>
+          <div class="t20-hist-head"><span class="t">历史回溯 · 各名次分档净持仓（近1月 · ${isAllMonths ? "全月份口径" : "主力口径回退"}）</span></div>
           <div id="chCapFlowHist" class="chart" style="height:220px"></div>
+          <div class="note" style="margin-top:4px">${isAllMonths
+            ? `数据源为<b>品种全部挂牌月份</b>：每个交易日把全部有榜单月份的三榜按会员跨月累加合并后重新分档，取各档净持仓，与当日四档 tiers 同源，共 ${(cf.tier_net_history || []).length} 个交易日；仅覆盖有会员排名的月份。`
+            : "本品种无全月份榜单，回退<b>单一主力合约</b>口径（4 个采样点），不可与全月份口径直接比较。"} 不同月份价格不可加总，价格仍取主力 / 主连。</div>
         </div>
       </div>
       <div class="flex" style="margin-top:10px">

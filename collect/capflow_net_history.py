@@ -4,22 +4,26 @@
 三榜合一 · 近一月「合计净持仓」历史曲线采集器
 
 背景：⑦ 资金动向原「前20会员近1月净持仓变化」曲线来自 raw_hist/agg_<CODE>.json，
-口径是「前20会员 · 全合约汇总」，且只覆盖 36 个品种（SHFE 12 + CZCE 11 + DCE 13），
-缺广期所 LC / PS / SI。与「三榜合一总持仓占比」所用的「当前主力合约 · 三榜合并席位」
-口径不一致（多数品种数值差近一个数量级），无法与当日资金结构直接对照。
+口径是「前20会员 · 全合约汇总」，与当日资金结构不同源，无法直接对照。
 
-本脚本按三榜合一口径重算近一月序列，覆盖全部 available=True 的品种（当前 39 个）：
-  - 交易日：取 capital_flow.total_position.series 中 <= as_of 的最近 N 个交易日
-  - 每个交易日抓 多单持仓 / 空单持仓 / 成交量 三榜（AKShare 新浪镜像）
-  - 合计净持仓 = 多单榜前20「持买合计」 − 空单榜前20「持卖合计」
-      （即三榜按会员简称合并去重后全部席位的净持仓之和；只在成交量榜出现的席位
-       long / short 记 0，对分子零增量 —— 与 calcSeatShare 的分子口径完全一致）
-  - seat_count = 三榜合并去重后的席位总数，随曲线一起落盘供前端提示
-  - 逐日两条占比（分子分母同日，分母取 total_position.series 当日主连总持仓 hold）：
+主口径 run_from_all_months：数据源为「品种全部挂牌月份合约」，直接读
+collect/raw_capflow/allmonths_<CODE>.json 的逐日截面（由 capflow_all_months.py 采集），
+无需重抓榜单；无该产物时才回退到 run_one 的「单一主力合约逐日抓榜」旧逻辑并在
+net_history_note 里显式标注。
+
+主口径要点：
+  - 交易日：取 allmonths.totals.series 中 <= as_of 的最近 N 个交易日
+  - 合计净持仓 = 全部有榜单月份的多单榜持买合计 − 空单榜持卖合计
+      （会员按三榜跨月同名累加合并后去重；只在成交量榜出现的席位 long / short
+       记 0，对分子零增量 —— 与 calcSeatShare 的分子口径完全一致）
+  - seat_count = 跨月合并去重后的席位总数，随曲线一起落盘供前端提示
+  - 逐日两条占比（分子分母同日，分母取 totals.series 当日全月份合计持仓 hold）：
       seat_share = (多单榜持买 + 空单榜持卖) / (2 × hold) × 100
-          = 「三榜合一总持仓占比」的逐日展开，衡量三榜席位对全市场持仓的覆盖率；
+          = 「三榜合一总持仓占比」的逐日展开，衡量三榜席位对全品种持仓的覆盖率；
       net_share  = 合计净持仓 / hold × 100
-          = 三榜席位整体净多 / 净空相对全市场规模，剔除合约规模与换月导致的量级变化。
+          = 三榜席位整体净多 / 净空相对全市场规模。分母已覆盖全部月份，
+            消除主力换月造成的持仓跳变；交易所仅对部分活跃月份公布会员排名，
+            故占比为相对全品种总持仓的下限。价格不可加总，价格对照仍取主力/主连。
 
 产物：
   collect/raw_capflow/hist_<CODE>.json   逐日缓存（幂等，已采集日跳过）
@@ -84,7 +88,7 @@ def dump_json(path, obj, compact=True):
 
 
 def trade_dates(cf, days, as_of):
-    """近一月交易日：来自主连日线 total_position.series，统一 8 位 YYYYMMDD。"""
+    """近一月交易日：来自全月份合计序列（或回退时的主连序列），统一 8 位 YYYYMMDD。"""
     series = (cf.get("total_position") or {}).get("series") or []
     a = _norm(as_of)
     ds = sorted({_norm(p.get("date")) for p in series
@@ -93,7 +97,8 @@ def trade_dates(cf, days, as_of):
 
 
 def oi_by_date(cf):
-    """主连日线每日总持仓（分母）：{YYYYMMDD: hold}。与榜单交易日严格同日对齐。"""
+    """每日总持仓（分母）：{YYYYMMDD: hold}。全月份口径下为全部挂牌月份合计持仓，
+    回退旧口径时为主连日线 hold。与榜单交易日严格同日对齐。"""
     series = (cf.get("total_position") or {}).get("series") or []
     out = {}
     for p in series:
@@ -273,6 +278,7 @@ def run_one(code, days, force, delay):
     hist = enrich(raw, cf)
     cf["net_history"] = hist
     cf["net_history_note"] = (
+        "【旧口径回退】本品种无全月份榜单数据，以下为单一主力合约口径，不可与全月份口径直接比较。"
         "三榜合一合计净持仓 = 多单榜前20持买合计 − 空单榜前20持卖合计；"
         "席位集合为多单/空单/成交量三榜合并去重，只在成交量榜出现的席位不计持仓、对分子零增量。"
         "占总持仓占比 = (持买+持卖)/(2×当日主连总持仓)，衡量三榜席位覆盖率；"

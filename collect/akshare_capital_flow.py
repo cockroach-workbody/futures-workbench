@@ -313,6 +313,9 @@ def _build_capflow(cfg, with_history=False):
     })
 
     # 3) 历史回溯：分层净持仓变化序列（采样若干历史交易日）
+    # 注：全月份口径下 build_all.apply_all_months 会用 allmonths_<CODE>.json 的逐日截面
+    #     覆盖 tier_net_history（22 个交易日、与当日 tiers 同源）。此处保留作为
+    #     「无全月份榜单数据」品种的回退，口径为单一主力合约。
     if with_history:
         hist = []
         base_dates = None
