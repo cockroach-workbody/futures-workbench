@@ -919,11 +919,25 @@
   const priceOiDual = priceVolumeOi;
 
   // ⑦ 专业框架 L3：主力席位净变化横条 —— 主动进攻(实色) vs 回补/平仓(半透明)
+  // 双向取样：净多增加 TOP6 + 净空增加 TOP6，避免全月份口径（50~80 席）下
+  // 单纯按 net_chg 降序取前 N 导致「只剩净多、看不到净空」。
   function memberMomentum(dom, members) {
     if (!dom) return null;
     const c = base(dom);
     const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
-    const a = members.slice().sort((x, y) => num(y.net_chg) - num(x.net_chg)).slice(0, 12);
+    const sorted = members.slice().sort((x, y) => num(y.net_chg) - num(x.net_chg));
+    const HALF = 6, MAX = HALF * 2;
+    const up = sorted.filter(m => num(m.net_chg) > 0).slice(0, HALF);
+    const down = sorted.filter(m => num(m.net_chg) < 0).slice(-HALF);
+    let picked;
+    if (up.length + down.length >= MAX) picked = up.concat(down);
+    else {
+      // 一侧不足 6 席时用另一侧按绝对变化补足，最多仍显示 12 席
+      const pickedNames = new Set(up.concat(down).map(m => m.name));
+      const rest = sorted.filter(m => !pickedNames.has(m.name) && num(m.net_chg) !== 0);
+      picked = up.concat(down, rest.slice(0, MAX - up.length - down.length));
+    }
+    const a = picked.sort((x, y) => num(y.net_chg) - num(x.net_chg));
     const names = a.map(m => m.name);
     const vals = a.map(m => num(m.net_chg));
     const colors = a.map(m => {
@@ -942,15 +956,17 @@
             `<br/>多头增减 ${L > 0 ? "+" : ""}${fmtN(L)}　空头增减 ${S > 0 ? "+" : ""}${fmtN(S)}` +
             `<br/>净持仓 ${fmtN(m.net)} 手<br/><span style="color:${AMBER}">${kind}</span>`;
         } },
-      grid: { left: 92, right: 70, top: 12, bottom: 26 },
+      grid: { left: 108, right: 82, top: 12, bottom: 26 },
       xAxis: { type: "value", ...axisCommon(), name: "净变化(手)", nameTextStyle: { color: TX },
         axisLabel: { color: TX, formatter: (v) => (v > 0 ? "+" : "") + (Math.abs(v) >= 10000 ? (v / 10000).toFixed(0) + "万" : v) } },
       yAxis: { type: "category", data: names, inverse: true, ...axisCommon(),
         axisLabel: { color: TX, fontSize: 11 } },
       series: [{
-        type: "bar", data: vals.map((v, i) => ({ value: v, itemStyle: { color: colors[i], borderRadius: 3 } })),
+        type: "bar", data: vals.map((v, i) => ({ value: v,
+          itemStyle: { color: colors[i], borderRadius: 3 },
+          label: { position: v >= 0 ? "right" : "left" } })),
         barMaxWidth: 16,
-        label: { show: true, position: "right", color: TX, fontSize: 10,
+        label: { show: true, color: TX, fontSize: 10,
           formatter: (p) => (p.value > 0 ? "+" : "") + fmtN(p.value) },
         markLine: { silent: true, symbol: "none", lineStyle: { color: TX, type: "dashed" }, data: [{ xAxis: 0 }] },
       }],

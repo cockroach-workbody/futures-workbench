@@ -1439,6 +1439,7 @@
         <div style="flex:1"><div class="cf-mini-h down">净空增加 TOP</div>${A.momentum.laggards.map(momRow).join("") || '<div class="note">—</div>'}</div>
       </div>
       <div id="chCapFlowMomentum" class="chart" style="height:230px;margin-top:8px"></div>
+      <div class="cf-hint" style="margin-top:4px"><b>双向对照</b>：下图同时取「净多增加 TOP6」与「净空增加 TOP6」，合计最多 12 席，按当日净变化从高到低排列；红＝净多增、绿＝净空增，实色＝主动进攻（多头增仓 / 空头增仓），半透明＝被动回补或平仓。全月份口径下席位可达数十个，图只显示两侧极值，不是全部席位；悬停可看多空拆解与变化性质。</div>
     </div>`;
 
     // 悬停/聚焦口径说明：属性内换行写成 &#10;，由 CSS white-space:pre-line 还原（tipAttr 已在上方定义）
