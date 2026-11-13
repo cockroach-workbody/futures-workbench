@@ -42,7 +42,8 @@ permissions:
 
 concurrency:
   group: futures-workbench-pages
-  cancel-in-progress: false
+  # 连续 push 时只保留最新一次运行，避免多次刷新排队积压（每次约 5~15 分钟）
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -85,12 +86,15 @@ jobs:
           python cloud_cron.py "$MODE"
 
       - name: 回写历史曲线数据到仓库
+        # 历史缓存回写是累积性动作：运行期间若有其它 push（本地 / 自动提交）会造成
+        # non-fast-forward。dist 已生成，回写失败不应阻断本次 Pages 部署，故容错 + 重试一次。
+        continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git diff --cached --quiet || git commit -m "chore: 自动刷新数据 $(TZ=Asia/Shanghai date +%F)"
-          git push
+          git push || (git pull --rebase origin main && git push)
 
       - name: 准备 Pages 产物
         run: |
