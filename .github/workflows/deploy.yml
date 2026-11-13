@@ -111,6 +111,18 @@ jobs:
         with:
           path: public
 
+      # 失败时把编排器报告与抓取日志打包，便于直接定位是哪一步、哪个品种挂了
+      - name: 上传刷新诊断日志（仅失败时）
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cron-diag-${{ github.run_id }}
+          path: |
+            run_report.json
+            collect/_run_report_*.md
+            collect/_*.log
+          if-no-files-found: ignore
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
