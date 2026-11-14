@@ -65,3 +65,21 @@ env/
 .DS_Store
 node_modules/
 *.tmp
+
+# ============ 本地备份与一次性脚本（体积大 / 无运行时依赖，不入库）============
+# 备份目录合计约 430MB，切勿推到 GitHub
+/.bak_*/
+/backup/
+/_rb_snap.json
+/.ci*.log
+collect/_*.bak_*
+collect/_build_*.py
+collect/_enrich_*.py
+collect/_gen_*.py
+collect/build_agrib.py
+collect/build_metal_json.py
+# GitHub Actions 运行时生成的 Pages 产物目录（部署用，非源码）
+/public/
+
+# pages/index.html 是本地最新离线快照，CI 在「周末跳过 / 抓取失败无 dist」时用它兜底，
+# 必须入库；不要把它加进 dist/ 或 web/ 的忽略规则。

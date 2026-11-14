@@ -146,9 +146,21 @@ def write_web_status(report):
 
 
 def mode_data():
-    """交易所直抓数据刷新主跑（完整流水线）。"""
-    rc, _, _ = run("refresh_daily.py")
+    """交易所直抓数据刷新主跑（完整流水线）。
+
+    refresh_daily.py 默认周末自动跳过（return 0），此时不会产出任何 dist。
+    GitHub Actions 是干净检出，若把「跳过」当成「构建成功」会让 Pages 步骤
+    拿不到产物而失败。需要周末强制重建时（手动补跑 / 云端重建）设
+    WB_ALLOW_WEEKEND=1，透传 --allow-weekend。
+    """
+    args = ("--allow-weekend",) if os.environ.get("WB_ALLOW_WEEKEND") == "1" else ()
+    rc, _, _ = run("refresh_daily.py", *args)
     return rc == 0
+
+
+def _has_dist():
+    """本次运行是否真的产出了单文件离线网页（Pages 的部署源）。"""
+    return bool(glob.glob(os.path.join(BASE, "dist", "*.html")))
 
 
 def _has_snapshot():
@@ -170,7 +182,12 @@ def mode_opinion():
     """
     if not _has_snapshot():
         log("[opinion] 未发现本地快照（云端干净检出），自动升级为完整数据主跑")
-        return bool(mode_data())
+        ok = bool(mode_data())
+        if ok and not _has_dist():
+            # 周末主跑会按设计跳过（refresh_daily.py 返回 0），此时没有新产物。
+            # 明确记一句，避免日志看起来「刷新成功」却让 Pages 步骤扑空。
+            log("[opinion] 本次未产出 dist（周末跳过刷新），Pages 将复用仓库内最新快照")
+        return ok
     # 1) qhkch 每日直抓（最佳努力）
     rc1, _, _ = run("refresh_opinions_daily.py")
     # 2) 动态门户观点合并（WebSearch全网 / 金十期货 / 东方财富期货资讯）：
@@ -201,6 +218,8 @@ def mode_opinion():
             json.dump(st, f, ensure_ascii=False, indent=2)
     except Exception:
         pass
+    if not _has_dist():
+        log("[opinion] 轻量重建未产出 dist，Pages 将复用仓库内最新快照")
     return True
 
 
@@ -220,8 +239,9 @@ def main():
         ok = mode_data()
         summary["data"] = "ok" if ok else "fail"
     elif mode == "opinion":
-        mode_opinion()
-        summary["opinion"] = "ok"
+        # 取真实返回值：早间/周末刷新失败时让 CI 明确失败，不要伪装成成功
+        ok = mode_opinion()
+        summary["opinion"] = "ok" if ok else "fail"
     elif mode == "deploy":
         d_ok, d_msg = deploy()
         summary["deploy"] = d_msg

@@ -235,6 +235,15 @@
 "long_chg": 2768,
 "short_chg": 2378,
 "contract": "ZN2701.SHF"
+},
+"20261113": {
+"date": "20261113",
+"net": 20871,
+"long_total": 86478,
+"short_total": 65607,
+"long_chg": 5972,
+"short_chg": 8608,
+"contract": "ZN2701.SHF"
 }
 }
 }

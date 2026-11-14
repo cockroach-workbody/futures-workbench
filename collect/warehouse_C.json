@@ -1,11 +1,11 @@
 {
  "code": "C",
- "date": "2026-11-12",
+ "date": "2026-11-13",
  "standard": {
-  "total": 151560.0,
-  "change": 0.0,
+  "total": 151058.0,
+  "change": -502.0,
   "unit": "手",
-  "date": "2026-11-12"
+  "date": "2026-11-13"
  },
  "mill": null,
  "breakdown": []

@@ -235,6 +235,15 @@
 "long_chg": 9989,
 "short_chg": 5473,
 "contract": "AL2701.SHF"
+},
+"20261113": {
+"date": "20261113",
+"net": 13402,
+"long_total": 196464,
+"short_total": 183062,
+"long_chg": 13023,
+"short_chg": 12309,
+"contract": "AL2701.SHF"
 }
 }
 }

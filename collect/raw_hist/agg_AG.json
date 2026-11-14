@@ -235,6 +235,15 @@
 "long_chg": 5752,
 "short_chg": 4499,
 "contract": "AG2702.SHF"
+},
+"20261113": {
+"date": "20261113",
+"net": 27884,
+"long_total": 157841,
+"short_total": 129957,
+"long_chg": 3722,
+"short_chg": 6962,
+"contract": "AG2702.SHF"
 }
 }
 }

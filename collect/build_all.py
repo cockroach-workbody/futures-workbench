@@ -44,6 +44,10 @@ SNAP_DATE = _snap_date()
 from inject_t20_history import build_history as _t20_build_history
 RAWHIST_DIR = os.path.join(NEODATA_DIR, "raw_hist")
 
+# 主力合约解析（换月标注）：以「价格归属 + 持仓最大」双口径判定当日主力，
+# 根治换月后「合约标注过期、涨跌幅含跨月跳空」的问题。纯本地计算，无网络依赖。
+import main_contract as _mct
+
 
 def load_agg_rawhist(code):
     """读取 collect/raw_hist/agg_<CODE>.json（前20全合约合计净持仓历史，每日滚动采集）。"""
@@ -160,10 +164,46 @@ def apply_all_months(cf, am, kline):
     return cf
 
 
-def load_capflow(code, kline=None):
+def _cf_diagnose_gap(cf, am, code):
+    """资金流不可用时给出准确原因与「实际数据截止日」。
+
+    背景：采集器 assemble 阶段无条件把 as_of 写成快照日，一旦抓取失败仍会留下
+    as_of=当日 的产物，前端会误认为「已更新」。此处按数据实况重写 note，
+    避免把监管源覆盖范围的限制误报成「抓取失败」。
+    """
+    cf = dict(cf or {})
+    if cf.get("months"):
+        return cf
+    data = (am or {}).get("data") or {}
+    last8 = max(data.keys()) if data else None
+    if last8:
+        cf["data_as_of"] = "%s-%s-%s" % (last8[:4], last8[4:6], last8[6:8])
+    exch = next((p.get("exch") or "" for p in PRODUCTS if p["code"] == code), "")
+    is_gfex = ("广州" in exch) or code in {"SI", "LC", "PS", "PT", "PD"}
+    if is_gfex:
+        cf["unavailable_reason"] = "gfex_no_rank"
+        cf["note"] = ("广期所（%s）品种的会员持仓排名未被当前数据源（新浪镜像）覆盖，"
+                      "资金流模块无可用数据；行情 / 缠论 / 前20（NeoData）不受影响。" % code)
+        if cf.get("data_as_of"):
+            cf["note"] += "历史全月份持仓截至 %s，此后未再更新。" % cf["data_as_of"]
+    elif cf.get("data_as_of"):
+        cf["unavailable_reason"] = "data_stale"
+        cf["note"] = ("持仓排名数据仅更新至 %s，低于当前快照日，资金流模块暂不展示。"
+                      % cf["data_as_of"])
+    else:
+        cf.setdefault("unavailable_reason", "no_data")
+        if not cf.get("note"):
+            cf["note"] = "会员持仓排名暂无数据，资金流模块暂不展示。"
+    cf["available"] = False
+    return cf
+
+
+def load_capflow(code, kline=None, main_meta=None):
     """读取 collect/raw_capflow/capflow_<CODE>.json（AKShare 资金流采集器产出）。
     第7部分（资金动向）优先使用；缺失或 available=False 时前端回退到 NeoData top20。
-    若存在 allmonths_<CODE>.json，则整体切到「品种全部月份」口径（用户选定口径）。"""
+    若存在 allmonths_<CODE>.json，则整体切到「品种全部月份」口径（用户选定口径）。
+    main_meta 非空时，用当日解析出的主力合约覆盖模块内沿用的静态合约代码，
+    并按日重算逐日主力持仓归属（原实现 price 与 hold 常分属不同合约）。"""
     fp = os.path.join(CAPFLOW_DIR, f"capflow_{code}.json")
     cf = None
     if os.path.exists(fp):
@@ -172,13 +212,34 @@ def load_capflow(code, kline=None):
         except Exception:
             cf = None
     amfp = os.path.join(CAPFLOW_DIR, f"allmonths_{code}.json")
+    am = None
     if os.path.exists(amfp):
         try:
             am = json.load(open(amfp, "r", encoding="utf-8"))
             if am.get("data") and am.get("totals", {}).get("series"):
-                return apply_all_months(cf or {}, am, kline)
+                cf2 = apply_all_months(cf or {}, am, kline)
+                if cf2.get("months"):
+                    if main_meta and main_meta.get("contract"):
+                        cf2 = _apply_main_meta(cf2, am, main_meta)
+                    return cf2
         except Exception:
             pass
+    return _cf_diagnose_gap(cf, am, code)
+
+
+def _apply_main_meta(cf, am, main_meta):
+    """把当日主力合约口径注入资金流模块（合约代码 / 月份 is_main / 逐日主力持仓）。"""
+    sym = main_meta["contract"]
+    suffix = (main_meta.get("contract_full") or "").split(".")[-1] or None
+    cf["contract"] = sym
+    cf["main_contract"] = main_meta.get("contract_full") or sym
+    cf["main_contract_source"] = main_meta.get("source")
+    if main_meta.get("note"):
+        cf["main_contract_note"] = main_meta["note"]
+    cf["months"] = _mct.mark_months(cf.get("months"), sym, suffix)
+    hist = (_mct.load_state().get(am.get("code")) or {})
+    if cf.get("rollover_daily"):
+        cf["rollover_daily"] = _mct.annotate_rollover_daily(cf["rollover_daily"], hist, suffix)
     return cf
 
 # ---------------------------------------------------------------------------
@@ -464,6 +525,18 @@ def moving_average(values, window):
     return out
 
 
+def _chanlun_trend_label(t):
+    """走势类型中文标签。引擎在中枢未形成时返回字符串 'undefined'（chan_center.classify_trend），
+    直接透传到前端会显示成 'undefined'，故在此统一规范为中文标签，并保留原始枚举备查。"""
+    return {
+        "uptrend": "上涨趋势",
+        "downtrend": "下跌趋势",
+        "consolidation": "盘整",
+        "expanded_consolidation": "中枢扩展盘整",
+        "undefined": "未形成中枢",
+    }.get(str(t or "").strip().lower(), "未形成中枢")
+
+
 def run_chanlun(kline_rows):
     try:
         if CHANLUN_PATH not in sys.path:
@@ -475,6 +548,13 @@ def run_chanlun(kline_rows):
         res = analyze(bars, labels=labels, strict_bars=True, use_macd=True)
         clean = {k: v for k, v in res.items() if not k.startswith("_")}
         clean["available"] = True
+        # trend 规范化：'undefined'/None 归为未形成中枢，并统一给中文标签
+        raw_trend = str(clean.get("trend") or "").strip().lower()
+        if raw_trend in ("undefined", "none", ""):
+            clean["trend"] = None
+        clean["trend_label"] = _chanlun_trend_label(raw_trend)
+        if not (clean.get("centers") or []):
+            clean["trend_note"] = "当前样本内未形成有效中枢，走势类型不做趋势判定"
         return clean
     except Exception as e:  # noqa
         return {"available": False, "error": str(e),
@@ -500,7 +580,7 @@ def load_kline(code):
     return rows
 
 
-def build_top20(cfg, rank_long, rank_short):
+def build_top20(cfg, rank_long, rank_short, data_as_of=None):
     if not rank_long or not rank_short:
         return {"available": False, "source": "neodata(未接入)", "members": [],
                 "note": "前20会员多空对比待接入（NeoData futures_rank）。接入后按同名字段填充 member 表。"}
@@ -524,7 +604,14 @@ def build_top20(cfg, rank_long, rank_short):
     member_list = sorted(members.values(), key=lambda x: x["net"], reverse=True)
     add_rank = sorted(member_list, key=lambda x: (x["long_chg"] + x["short_chg"]), reverse=True)[:3]
     reduce_rank = sorted(member_list, key=lambda x: (x["long_chg"] + x["short_chg"]))[:3]
+    # 数据日与快照日不一致时显式标注：避免「合约已是新主力、明细仍是旧数据」的隐性错配
+    stale_note = ""
+    _das = str(data_as_of or "").replace("-", "")[:8]
+    if _das and _das != str(SNAP_DATE).replace("-", "")[:8]:
+        stale_note = ("（注：前20席位明细数据日为 %s-%s-%s，非当前交易日，待日更接入后更新）"
+                      % (_das[:4], _das[4:6], _das[6:]))
     return {"available": True, "source": "neodata", "contract": cfg.get("main") or cfg["code"] + "0(主连)",
+            "data_as_of": _das or None, "stale": bool(stale_note),
             "long_total": long_total, "short_total": short_total, "net": net,
             "long_chg": long_chg, "short_chg": short_chg, "net_chg": net_chg,
             "long_short_ratio": long_short_ratio, "net_long_pct": net_long_pct,
@@ -532,7 +619,7 @@ def build_top20(cfg, rank_long, rank_short):
             "top_add": [{"name": m["name"], "chg": m["long_chg"] + m["short_chg"]} for m in add_rank],
             "top_reduce": [{"name": m["name"], "chg": m["long_chg"] + m["short_chg"]} for m in reduce_rank],
             "net_trend": [{"date": SNAP_DATE, "net": net}],
-            "note": "前20会员口径为主力合约；净持仓=持买合计-持卖合计。趋势需多日连续采集构建。"}
+            "note": "前20会员口径为主力合约；净持仓=持买合计-持卖合计。趋势需多日连续采集构建。" + stale_note}
 
 
 def build_inventory(cfg, nd_wh):
@@ -552,6 +639,13 @@ def build_inventory(cfg, nd_wh):
     standard = (nd_wh or {}).get("standard") or {"total": None, "change": None, "unit": "吨", "date": None}
     mill = (nd_wh or {}).get("mill")  # 可能 None（该品种无厂库）
     breakdown = (nd_wh or {}).get("breakdown") or []
+    base_note = ("标准仓单/厂库为交易所真实数据（单日快照，含较上期变化）；社会库存经 "
+                 "collect/inventory_%s.json 注入（未注入显示待接入）。3 柱对比：标准仓单 / 社会库存 / 厂库。"
+                 % cfg["code"])
+    # 标准仓单未取到数据时给出明确说明，避免「—」被误读成当日无仓单
+    if standard.get("total") is None:
+        base_note = ("标准仓单未取到数据：当前数据源（NeoData 仓单）未返回 %s 的仓单记录，"
+                     "面板显示「—」不代表当日无仓单，属数据源覆盖缺口。" % cfg["code"]) + base_note
     return {
         "standard": {"total": standard.get("total"), "change": standard.get("change"),
                      "unit": standard.get("unit") or "吨", "date": standard.get("date")},
@@ -561,8 +655,7 @@ def build_inventory(cfg, nd_wh):
                   "unit": mill.get("unit") or "吨", "date": mill.get("date")} if mill else None),
         "breakdown": breakdown,
         "social_series": None, "yoy": None, "mom": None,
-        "note": "标准仓单/厂库为交易所真实数据（单日快照，含较上期变化）；社会库存经 "
-                "collect/inventory_%s.json 注入（未注入显示待接入）。3 柱对比：标准仓单 / 社会库存 / 厂库。" % cfg["code"],
+        "note": base_note,
     }
 
 
@@ -625,16 +718,40 @@ def build_product(cfg):
                      f"用于缠论多年结构识别（笔/线段/中枢）。",
              "rows": rows, "ma5": moving_average(closes, 5), "ma10": moving_average(closes, 10)}
 
+    # 主力合约解析：以当日「价格归属 + 持仓最大」双口径判定，并回写 cfg["main"] 供下游统一引用。
+    # 说明：原实现 main_contract 取自静态 neodata_<CODE>.json（日更不回写），换月后必然过期。
+    _am = _mct.load_allmonths(cfg["code"])
+    _static_main = (load_neodata(cfg["code"]) or {}).get("dominant_contract")
+    main_meta = _mct.resolve(cfg["code"], cfg["var"],
+                             {"c": latest["close"], "s": latest["settle"]}, SNAP_DATE,
+                             static_main=_static_main, am=_am)
+    if main_meta.get("contract_full"):
+        cfg = dict(cfg)
+        cfg["main"] = main_meta["contract_full"]
+    _state = _mct.load_state()
+    kline["roll_events"] = _mct.roll_history(_state, cfg["code"], SNAP_DATE)
+    kline["roll_note"] = ("主连跨月拼接点：自上述日期起价格切换为接续月合约，"
+                          "跨该日的涨跌幅与技术形态不可直接连续比较")
+    main_full = main_meta.get("contract_full") or cfg.get("main") or kline_contract
+
     # ① 概览
     sub = cfg.get("sub")
     spread = round(latest["close"] - sub["close"], 1) if sub else None
     vol_chg = latest["volume"] - prev["volume"]
-    overview = {"main_contract": cfg.get("main") or kline_contract, "last": latest["close"],
+    overview = {"main_contract": main_full, "last": latest["close"],
                 "prev_settle": prev["settle"], "chg_pct": latest["chg_pct"], "settle": latest["settle"],
                 "oi": latest["oi"], "oi_chg": latest["oi_chg"], "volume": latest["volume"],
                 "volume_chg": vol_chg, "basis": None, "basis_rate": None,
                 "near_far_spread": spread,
-                "near_far_label": ("近月升水(Back)" if spread > 0 else "远月升水(Contango)") if spread is not None else "—"}
+                "near_far_label": ("近月升水(Back)" if spread > 0 else "远月升水(Contango)") if spread is not None else "—",
+                # 换月标注：合约来源、主连对应关系、换月事件与涨跌幅可比性提示
+                "main_contract_source": main_meta.get("source"),
+                "main_contract_note": main_meta.get("note"),
+                "price_basis": main_meta.get("price_basis"),
+                "roll_event": main_meta.get("roll_event"),
+                "chg_pct_note": main_meta.get("chg_pct_note"),
+                "oi_leader": main_meta.get("oi_leader"),
+                "main_contract_stale": bool(main_meta.get("stale"))}
 
     # ⑧ 缠论
     chanlun = run_chanlun(rows)
@@ -656,10 +773,12 @@ def build_product(cfg):
         warehouse_nd = wh_daily
     elif nd and nd.get("warehouse"):
         warehouse_nd = nd.get("warehouse")
-    if dominant:
+    if dominant and main_meta.get("stale"):
+        # 仅当本地全月份数据缺失（无法判定当日主力）时，才回退静态 dominant_contract；
+        # 正常情况下以 main_meta 为准，避免换月后被动沿用过期合约代码。
         cfg = dict(cfg); cfg["main"] = dominant
 
-    top20 = build_top20(cfg, rank_long, rank_short)
+    top20 = build_top20(cfg, rank_long, rank_short, data_as_of=(nd or {}).get("as_of"))
     # 近一月历史曲线：来源独立于当日前20（来自 raw_hist/agg 滚动采集），
     # 即使当日前20未接入（available=False）也应展示历史走势。
     agg = load_agg_rawhist(cfg["code"])
@@ -761,11 +880,20 @@ def build_product(cfg):
                "web_opinions_as_of": (web_views[0].get("as_of") if web_views and web_views[0].get("as_of") else None)}
 
 
-    capital_flow = load_capflow(cfg["code"], kline)
+    capital_flow = load_capflow(cfg["code"], kline, main_meta=main_meta)
 
     snap = {"product": cfg["code"], "name": cfg["name"], "category": cfg["cat"], "variety_code": cfg["var"],
-            "exchange": cfg["exch"], "main_contract": cfg.get("main") or kline_contract, "as_of": SNAP_DATE,
+            "exchange": cfg["exch"], "main_contract": main_full, "as_of": SNAP_DATE,
             "data_date": latest["date"], "updated_at": SNAP_DATE + "T14:00:00",
+            "main_meta": {"contract": main_meta.get("contract"), "source": main_meta.get("source"),
+                          "price_owner": main_meta.get("price_owner"),
+                          "price_owner_candidates": main_meta.get("price_owner_candidates"),
+                          "oi_leader": main_meta.get("oi_leader"),
+                          "prev_contract": main_meta.get("prev_contract"),
+                          "roll_event": main_meta.get("roll_event"),
+                          "roll_history": kline.get("roll_events") or [],
+                          "note": main_meta.get("note"), "price_basis": main_meta.get("price_basis"),
+                          "stale": bool(main_meta.get("stale"))},
             "kline": kline, "overview": overview, "inventory": inventory, "supply_demand": supply_demand,
             "basis": basis, "profit": profit, "capital": capital, "top20": top20,
             "capital_flow": capital_flow, "chanlun": chanlun,
@@ -804,8 +932,16 @@ def main():
         print(f"[OK] {cfg['cat']}/{cfg['code']} {cfg['name']}: K线{len(snap['kline']['rows'])}日 "
               f"中枢{cnt} 笔{ch.get('bi_count') if ch.get('available') else '-'} "
               f"前20{'有' if snap['top20'].get('available') else '待接入'} "
-              f"仓单{'有' if snap['inventory']['standard']['total'] is not None else '无'}")
+              f"仓单{'有' if snap['inventory']['standard']['total'] is not None else '无'} "
+              f"主力{snap['main_contract']}"
+              f"{'（换月：' + str((snap['main_meta'].get('roll_event') or {}).get('date')) + '）' if snap['main_meta'].get('roll_event') else ''}")
         done.append(cfg["code"])
+
+    # 落盘换月状态（逐日累积主力合约序列，供后续换月判定与 K 线拼接点标注）
+    try:
+        _mct.save_state()
+    except Exception as e:  # noqa
+        print(f"[警告] 换月状态写入失败：{e}")
 
     print(f"\n完成：生成 {len(done)} 个，跳过 {len(skip)} 个（{skip or '无'}）")
 

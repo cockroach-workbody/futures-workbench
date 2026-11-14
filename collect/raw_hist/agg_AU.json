@@ -235,6 +235,15 @@
 "long_chg": -1253,
 "short_chg": 2716,
 "contract": "AU2612.SHF"
+},
+"20261113": {
+"date": "20261113",
+"net": 38156,
+"long_total": 81477,
+"short_total": 43321,
+"long_chg": -4163,
+"short_chg": 608,
+"contract": "AU2612.SHF"
 }
 }
 }

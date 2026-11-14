@@ -38,6 +38,11 @@
     } catch (e) { REFRESH_INFO = null; }
     paintDataDate();
   }
+  // ---- 通用 HTML 转义（各卡片函数内的局部 esc 会遮蔽本函数，互不影响）----
+  function escHtml(v) {
+    return String(v == null ? "" : v).replace(/[&<>"']/g,
+      m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+  }
   const MODE_LABEL = { data: "数据主跑", both: "全量刷新", opinion: "观点刷新", deploy: "仅部署", offline: "离线版" };
   const shortTime = (s) => (!s ? "—" : (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(s) ? s.slice(5, 16) : s));
   function refreshSuffix() {
@@ -415,6 +420,13 @@
     const o = s.overview || {};
     const k = (label, val, c) => `<div class="kpi"><div class="k">${label}</div><div class="v ${c || ""}">${val}</div></div>`;
     const chg = o.chg_pct;
+    // 换月标注：主连当期对应合约、换月事件、涨跌幅可比性提示
+    const rollNote = o.main_contract_note
+      ? `<div class="rollnote">⟳ ${escHtml(o.main_contract_note)}${o.price_basis ? ` · ${escHtml(o.price_basis)}` : ""}</div>` : "";
+    const chgNote = o.chg_pct_note
+      ? `<div class="rollnote warn">${escHtml(o.chg_pct_note)}</div>` : "";
+    const staleNote = o.main_contract_stale
+      ? `<div class="rollnote warn">主力合约为静态回退值（缺当日全月份持仓数据），换月后可能过期</div>` : "";
     const body = `<div class="kpis">
       ${k("主力合约", o.main_contract || "—")}
       ${k("最新价", fmt(o.last, 1), "")}
@@ -425,8 +437,8 @@
       ${k("成交量", fmt(o.volume) + " 手", cls(o.volume_chg))}
       ${k("成交变化", (o.volume_chg != null ? (o.volume_chg > 0 ? "+" : "") + fmt(o.volume_chg) : "—") + " 手", cls(o.volume_chg))}
       ${k("近远月价差", fmt(o.near_far_spread, 1) + " " + (o.near_far_label || ""), cls(o.near_far_spread))}
-    </div>`;
-    return card("① 概览", "Overview", "span12", body);
+    </div>${rollNote}${chgNote}${staleNote}`;
+    return card("① 概览", "Overview", "span12", body, null, "card-overview");
   }
 
   // ② 供需关系
@@ -549,7 +561,7 @@
     const nums = `前5席位净持仓 <b>${sgn(instNet)}</b> 手（当日 Δ ${sgn(instChg)}），其余席位 <b>${sgn(retNet)}</b> 手（当日 Δ ${sgn(retChg)}）`;
     let alertHtml;
     if (!cf.available) {
-      alertHtml = `<div class="div-alert none">该品种暂无资金分层数据，无法判断前5 / 其余席位背离。</div>`;
+      alertHtml = `<div class="div-alert none">该品种暂无资金分层数据，无法判断前5 / 其余席位背离。${cf.note ? "<br/>" + cf.note : ""}</div>`;
     } else if (widening) {
       alertHtml = `<div class="alert-banner danger"><div class="ic">⚠</div><div><span class="ttl">当前品种 · ${type}（分歧加大）</span><br>${nums}；前5与其余席位价差当日继续扩大，属高确定性分歧——常见于底部蓄势 / 顶部派发的关键阶段，务必结合价格与总持仓放量确认拐点，切勿逆势盲动。</div></div>`;
     } else if (opp) {
@@ -1632,7 +1644,7 @@
     const c = s.kline || {};
     let summary = "";
     if (ch.available) {
-      summary = `<div class="kv"><span class="k">趋势</span><span class="v">${ch.trend || "—"}</span></div>
+      summary = `<div class="kv"><span class="k">趋势</span><span class="v">${ch.trend_label || ch.trend || "—"}</span></div>
         <div class="kv"><span class="k">分型 / 笔 / 线段</span><span class="v">${ch.fractals} / ${ch.bi_count} / ${ch.segment_count}</span></div>
         <div class="kv"><span class="k">中枢数</span><span class="v">${ch.center_count}</span></div>
         <div class="kv"><span class="k">背驰</span><span class="v">${ch.divergences ? ch.divergences.length : 0}</span></div>
@@ -1640,6 +1652,7 @@
     } else {
       summary = `<div class="note">${ch.note || "缠论引擎未挂载。"}</div>`;
     }
+    const chNote = [ch.trend_note, ch.note].filter(Boolean).join("；");
     const body = `<div class="zoombar" id="chKzoom">
         <span class="zl">时间缩放</span>
         <button data-days="0">全部</button>
@@ -1650,7 +1663,7 @@
       </div>
       <div id="chK" class="chart tall"></div>
       <div class="flex" style="margin-top:8px">${summary}
-        <div class="note" style="flex:2">${ch.note || ""}<br/>数据样本 ${c.rows ? c.rows.length : 0} 个交易日（${s.kline && s.kline.contract || "主连"}，跨月连续）。已识别笔/线段/中枢，可结合缩放查看多年结构，请综合其它模块研判。</div>
+        <div class="note" style="flex:2">${chNote ? chNote + "<br/>" : ""}数据样本 ${c.rows ? c.rows.length : 0} 个交易日（${s.kline && s.kline.contract || "主连"}，跨月连续）。已识别笔/线段/中枢，可结合缩放查看多年结构，请综合其它模块研判。</div>
       </div>`;
     return card("⑧ 缠论结构", "Chanlun", "span12", body);
   }

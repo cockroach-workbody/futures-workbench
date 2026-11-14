@@ -10,6 +10,9 @@ name: 期货工作台早晚刷新 (GitHub Pages)
 #
 # 数据接口：新浪主连与分月合约日线、新浪三榜持仓排名、奇货可查机构观点、东方财富前20。
 # 历史累积：collect/raw_hist/ 与 collect/raw_capflow/ 缓存已纳入 git，每次跑完回写仓库。
+# 周末 / 刷新失败：refresh_daily.py 按设计跳过或抓取失败时本次不产出 dist，
+#   此时「准备 Pages 产物」自动改用仓库内 pages/index.html（本地最新离线快照）兜底，
+#   Pages 不会失败、也不会回退到旧版本。需要周末强制主跑可手动触发并勾选 allow_weekend。
 #
 # 注意：本工作流只更新 GitHub 仓库与 GitHub Pages。
 #       WorkBuddy 分享链接（...app.workbuddy.host）是另一套发布通道，其 web/data/
@@ -31,6 +34,11 @@ on:
           - data
           - opinion
           - both
+      allow_weekend:
+        description: '周末强制执行数据主跑（默认周末自动跳过）'
+        required: false
+        default: false
+        type: boolean
   # 本地刷新后 push 自动重建 Pages
   push:
     branches: [main]
@@ -73,6 +81,8 @@ jobs:
           TZ: Asia/Shanghai
           EVENT_SCHEDULE: ${{ github.event.schedule }}
           INPUT_MODE: ${{ inputs.mode }}
+          # workflow_dispatch 的 boolean 输入为 true 时强制周末主跑；其它事件为空
+          WB_ALLOW_WEEKEND: ${{ inputs.allow_weekend == true && '1' || '' }}
         run: |
           MODE="$INPUT_MODE"
           if [ -z "$MODE" ]; then
@@ -102,13 +112,22 @@ jobs:
           # GitHub Pages 根路径只认 index.html；把单文件网页重命名为 index.html
           shopt -s nullglob
           files=(dist/*.html)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "::error::dist 未生成，构建失败，停止部署"
-            exit 1
+          if [ ${#files[@]} -gt 0 ]; then
+            cp "${files[0]}" public/index.html
+            echo "已生成 public/index.html（本次构建: ${files[0]}）"
+          elif [ -s pages/index.html ]; then
+            # 周末按设计跳过刷新 / 抓取失败时本次没有新 dist，用仓库内最新
+            # 离线快照兜底：Pages 不中断，也不会回退到旧版本。
+            cp pages/index.html public/index.html
+            echo "::warning::本次未生成 dist，改用仓库内 Pages 快照（pages/index.html）"
+          else
+            # 最后一层兜底：复用当前线上 Pages，绝不因产物缺失让部署失败
+            curl -fsSL "https://cockroach-workbody.github.io/futures-workbench/" -o public/index.html \
+              || { echo "::error::dist 与仓库快照均不可用，Pages 无法产出"; exit 1; }
+            echo "::warning::改用当前线上 Pages 作为产物"
           fi
-          cp "${files[0]}" public/index.html
           touch public/.nojekyll
-          echo "已生成 public/index.html（源: ${files[0]}）"
+          ls -lh public/index.html
 
       - name: 上传 Pages 产物
         uses: actions/upload-pages-artifact@v3

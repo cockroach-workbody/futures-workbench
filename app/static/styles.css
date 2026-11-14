@@ -567,3 +567,8 @@ tbody tr:hover{background:var(--panel2)}
   .am-row{grid-template-columns:92px 1fr;row-gap:2px}
   .am-v{grid-column:2;text-align:left}
 }
+
+/* 主力换月标注（概览卡片） */
+.rollnote{margin-top:10px;padding:7px 10px;border-radius:6px;font-size:12px;line-height:1.6;
+  background:rgba(74,158,255,.10);border-left:3px solid #4a9eff;color:#bcd7f5}
+.rollnote.warn{background:rgba(232,163,61,.12);border-left-color:#e8a33d;color:#f3d9ae}
