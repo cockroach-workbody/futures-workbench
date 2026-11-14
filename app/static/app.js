@@ -43,6 +43,11 @@
     return String(v == null ? "" : v).replace(/[&<>"']/g,
       m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
   }
+  // 历史快照可能没有 trend_label（旧构建产物），前端兜底把引擎枚举转成中文
+  const TREND_LABEL = {
+    uptrend: "上涨趋势", downtrend: "下跌趋势", consolidation: "盘整",
+    expanded_consolidation: "中枢扩展盘整", undefined: "未形成中枢"
+  };
   const MODE_LABEL = { data: "数据主跑", both: "全量刷新", opinion: "观点刷新", deploy: "仅部署", offline: "离线版" };
   const shortTime = (s) => (!s ? "—" : (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(s) ? s.slice(5, 16) : s));
   function refreshSuffix() {
@@ -1644,7 +1649,7 @@
     const c = s.kline || {};
     let summary = "";
     if (ch.available) {
-      summary = `<div class="kv"><span class="k">趋势</span><span class="v">${ch.trend_label || ch.trend || "—"}</span></div>
+      summary = `<div class="kv"><span class="k">趋势</span><span class="v">${ch.trend_label || TREND_LABEL[ch.trend] || ch.trend || "—"}</span></div>
         <div class="kv"><span class="k">分型 / 笔 / 线段</span><span class="v">${ch.fractals} / ${ch.bi_count} / ${ch.segment_count}</span></div>
         <div class="kv"><span class="k">中枢数</span><span class="v">${ch.center_count}</span></div>
         <div class="kv"><span class="k">背驰</span><span class="v">${ch.divergences ? ch.divergences.length : 0}</span></div>

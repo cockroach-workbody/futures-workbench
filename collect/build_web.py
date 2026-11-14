@@ -40,6 +40,21 @@ def log(msg):
 
 
 # ---------------------------------------------------------------- 缠论重算
+def _chanlun_trend_label(t):
+    """走势类型中文标签（与 build_all.py 保持一致）。
+
+    引擎在中枢未形成时返回字符串 'undefined'，直接透传会让 ⑧ 缠论卡片
+    显示成英文 'undefined' / 原始枚举，故统一规范为中文。
+    """
+    return {
+        "uptrend": "上涨趋势",
+        "downtrend": "下跌趋势",
+        "consolidation": "盘整",
+        "expanded_consolidation": "中枢扩展盘整",
+        "undefined": "未形成中枢",
+    }.get(str(t or "").strip().lower(), "未形成中枢")
+
+
 def run_chanlun(kline_rows):
     """对裁剪后的 K 线重算缠论结构（保证笔/中枢索引与行数一致）。"""
     try:
@@ -52,6 +67,13 @@ def run_chanlun(kline_rows):
         res = analyze(bars, labels=labels, strict_bars=True, use_macd=True)
         clean = {k: v for k, v in res.items() if not k.startswith("_")}
         clean["available"] = True
+        # 重算会覆盖 build_all.py 写入的中文标签，这里补回，避免线上显示英文枚举
+        raw_trend = str(clean.get("trend") or "").strip().lower()
+        if raw_trend in ("undefined", "none", ""):
+            clean["trend"] = None
+        clean["trend_label"] = _chanlun_trend_label(raw_trend)
+        if not (clean.get("centers") or []):
+            clean["trend_note"] = "当前样本内未形成有效中枢，走势类型不做趋势判定"
         return clean
     except Exception as e:  # noqa
         return {"available": False, "error": str(e),
