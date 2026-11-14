@@ -83,3 +83,6 @@ collect/build_metal_json.py
 
 # pages/index.html 是本地最新离线快照，CI 在「周末跳过 / 抓取失败无 dist」时用它兜底，
 # 必须入库；不要把它加进 dist/ 或 web/ 的忽略规则。
+
+# 本地临时校验/比对产物
+/.tmp_verify/
