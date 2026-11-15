@@ -14,6 +14,7 @@
 import argparse
 import json
 import os
+import re
 import shutil
 import sys
 
@@ -188,9 +189,37 @@ def build_single_html(slim_map, cats, sentiment, divergence):
                 '<script src="/static/app.js"></script>'):
         body = body.replace(tag, "")
 
+    # 顶部状态条脚本必须排在「离线数据层 shim」之后。
+    # 单文件版没有后端，shim 负责把 /api/* 请求改写为读取内嵌数据；若状态脚本先执行，
+    # 会真的去请求 GitHub Pages 上不存在的 /api/refresh_status → 404 → 显示「状态获取失败」。
+    status_script = ""
+    for m in re.finditer(r"<script>(.*?)</script>", body, re.S):
+        if "refreshStatus" in m.group(1):
+            status_script = m.group(0)
+            body = body.replace(status_script, "", 1)
+            break
+
+    # 离线版状态条复用构建时的真实运行信息（与动态版顶部显示一致，仅 mode 标为离线版）
+    offline_status = {"available": True, "mode": "offline", "snap_date": SNAP_DATE}
+    _status_path = os.path.join(WEB_DIR, "refresh_status.json")
+    if os.path.isfile(_status_path):
+        try:
+            with open(_status_path, encoding="utf-8") as _f:
+                _st = json.load(_f)
+            offline_status.update({
+                "snap_date": _st.get("snap_date") or SNAP_DATE,
+                "run_finished_at": _st.get("run_finished_at") or _st.get("generated_at"),
+                "data_refreshed_at": _st.get("data_refreshed_at"),
+                "kline_ok": _st.get("kline_ok"),
+                "kline_fail": _st.get("kline_fail"),
+                "build_all_ok": _st.get("build_all_ok"),
+            })
+        except Exception:
+            pass
+
     snapshots = {f"{cat}/{code}": snap for (cat, code), snap in slim_map.items()}
     payload = {"categories": cats, "sentiment": sentiment, "divergence": divergence,
-               "snapshots": snapshots, "as_of": SNAP_DATE}
+               "snapshots": snapshots, "as_of": SNAP_DATE, "status": offline_status}
     _payload_json = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     # 防御：内联数据若含 </script> 会导致浏览器提前结束 script 块、破坏整页；
     # 转义为 <\/script>（JSON 中 \/ 解析后仍回退为 /，浏览器不误判结束）。
@@ -213,7 +242,7 @@ def build_single_html(slim_map, cats, sentiment, divergence):
     }
     if (path.indexOf("/api/recompute/") === 0) return {ok:true, offline:true};
     if (path.indexOf("/api/refresh_status") === 0)
-      return {available:true, snap_date:D.as_of, mode:"offline",
+      return D.status || {available:true, snap_date:D.as_of, mode:"offline",
               finished_at:"离线版（数据 "+D.as_of+"）"};
     return {};
   }
@@ -240,6 +269,7 @@ def build_single_html(slim_map, cats, sentiment, divergence):
                        + SNAP_DATE + '）</span>')
         + '\n<script>\n' + data_js + '\n</script>\n'
         + '<script>\n' + shim + '\n</script>\n'
+        + (status_script + '\n' if status_script else '')
         + '<script>\n' + chartsjs + '\n</script>\n'
         + '<script>\n' + appjs + '\n</script>\n'
         + '</body>\n</html>\n'
