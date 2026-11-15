@@ -90,3 +90,9 @@ collect/build_metal_json.py
 # 一次性写作脚本与调试报告（不入库）
 collect/_write_*.py
 collect/_ima_report_*.md
+
+# 本地无头浏览器验证 / 离线页拆分预览产物（不入库）
+/.tmp_edge*/
+/.tmp_public/
+/.dom_*.html
+/.pages_check.html

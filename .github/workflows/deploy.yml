@@ -1,7 +1,9 @@
 name: 期货工作台早晚刷新 (GitHub Pages)
 
 # 方案 C：GitHub Actions 定时跑数据刷新 → 构建纯静态 dist → 部署到 GitHub Pages。
-# 无需常驻主机，也无需本机 / WorkBuddy 客户端在线；dist 单文件自包含，零后端依赖。
+# 无需常驻主机，也无需本机 / WorkBuddy 客户端在线；零后端依赖。
+# Pages 产物会拆成轻量 index.html（首屏秒开）+ 独立 wb-data.<hash>.js（全量快照），
+# 避免 13MB 单文件整包下载完成前一直显示「加载中…」。
 #
 # 时间表（schedule 固定按 UTC，括号内为北京时间 UTC+8）：
 #   每日   00:30 UTC = 08:30 → opinion：机构观点 / 情绪刷新
@@ -109,25 +111,36 @@ jobs:
       - name: 准备 Pages 产物
         run: |
           mkdir -p public
-          # GitHub Pages 根路径只认 index.html；把单文件网页重命名为 index.html
+          # 选定本次部署使用的单文件离线页（本次构建 > 仓库快照 > 当前线上）
           shopt -s nullglob
+          SRC=""
           files=(dist/*.html)
           if [ ${#files[@]} -gt 0 ]; then
-            cp "${files[0]}" public/index.html
-            echo "已生成 public/index.html（本次构建: ${files[0]}）"
+            SRC="${files[0]}"
+            echo "本次构建: $SRC"
           elif [ -s pages/index.html ]; then
-            # 周末按设计跳过刷新 / 抓取失败时本次没有新 dist，用仓库内最新
-            # 离线快照兜底：Pages 不中断，也不会回退到旧版本。
-            cp pages/index.html public/index.html
-            echo "::warning::本次未生成 dist，改用仓库内 Pages 快照（pages/index.html）"
+            SRC="pages/index.html"
+            echo "::warning::本次未生成 dist，改用仓库内 Pages 快照"
           else
-            # 最后一层兜底：复用当前线上 Pages，绝不因产物缺失让部署失败
-            curl -fsSL "https://cockroach-workbody.github.io/futures-workbench/" -o public/index.html \
+            curl -fsSL "https://cockroach-workbody.github.io/futures-workbench/" -o /tmp/pages_fallback.html \
               || { echo "::error::dist 与仓库快照均不可用，Pages 无法产出"; exit 1; }
+            # 线上若已是拆分后的轻量版，单独一个 index.html 不含数据，不能当兜底源
+            grep -q 'window.__WB__=' /tmp/pages_fallback.html \
+              || { echo "::error::线上 Pages 为轻量版且仓库快照缺失，无法产出"; exit 1; }
+            SRC="/tmp/pages_fallback.html"
             echo "::warning::改用当前线上 Pages 作为产物"
           fi
-          touch public/.nojekyll
-          ls -lh public/index.html
+          # 拆成轻量 index.html + 独立数据脚本。
+          # 13MB 单文件必须整包下载解析完才渲染，慢网络下会长时间停在「加载中…」；
+          # 拆分后首屏约 1MB 可秒开，数据脚本带内容哈希避免缓存新旧不一致。
+          if python collect/split_offline.py "$SRC" public; then
+            touch public/.nojekyll
+          else
+            echo "::warning::拆分失败，回退为单文件部署"
+            cp "$SRC" public/index.html
+            touch public/.nojekyll
+          fi
+          ls -lh public/
 
       - name: 上传 Pages 产物
         uses: actions/upload-pages-artifact@v3

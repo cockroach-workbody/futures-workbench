@@ -189,6 +189,17 @@ def build_single_html(slim_map, cats, sentiment, divergence):
                 '<script src="/static/app.js"></script>'):
         body = body.replace(tag, "")
 
+    # 离线版首屏骨架：12MB+ 单文件在慢网络下要等整个文件下载/解析完才渲染，
+    # 期间只显示「加载中…」容易被误认为「没有数据」。写清楚体积、耗时与备用入口。
+    body = body.replace(
+        '<div class="loading" id="loading">加载中…</div>',
+        '<div class="loading" id="loading">正在加载离线数据（约 13 MB，'
+        '首次打开或国内访问 GitHub Pages 可能需 10–60 秒）…'
+        '<br /><span style="font-weight:400;font-size:12px">'
+        '若长时间无响应：强制刷新（Ctrl+F5），或打开 '
+        '<a href="https://futures-workbench-01415.app.workbuddy.host/?sharecode=24XEIRXDFJ" '
+        'style="color:#0a7d4d">WorkBuddy 在线版</a></span></div>')
+
     # 顶部状态条脚本必须排在「离线数据层 shim」之后。
     # 单文件版没有后端，shim 负责把 /api/* 请求改写为读取内嵌数据；若状态脚本先执行，
     # 会真的去请求 GitHub Pages 上不存在的 /api/refresh_status → 404 → 显示「状态获取失败」。
