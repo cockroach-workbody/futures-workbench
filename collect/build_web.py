@@ -238,10 +238,66 @@ def build_single_html(slim_map, cats, sentiment, divergence):
     data_js = "window.__WB__=" + _payload_json + ";"
 
     shim = r"""
-/* 离线数据层：用内嵌数据替代后端 /api 接口 */
+/* 离线数据层：把 /api/* 改写为内嵌数据，或按需加载 gzip 品种分片。
+   单文件版：全部快照在 D.snapshots，直接返回（本地 file:// 打开也能用）。
+   Pages 拆分版：只有概览 + 默认品种内联，其余品种在 D.__parts 中按 URL 分片，
+   首次点开才 fetch；手机无需一次性下载/解析 11MB 文本。 */
 (function(){
   var D = window.__WB__ || {};
   var real = window.fetch ? window.fetch.bind(window) : null;
+  var parts = D.__parts || {};
+  var cache = {};
+  var hint = null;
+
+  function showHint(html, isError){
+    try {
+      if (!hint) {
+        hint = document.createElement("div");
+        hint.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99999;"
+          + "padding:9px 14px;font-size:13px;line-height:1.6;text-align:center;"
+          + "background:#0a7d4d;color:#fff;box-shadow:0 -2px 10px rgba(0,0,0,.2)";
+        (document.body || document.documentElement).appendChild(hint);
+      }
+      hint.style.background = isError ? "#b42318" : "#0a7d4d";
+      hint.innerHTML = html;
+      hint.style.display = "block";
+    } catch(e) {}
+  }
+  function hideHint(){ try { if (hint) hint.style.display = "none"; } catch(e) {} }
+
+  function ungzip(url){
+    if (typeof DecompressionStream === "undefined" || !url) return Promise.reject(new Error("no-gzip"));
+    return real(url).then(function(r){
+      if (!r.ok) throw new Error("part " + r.status);
+      return r.arrayBuffer();
+    }).then(function(buf){
+      var st = new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"));
+      return new Response(st).json();
+    });
+  }
+  function plain(url){
+    return real(url).then(function(r){
+      if (!r.ok) throw new Error("part " + r.status);
+      return r.json();
+    });
+  }
+  function loadPart(k){
+    if (cache[k]) return cache[k];
+    var item = parts[k];
+    if (!item) return Promise.resolve({error:"no_snapshot"});
+    showHint("正在加载 " + k.split("/").pop() + " 详情（按需加载，约 70 KB）…");
+    var p = (item.gz ? ungzip(item.gz).catch(function(){ return plain(item.json); }) : plain(item.json))
+      .then(function(j){ cache[k] = j; hideHint(); return j; })
+      .catch(function(){
+        hideHint();
+        showHint("该品种数据加载失败（网络较慢或 GitHub Pages 不可达）。请下拉刷新重试，"
+          + "或改用 <a href=\"https://futures-workbench-01415.app.workbuddy.host/?sharecode=24XEIRXDFJ\" "
+          + "style=\"color:#fff;text-decoration:underline\">WorkBuddy 在线版</a>", true);
+        return {error:"no_snapshot"};
+      });
+    cache[k] = p;
+    return p;
+  }
   function resolve(path){
     if (path === "/api/categories") return D.categories;
     if (path === "/api/sentiment_summary") return D.sentiment;
@@ -249,7 +305,8 @@ def build_single_html(slim_map, cats, sentiment, divergence):
     var m = path.match(/^\/api\/snapshot\/([^/]+)\/([^/?]+)/);
     if (m) {
       var k = decodeURIComponent(m[1]) + "/" + decodeURIComponent(m[2]);
-      return D.snapshots[k] || {error:"no_snapshot"};
+      if (D.snapshots && D.snapshots[k]) return D.snapshots[k];
+      return loadPart(k);
     }
     if (path.indexOf("/api/recompute/") === 0) return {ok:true, offline:true};
     if (path.indexOf("/api/refresh_status") === 0)
@@ -260,7 +317,9 @@ def build_single_html(slim_map, cats, sentiment, divergence):
   window.fetch = function(u, o){
     var p = String(u);
     if (p.indexOf("/api/") === 0) {
-      return Promise.resolve({ ok:true, json:function(){ return Promise.resolve(resolve(p)); } });
+      return Promise.resolve(resolve(p)).then(function(data){
+        return { ok:true, json:function(){ return Promise.resolve(data); } };
+      });
     }
     return real ? real(u, o) : Promise.reject(new Error("offline"));
   };

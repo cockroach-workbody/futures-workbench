@@ -94,5 +94,7 @@ collect/_ima_report_*.md
 # 本地无头浏览器验证 / 离线页拆分预览产物（不入库）
 /.tmp_edge*/
 /.tmp_public/
+/.tmp_v*/
 /.dom_*.html
 /.pages_check.html
+/.pg.html

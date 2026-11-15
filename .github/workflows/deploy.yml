@@ -124,17 +124,19 @@ jobs:
           else
             curl -fsSL "https://cockroach-workbody.github.io/futures-workbench/" -o /tmp/pages_fallback.html \
               || { echo "::error::dist 与仓库快照均不可用，Pages 无法产出"; exit 1; }
-            # 线上若已是拆分后的轻量版，单独一个 index.html 不含数据，不能当兜底源
-            grep -q 'window.__WB__=' /tmp/pages_fallback.html \
+            # 线上轻量版也含 window.__WB__（仅概览），不能靠字符串判断；
+            # 单文件完整版必定 > 5MB，用体积区分。
+            [ "$(stat -c%s /tmp/pages_fallback.html)" -gt 5000000 ] \
               || { echo "::error::线上 Pages 为轻量版且仓库快照缺失，无法产出"; exit 1; }
             SRC="/tmp/pages_fallback.html"
             echo "::warning::改用当前线上 Pages 作为产物"
           fi
-          # 拆成轻量 index.html + 独立数据脚本。
-          # 13MB 单文件必须整包下载解析完才渲染，慢网络下会长时间停在「加载中…」；
-          # 拆分后首屏约 1MB 可秒开，数据脚本带内容哈希避免缓存新旧不一致。
+          # 拆成「轻量首屏 + ECharts 独立脚本 + 按需 gzip 品种分片」。
+          # 13MB 单文件（或 11MB 同步数据脚本）在手机上要整包下载并解析成 JS 对象，
+          # 常卡在「加载中…」；v3 首屏仅 0.6MB，默认品种内联，其余点开才加载约 70KB。
           if python collect/split_offline.py "$SRC" public; then
             touch public/.nojekyll
+            du -sh public/index.html public/wb-p 2>/dev/null || true
           else
             echo "::warning::拆分失败，回退为单文件部署"
             cp "$SRC" public/index.html
