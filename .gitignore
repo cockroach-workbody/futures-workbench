@@ -98,3 +98,6 @@ collect/_ima_report_*.md
 /.dom_*.html
 /.pages_check.html
 /.pg.html
+
+# 观点刷新临时备份（不入库）
+collect/_websearch_opinions.bak.json
