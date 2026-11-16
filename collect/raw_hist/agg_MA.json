@@ -244,6 +244,15 @@
 "long_chg": -164416,
 "short_chg": -142509,
 "contract": "MA2701.ZCE"
+},
+"20261116": {
+"date": "20261116",
+"net": 699365,
+"long_total": 5384244,
+"short_total": 4684879,
+"long_chg": -46351,
+"short_chg": 59835,
+"contract": "MA2701.ZCE"
 }
 }
 }
