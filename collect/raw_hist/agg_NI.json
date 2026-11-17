@@ -244,6 +244,15 @@
 "long_chg": 47,
 "short_chg": 3117,
 "contract": "NI2701.SHF"
+},
+"20261116": {
+"date": "20261116",
+"net": -5580,
+"long_total": 98451,
+"short_total": 104031,
+"long_chg": -37,
+"short_chg": -262,
+"contract": "NI2701.SHF"
 }
 }
 }

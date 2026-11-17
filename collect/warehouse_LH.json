@@ -1,11 +1,11 @@
 {
  "code": "LH",
- "date": "2026-11-13",
+ "date": "2026-11-16",
  "standard": {
-  "total": 725.0,
-  "change": 0.0,
+  "total": 720.0,
+  "change": -5.0,
   "unit": "手",
-  "date": "2026-11-13"
+  "date": "2026-11-16"
  },
  "mill": null,
  "breakdown": []

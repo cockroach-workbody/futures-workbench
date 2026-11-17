@@ -23,7 +23,7 @@ name: 期货工作台早晚刷新 (GitHub Pages)
 on:
   schedule:
     - cron: '30 0 * * *'      # 北京 08:30 每日：机构观点 / 情绪
-    - cron: '30 11 * * 1-5'   # 北京 19:30 工作日：数据主跑
+    - cron: '0 10 * * 1-5'    # 北京 18:00 工作日：数据主跑
   # 允许在 Actions 页面手动触发并选择刷新模式，便于验证
   workflow_dispatch:
     inputs:

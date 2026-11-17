@@ -244,6 +244,15 @@
 "long_chg": -6470,
 "short_chg": 1644,
 "contract": "BU2701.SHF"
+},
+"20261116": {
+"date": "20261116",
+"net": 15500,
+"long_total": 126273,
+"short_total": 110773,
+"long_chg": -1182,
+"short_chg": -5667,
+"contract": "BU2701.SHF"
 }
 }
 }

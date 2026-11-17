@@ -23,11 +23,57 @@ import os
 import re
 import sys
 
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATTERN = re.compile(r"<script>\s*window\.__WB__=(.*?);\s*</script>", re.S)
 SCRIPT_PATTERN = re.compile(r"(<script>)(.*?)(</script>)", re.S)
 LOADING_PATTERN = re.compile(r'<div class="loading" id="loading">.*?</div>', re.S)
 PART_DIR = "wb-p"
 ONLINE_URL = "https://futures-workbench-01415.app.workbuddy.host/?sharecode=24XEIRXDFJ"
+
+
+def _read_json(path):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def enrich_status(status, as_of):
+    """补齐离线页状态栏的「运行时间 / 数据刷新时间」。
+
+    web/ 与 collect/refresh_status.json 均在 .gitignore 中，GitHub Actions 干净检出
+    后不存在；build_web.py 因此只能写入 snap_date，Pages 状态栏缺两个时间字段。
+    本函数在 CI「准备 Pages 产物」阶段运行，此时 cloud_cron.py 已生成：
+      - run_report.json（本次任务 started_at / finished_at / mode，最权威）
+      - collect/refresh_status.json（数据侧 finished_at / snap_date / kline_*）
+    取不到的字段一律不写，绝不伪造时间。
+    """
+    report = _read_json(os.path.join(BASE, "run_report.json"))
+    cstat = _read_json(os.path.join(BASE, "collect", "refresh_status.json"))
+    wstat = _read_json(os.path.join(BASE, "web", "refresh_status.json"))
+
+    out = dict(status or {"available": True, "mode": "offline"})
+    run_finished = (report.get("finished_at") or wstat.get("run_finished_at")
+                    or wstat.get("generated_at") or wstat.get("run_finished_at"))
+    run_started = report.get("started_at") or wstat.get("run_started_at")
+    data_refreshed = (cstat.get("data_refreshed_at") or cstat.get("finished_at")
+                      or wstat.get("data_refreshed_at"))
+    if run_finished:
+        out["run_finished_at"] = run_finished
+    if run_started:
+        out["run_started_at"] = run_started
+    if data_refreshed:
+        out["data_refreshed_at"] = data_refreshed
+    cst = cstat.get("snap_date") or as_of
+    if cst:
+        out["snap_date"] = cst
+    for k in ("kline_ok", "kline_fail", "build_all_ok"):
+        if k in cstat:
+            out[k] = cstat[k]
+    out["available"] = True
+    out["mode"] = out.get("mode") or "offline"
+    return out
 
 
 def split(src, out_dir):
@@ -73,6 +119,9 @@ def split(src, out_dir):
     meta = {k: v for k, v in payload.items() if k != "snapshots"}
     meta["snapshots"] = inline
     meta["__parts"] = parts
+    # 状态栏时间：CI 干净检出时 build_web.py 读不到 web/ 状态文件，这里从
+    # run_report.json / collect 状态补齐，保证 Pages 显示真实运行与数据刷新时间。
+    meta["status"] = enrich_status(payload.get("status"), as_of)
     meta_json = json.dumps(meta, ensure_ascii=False, separators=(",", ":"))
     # 防御：内联数据若含 </script> 会提前结束 script 块
     meta_json = meta_json.replace("</script>", "<\\/script>")
