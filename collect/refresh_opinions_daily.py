@@ -218,20 +218,38 @@ def main():
 
     started = datetime.datetime.now()
     log("==== 机构观点(多空情绪)每日直抓（qhkch）开始 ====")
-    results = []
-    for cfg in build_all.PRODUCTS:
-        code = cfg["code"]
-        variety = cfg.get("name") or code
+    # 并发抓取：每个品种独立 URL + 独立输出 opinions_<CODE>.json，品种间无共享状态。
+    # qhkch 是单页 HTTP 抓 + 解析，串行 41 品种需 ~68s；6 并发压到 ~15s。
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    workers = 6
+    codes = [(c["code"], c.get("name") or c["code"]) for c in build_all.PRODUCTS]
+
+    def one(code, variety):
         try:
-            r = refresh_one(code, variety, only=args.only, merge=not args.no_merge)
+            return refresh_one(code, variety, only=args.only, merge=not args.no_merge)
         except Exception as e:  # noqa
-            r = {"code": code, "ok": False, "msg": f"异常: {e}", "fresh": 0, "kept": 0}
-        if r is None:
-            continue
-        results.append(r)
+            return {"code": code, "ok": False, "msg": f"异常: {e}", "fresh": 0, "kept": 0}
+
+    results = []
+    if args.only:
+        # 单品种调试路径保持同步，输出稳定
+        for code, variety in codes:
+            r = one(code, variety)
+            if r is not None:
+                results.append(r)
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            futs = {ex.submit(one, c, v): c for c, v in codes}
+            for fu in as_completed(futs):
+                r = fu.result()
+                if r is not None:
+                    results.append(r)
+    # 按代码排序输出，日志稳定
+    results.sort(key=lambda r: r.get("code", ""))
+    vmap = {c: v for c, v in codes}
+    for r in results:
         flag = "+" if r["ok"] else "!"
-        log(f"  {flag} {r['code']}({variety}): {r['msg']}")
-        time.sleep(0.5)  # 礼貌限速
+        log(f"  {flag} {r['code']}({vmap.get(r['code'], '')}): {r['msg']}")
 
     ok = sum(1 for r in results if r["ok"])
     total_fresh = sum(r["fresh"] for r in results)

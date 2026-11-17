@@ -102,8 +102,12 @@ def fetch_kline(sym, retries=3):
     return None, last_err
 
 
-def refresh_klines(only=None):
-    ok, skip, fail = [], [], []
+def refresh_klines(only=None, workers=6):
+    """抓取全部品种主连日线。品种之间无共享状态，可并发；保留失败重试与旧文件兜底。"""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    targets = []
+    skip = []
     for cfg in build_all.PRODUCTS:
         code = cfg["code"]
         sym = cfg.get("sina")
@@ -112,19 +116,34 @@ def refresh_klines(only=None):
             continue
         if only and code not in only:
             continue
+        targets.append((code, sym))
+
+    def one(code, sym):
         out_path = os.path.join(COLLECT_DIR, f"{code}_daily.json")
         data, err = fetch_kline(sym)
         if data is None:
-            # 保留旧文件
             if os.path.exists(out_path):
-                fail.append((code, f"FETCH_FAIL({err}) 保留旧文件"))
-            else:
-                fail.append((code, f"FETCH_FAIL({err}) 无旧文件"))
-            continue
+                return "fail", (code, f"FETCH_FAIL({err}) 保留旧文件")
+            return "fail", (code, f"FETCH_FAIL({err}) 无旧文件")
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False)
-        ok.append((code, f"{len(data)} bars 末日{data[-1]['d']}"))
-        time.sleep(0.35)
+        return "ok", (code, f"{len(data)} bars 末日{data[-1]['d']}")
+
+    ok, fail = [], []
+    if workers <= 1:
+        for code, sym in targets:
+            st, item = one(code, sym)
+            (ok if st == "ok" else fail).append(item)
+        return ok, skip, fail
+
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        futs = {ex.submit(one, c, s): c for c, s in targets}
+        for fu in as_completed(futs):
+            try:
+                st, item = fu.result()
+                (ok if st == "ok" else fail).append(item)
+            except Exception as e:  # noqa
+                fail.append((futs[fu], f"EXC: {type(e).__name__}: {e}"))
     return ok, skip, fail
 
 
@@ -299,9 +318,10 @@ def main():
         log("AKShare 资金流采集（会员持仓排名·净持仓分层·大单动向·历史回溯） ...")
         try:
             r_cf = subprocess.run(
-                [sys.executable, os.path.join(COLLECT_DIR, "akshare_capital_flow.py"), "--with-history"],
+                [sys.executable, os.path.join(COLLECT_DIR, "akshare_capital_flow.py"),
+                 "--with-history", "--workers", "8"],
                 cwd=BASE, capture_output=True, text=True,
-                env=dict(os.environ, WB_SNAP_DATE=sd), timeout=1800)
+                env=dict(os.environ, WB_SNAP_DATE=sd), timeout=900)
             tail = (r_cf.stdout or "")[-900:]
             if r_cf.returncode != 0:
                 cf_ok = False

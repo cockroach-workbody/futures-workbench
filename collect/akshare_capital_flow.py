@@ -33,6 +33,7 @@ import re
 import json
 import argparse
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import akshare as ak
 import pandas as pd
@@ -362,7 +363,20 @@ def run_one(code, with_history=False):
         res = _build_capflow(cfg, with_history=with_history)
     except Exception as e:  # noqa
         res = {"available": False, "code": code, "error": str(e)}
+
     out = os.path.join(OUT_DIR, f"capflow_{code}.json")
+    # 失败保留旧文件：并发抓取会提高对新浪接口的请求速率，偶发限流/超时可能让
+    # 本次返回 available=False。此时绝不覆盖已有的好数据，否则一次限流就抹掉
+    # 该品种全部资金流字段。仅在本次成功、或本地完全没有旧文件时才写入。
+    if not res.get("available") and os.path.isfile(out):
+        try:
+            with open(out, encoding="utf-8") as f:
+                old = json.load(f)
+            if old.get("available"):
+                print(f"[KEEP] {code} 本次抓取失败，保留上次好数据（{old.get('as_of')}）", flush=True)
+                return
+        except Exception:  # noqa
+            pass
     with open(out, "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False, indent=2)
     ok = res.get("available")
@@ -375,12 +389,31 @@ def main():
     ap = argparse.ArgumentParser(description="AKShare 期货资金流采集器")
     ap.add_argument("code", nargs="?", help="单品种代码，如 RB；缺省全品种")
     ap.add_argument("--with-history", action="store_true", help="额外采样历史分层净持仓")
+    ap.add_argument("--workers", type=int, default=8,
+                    help="并发品种数（默认 8；每个品种独立请求+独立输出文件，可安全并发）")
     args = ap.parse_args()
     if args.code:
         run_one(args.code.upper(), with_history=args.with_history)
-    else:
-        for p in PRODUCTS:
-            run_one(p["code"], with_history=args.with_history)
+        return
+    # 全品种并发：每个品种是纯 HTTP 请求 + 独立输出文件 capflow_<CODE>.json，
+    # 品种之间无共享状态，akshare/pandas 均为只读调用，线程池并发安全。
+    # 串行时 41 品种 × 约 16 次请求需 ~15 分钟；8 并发可压到 ~3 分钟。
+    codes = [p["code"] for p in PRODUCTS]
+    if args.workers <= 1:
+        for c in codes:
+            run_one(c, with_history=args.with_history)
+        return
+    done = 0
+    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+        futs = {ex.submit(run_one, c, args.with_history): c for c in codes}
+        for fu in as_completed(futs):
+            done += 1
+            try:
+                fu.result()
+            except Exception as e:  # noqa  单品种失败不影响其余
+                print(f"[EXC] {futs[fu]}: {type(e).__name__}: {e}", flush=True)
+            if done % 10 == 0 or done == len(codes):
+                print(f"[资金流] 进度 {done}/{len(codes)}", flush=True)
 
 
 if __name__ == "__main__":

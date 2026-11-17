@@ -152,11 +152,20 @@ def main():
     print(f"== 仓单每日滚动 -> 交易日 {date} ==", flush=True)
 
     collected = {}
-    for fn, label in ((collect_shfe, "SHFE"), (collect_czce, "CZCE"),
-                      (collect_gfex, "GFEX")):
-        r = fn(date)
-        print(f"  {label}: {len(r)} 品种", flush=True)
-        collected.update(r)
+    # 三大交易所采集彼此独立（各一次 akshare 请求），并发可把串行 ~40s 压到 ~15s。
+    # DCE 走 neodata，单独在后面跑（其内部有 sleep 限速，不宜与其它并发）。
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=3) as ex:
+        futs = [ex.submit(fn, date) for fn in (collect_shfe, collect_czce, collect_gfex)]
+        for (fn, label), fu in zip(((collect_shfe, "SHFE"), (collect_czce, "CZCE"),
+                                    (collect_gfex, "GFEX")), futs):
+            try:
+                r = fu.result()
+            except Exception as e:  # noqa  单交易所失败不影响其余
+                r = {}
+                print(f"  {label}: 异常 {type(e).__name__}: {e}", flush=True)
+            print(f"  {label}: {len(r)} 品种", flush=True)
+            collected.update(r)
     dce = collect_dce(date)
     if dce:
         print(f"  DCE(neodata): {len(dce)} 品种", flush=True)

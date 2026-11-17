@@ -6,8 +6,14 @@ name: 期货工作台早晚刷新 (GitHub Pages)
 # 避免 13MB 单文件整包下载完成前一直显示「加载中…」。
 #
 # 时间表（schedule 固定按 UTC，括号内为北京时间 UTC+8）：
-#   每日   00:30 UTC = 08:30 → opinion：机构观点 / 情绪刷新
-#   工作日 11:30 UTC = 19:30 → data   ：交易所直抓数据主跑（K线/前20/仓单/全月份资金/L4打分）
+#   每日   00:47 UTC = 08:47 → opinion：机构观点 / 情绪刷新
+#   工作日 10:13 UTC = 18:13 → data   ：交易所直抓数据主跑（K线/前20/仓单/全月份资金/L4打分）
+# ⚠ 触发精准度说明（2026-11-17 优化）：
+#   原时间点为 08:30 / 18:00，正落在整点和半点——这是 GitHub Actions 全球排队最密集的
+#   时刻，实测 18:00 的定时任务曾延迟到 20:38 才触发（晚 2.5 小时）。改用 47 分 / 13 分
+#   这类「错峰分钟」，可显著降低排队延迟（GitHub 官方亦建议避开 :00 / :30）。
+#   GitHub schedule 是「尽力而为」，任何时间点都无法 100% 保证准点；若长时间未触发，
+#   可在 Actions 页面手动 Run workflow（下方 workflow_dispatch）补跑，现已并发提速。
 # 云端 CI 每次是干净检出（data/ 不入库），opinion 会自动升级为完整主跑，详见 cloud_cron.py。
 #
 # 数据接口：新浪主连与分月合约日线、新浪三榜持仓排名、奇货可查机构观点、东方财富前20。
@@ -22,8 +28,8 @@ name: 期货工作台早晚刷新 (GitHub Pages)
 
 on:
   schedule:
-    - cron: '30 0 * * *'      # 北京 08:30 每日：机构观点 / 情绪
-    - cron: '0 10 * * 1-5'    # 北京 18:00 工作日：数据主跑
+    - cron: '47 0 * * *'     # 错峰 北京 08:47 每日：机构观点 / 情绪（避开 08:30 整半点拥堵）
+    - cron: '13 10 * * 1-5'  # 错峰 北京 18:13 工作日：数据主跑（避开 18:00 整点拥堵）
   # 允许在 Actions 页面手动触发并选择刷新模式，便于验证
   workflow_dispatch:
     inputs:
@@ -51,13 +57,18 @@ permissions:
   id-token: write
 
 concurrency:
-  group: futures-workbench-pages
-  # 连续 push 时只保留最新一次运行，避免多次刷新排队积压（每次约 5~15 分钟）
-  cancel-in-progress: true
+  # 按触发来源分组：定时 / 手动 / push 各自排队，互不取消。
+  # 原先用单一 group + cancel-in-progress:true，导致 18:00 定时任务晚到时把正在跑的
+  # 手动 run 直接取消（实测手动 run 白跑 20 分钟后被 canceled）。现在同类事件仍串行
+  # （避免同时写仓库冲突），但不同来源不再互相误杀。
+  group: futures-workbench-${{ github.event_name }}
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # 硬超时保护：即使某个采集脚本卡住，也在 25 分钟内结束，避免挂到 1.5 小时
+    timeout-minutes: 25
     steps:
       - name: 检出仓库（含历史曲线与缓存）
         uses: actions/checkout@v4
@@ -88,11 +99,12 @@ jobs:
         run: |
           MODE="$INPUT_MODE"
           if [ -z "$MODE" ]; then
-            if [ "$EVENT_SCHEDULE" = "30 0 * * *" ]; then
-              MODE=opinion
-            else
-              MODE=data
-            fi
+            # 08:47 的观点定时走 opinion；其余（含 18:13 数据定时）走 data。
+            # 保留对旧 cron 串的识别，便于回滚/历史 run 复现。
+            case "$EVENT_SCHEDULE" in
+              '47 0 * * *'|'17 0 * * *'|'30 0 * * *') MODE=opinion ;;
+              *) MODE=data ;;
+            esac
           fi
           echo "刷新模式=$MODE  schedule=${EVENT_SCHEDULE:-<非定时触发>}"
           python cloud_cron.py "$MODE"
