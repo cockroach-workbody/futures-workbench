@@ -271,6 +271,15 @@
 "long_chg": 69686,
 "short_chg": 59401,
 "contract": "PP2701.DCE"
+},
+"20261119": {
+"date": "20261119",
+"net": 491669,
+"long_total": 3491540,
+"short_total": 2999871,
+"long_chg": -1310,
+"short_chg": 8326,
+"contract": "PP2701.DCE"
 }
 }
 }
