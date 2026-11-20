@@ -280,6 +280,15 @@
 "long_chg": 211392,
 "short_chg": 150990,
 "contract": "TA2701.ZCE"
+},
+"20261120": {
+"date": "20261120",
+"net": 842968,
+"long_total": 6485678,
+"short_total": 5642710,
+"long_chg": 47088,
+"short_chg": -57212,
+"contract": "TA2701.ZCE"
 }
 }
 }
