@@ -316,6 +316,15 @@
 "long_chg": -19054,
 "short_chg": -5310,
 "contract": "AP2701.ZCE"
+},
+"20261126": {
+"date": "20261126",
+"net": 22619,
+"long_total": 736773,
+"short_total": 714154,
+"long_chg": 80453,
+"short_chg": 42402,
+"contract": "AP2701.ZCE"
 }
 }
 }
